@@ -1,0 +1,12 @@
+.Tree {
+    width: 100%;
+}
+
+.Tree-LeftSide {
+    width: 50%;
+}
+
+.Tree-RightSide {
+    margin-left:20px;
+    width: 50%;
+}

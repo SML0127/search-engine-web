@@ -1,0 +1,103 @@
+
+.project-rmButton{
+  float: right;
+  margin-right: 10px;
+  margin-top: 13px;
+  cursor: pointer;
+  border-radius: 12px;
+  line-height: 15px;
+  padding: 6px 5px 5px 7px;
+  height: 25px;
+  width: 25px;
+}
+.project-rmButton:hover{
+  background-color: #db3d44;
+}
+
+.rdTab:not(.rdTabActive):not(.rdTabHover) {
+  background-image: linear-gradient(#D8DDE4, #C0C5BC) !important;
+}
+.rdTab:not(.rdTabActive):not(.rdTabHover) .rdTabBefore {
+  background-image: linear-gradient(#D8DDE4, #C0C5BC) !important;
+  box-shadow: #E1E6DD 1px 1px 0px inset, rgba(0, 0, 0, 0.1) -4px 0px 4px !important;
+}
+.rdTab:not(.rdTabActive):not(.rdTabHover) .rdTabAfter{
+  background-image: linear-gradient(#D8DDE4, #C0C5BC) !important;
+  box-shadow: #E1E6DD -1px 1px 0px inset, rgba(0, 0, 0, 0.1) 4px 0px 4px !important;
+}
+
+.rdTab.rdTabHover {
+  background-image: linear-gradient(#D8DDE4, #C0C5BC) !important;
+}
+.rdTab.rdTabHover .rdTabBefore{
+  background-image: linear-gradient(#D8DDE4, #C0C5BC) !important;
+  box-shadow: #E1E6DD 1px 1px 0px inset, rgba(0, 0, 0, 0.1) -4px 0px 4px !important;
+}
+.rdTab.rdTabHover .rdTabAfter{
+  background-image: linear-gradient(#D8DDE4, #C0C5BC) !important;
+  box-shadow: #E1E6DD -1px 1px 0px inset, rgba(0, 0, 0, 0.1) 4px 0px 4px !important;
+}
+
+.rdTab.rdTabActive {
+  background-image: linear-gradient(#00ACFF, #00ACFF) !important;
+}
+.rdTab.rdTabActive .rdTabBefore{
+  background-image: linear-gradient(#00ACFF, #00ACFF) !important;
+  box-shadow: #E1E6DD 1px 1px 0px inset, rgba(0, 0, 0, 0.1) -4px 0px 4px !important;
+}
+.rdTab.rdTabActive .rdTabAfter{
+  background-image: linear-gradient(#00ACFF, #00ACFF) !important;
+  box-shadow: #E1E6DD -1px 1px 0px inset, rgba(0, 0, 0, 0.1) 4px 0px 4px !important;
+}
+
+.rdTab:not(.rdTabActive) .rdTabTitle{
+  color: #050505 !important;
+}
+.rdTabBarAfter{
+  background-color: #00ACFF !important;
+  border-bottom: #00ACFF !important;
+}
+
+/* .rdTab:not(.rdTabActive):not(.rdTabHover) {
+  background-image: linear-gradient(#f2546b, #da3c43) !important;
+}
+.rdTab:not(.rdTabActive):not(.rdTabHover) .rdTabBefore {
+  background-image: linear-gradient(#f2546b, #da3c43) !important;
+  box-shadow: #fb5d64 1px 1px 0px inset, rgba(0, 0, 0, 0.1) -4px 0px 4px !important;
+}
+.rdTab:not(.rdTabActive):not(.rdTabHover) .rdTabAfter{
+  background-image: linear-gradient(#f2546b, #da3c43) !important;
+  box-shadow: #fb5d64 -1px 1px 0px inset, rgba(0, 0, 0, 0.1) 4px 0px 4px !important;
+}
+
+.rdTab.rdTabHover {
+  background-image: linear-gradient(#da3c43, #bd1f26) !important;
+}
+.rdTab.rdTabHover .rdTabBefore{
+  background-image: linear-gradient(#da3c43, #bd1f26) !important;
+  box-shadow: #fb5d64 1px 1px 0px inset, rgba(0, 0, 0, 0.1) -4px 0px 4px !important;
+}
+.rdTab.rdTabHover .rdTabAfter{
+  background-image: linear-gradient(#da3c43, #bd1f26) !important;
+  box-shadow: #fb5d64 -1px 1px 0px inset, rgba(0, 0, 0, 0.1) 4px 0px 4px !important;
+}
+
+.rdTab.rdTabActive {
+  background-image: linear-gradient(#db3d44, #bd1f26) !important;
+}
+.rdTab.rdTabActive .rdTabBefore{
+  background-image: linear-gradient(#db3d44, #bd1f26) !important;
+  box-shadow: #fb5d64 1px 1px 0px inset, rgba(0, 0, 0, 0.1) -4px 0px 4px !important;
+}
+.rdTab.rdTabActive .rdTabAfter{
+  background-image: linear-gradient(#db3d44, #bd1f26) !important;
+  box-shadow: #fb5d64 -1px 1px 0px inset, rgba(0, 0, 0, 0.1) 4px 0px 4px !important;
+}
+
+.rdTab:not(.rdTabActive) .rdTabTitle{
+  color: rgb(200, 200, 200) !important;
+}
+.rdTabBarAfter{
+  background-color: #bd1f26 !important;
+  border-bottom: #a00209 !important;
+} */

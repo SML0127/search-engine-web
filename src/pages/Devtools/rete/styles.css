@@ -1,0 +1,48 @@
+.App {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+.editor {
+    display: flex;
+    width: 100%;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    height: 550px;
+}
+
+
+.dock{
+    height: 150px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: flex;
+    position: absolute;
+    top: 82.7%;
+    width: 140%;
+    transform: scale(0.7);
+    transform-origin: 0 0;
+    opacity: 0.7;
+    background: linear-gradient(to top, white 90%, transparent 100%);
+}
+
+ 
+.dock-item {
+    display: inline-block;
+    vertical-align: top;
+    transform: scale(0.7);
+}
+ 
+.modal-80w { max-width: 80% !important; } 
+
+.container {
+    flex: 1;
+    width: 100%;
+    overflow: hidden;
+}
+/*.dock {
+    height: 130px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+}*/

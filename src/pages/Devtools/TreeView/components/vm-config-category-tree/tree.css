@@ -1,0 +1,15 @@
+.VMTree {
+    width: 100%;
+    display: flex;
+}
+.VMTree-LeftSide {
+    width: 50%;
+}
+
+.VMTree-RightSide {
+    width: 50%;
+}
+.VMTree-BottomSide {
+    width: 100%;
+    display: flex;
+}
