@@ -233,7 +233,7 @@ class ExtractItemDetailComponent extends Rete.Component {
 }
 
 
-export async function createEditor(container, editor, saveGraphData, GraphData, jod_id) {
+export async function createEditor(container, editor, saveGraphData, GraphData, job_id) {
     //var editor = new Rete.NodeEditor("work-flow@1.0.0", container);
     var engine = new Rete.Engine("work-flow@1.0.0");
       
@@ -271,13 +271,20 @@ export async function createEditor(container, editor, saveGraphData, GraphData, 
     
     });
     editor.use(AreaPlugin);
-    if(Object.keys(GraphData).length == 0 || typeof GraphData == 'undefined' ){
+    console.log('-----------------------------------------------')
+    console.log(GraphData)
+    console.log(editor.plugins)
+    //console.log(editor.plugins.has('dock'))
+    //console.log(editor.plugins.has('react-render'))
+
+    //if(Object.keys(GraphData).length == 0 || typeof GraphData == 'undefined'|| !editor.plugins.has('dock') ){
+    //if(Object.keys(GraphData).length == 0 || typeof GraphData == 'undefined' || ){
         editor.use(DockPlugin, {
-                container: document.querySelector('.dock'),
+                container: document.querySelector('#dock_'+job_id),
                 itemClass: 'dock-item',
                 plugins: [ReactRenderPlugin]
         });
-    }
+    //}
     var components = [new OpenURLComponent(), new ExpanderComponent(), new BFSIteratorComponent(), new OpenNodeComponent(), new CloseNodeComponent(), new ValuesScrapperComponent(), new ListsScrapperComponent(), new DictionariesScrapperComponent(), new ClickOperatorComponent() ];
     components.map(c => {
         editor.register(c);
@@ -311,6 +318,23 @@ export async function createEditor(container, editor, saveGraphData, GraphData, 
 
 export async function updateEditor(editor, saveGraphData, GraphData, job_id) {
     var engine = new Rete.Engine("work-flow@1.0.0");
+
+    console.log('-------updateEditor-------')
+    console.log(editor)
+    console.log(editor.plugins)
+    console.log(editor.plugins.size)
+
+    //if (editor.plugins.size == 6){
+    //    editor.use(DockPlugin, {
+    //            container: document.querySelector('#dock_'+job_id),
+    //            itemClass: 'dock-item',
+    //            plugins: [ReactRenderPlugin]
+    //    });
+    //}
+    console.log('-------After add pugin updateEditor-------')
+    console.log(editor)
+    console.log(editor.plugins)
+
     var components = [new OpenURLComponent(), new ExpanderComponent(), new BFSIteratorComponent(), new OpenNodeComponent(), new CloseNodeComponent(), new ValuesScrapperComponent(), new ListsScrapperComponent(), new DictionariesScrapperComponent(), new ClickOperatorComponent() ];
     components.map(c => {
         engine.register(c);

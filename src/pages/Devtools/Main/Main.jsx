@@ -112,7 +112,7 @@ class CustomLink extends React.Component {
     }
   }
 
-  componentDidMount(){
+  componentWillMount(){
     this.loadCount();
     this.loadLastupdate();
     this.loadUrl();
@@ -967,7 +967,7 @@ export default class Main extends React.Component {
     });
   }
 
-  componentDidMount(){
+  componentWillMount(){
     this.loadGroupList();
   }
 

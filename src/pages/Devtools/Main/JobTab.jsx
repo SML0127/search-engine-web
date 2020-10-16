@@ -136,23 +136,41 @@ class JobTab extends React.Component {
         })
         .then(function (response) {
             if (response['data']['success'] == true) {
-               let result = response['data']['result'][1];
-               let upid = response['data']['result'][0];
-               let user_program = result
-               let tmp = obj.state.refresh
+               if( !response['data']['result']){
+                 console.log('-------------2-----------')
+                 g_user_program = {}
+                 let tmp = obj.state.refresh
+                 
+                 obj.setState({
+                   refresh:++tmp, 
+                   dataDB: "{}",
+                   program: JSON.parse("{}"),
+                   upid: -1,
+                   nodes:[]
+                 })
+               }
+               else{
+                 let result = response['data']['result'][1];
+                 let upid = response['data']['result'][0];
+                 let user_program = result
+                 let tmp = obj.state.refresh
 
-               g_user_program = user_program
-               
-               obj.setState({
-                 refresh:++tmp, 
-                 dataDB: JSON.stringify(user_program['dataDb'], null, 2), 
-                 program:user_program,
-                 upid: upid,
-                 nodes: user_program['object_tree']
-               })
+                 g_user_program = user_program
+                 console.log('-------------3-----------')
+                 console.log(g_user_program)
+                 
+                 obj.setState({
+                   refresh:++tmp, 
+                   dataDB: JSON.stringify(user_program['dataDb'], null, 2), 
+                   program:user_program,
+                   upid: upid,
+                   nodes: user_program['object_tree']
+                 })
+               }
             }
         })
         .catch(function (error) {
+            console.log('fail to load recent program')
             console.log(error);
         });
 
@@ -422,8 +440,10 @@ class JobTab extends React.Component {
       //this.getUrl();
       
     }
-    componentDidMount() {
+    componentWillMount() {
       this.refreshList();
+      console.log('-------------1-----------')
+      console.log(g_user_program)
       this.loadRecentProgram()
       //this.getUrl();
     }
