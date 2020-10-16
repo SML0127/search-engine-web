@@ -137,7 +137,6 @@ class JobTab extends React.Component {
         .then(function (response) {
             if (response['data']['success'] == true) {
                if( !response['data']['result']){
-                 console.log('-------------2-----------')
                  g_user_program = {}
                  let tmp = obj.state.refresh
                  
@@ -156,8 +155,6 @@ class JobTab extends React.Component {
                  let tmp = obj.state.refresh
 
                  g_user_program = user_program
-                 console.log('-------------3-----------')
-                 console.log(g_user_program)
                  
                  obj.setState({
                    refresh:++tmp, 
