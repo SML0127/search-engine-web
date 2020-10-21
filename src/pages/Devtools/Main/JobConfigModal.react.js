@@ -26,7 +26,6 @@ class JobConfigModal extends React.Component {
         this.state = this.initState()
         this.saveScheduleProperty = this.saveScheduleProperty.bind(this)
         this.saveMySiteProperty = this.saveMySiteProperty.bind(this)
-        this.saveTargetSiteProperty = this.saveTargetSiteProperty.bind(this)
         this.checkBoxC = this.checkBoxC.bind(this);
         this.checkBoxVMM = this.checkBoxVMM.bind(this);
         this.checkBoxVMT = this.checkBoxVMT.bind(this);
@@ -62,26 +61,8 @@ class JobConfigModal extends React.Component {
        this.state.my_site_category = my_site_category;
        //this.setState({my_site_category: my_site_category})      
     }
-    saveTargetSiteProperty(tsi, tsc, er, mr, tt, mm, tr, vr, dc, sc, tpid, cid, cnum){  
-       this.state.target_site_id = tsi;
-       this.state.target_site_category = tsc;
-       this.state.exchange_rate = er;
-       this.state.margin_rate = mr;
-       this.state.tariff_threshold = tt;
-       this.state.minimum_margin = mm;
-       this.state.tariff_rate = tr;
-       this.state.vat_rate = vr;
-       this.state.delivery_company = dc;
-       this.state.shipping_cost = sc;
-       this.state.transformation_program_id = tpid;
-       this.state.cid = cid;
-       this.state.cnum = cnum;
-       //this.setState({target_site: ts, target_site_category: tsc, exchange_rate: er, minimum_margin: mr, tariff_threshold: tt, vat_rate: vr, delivery_company: dc, shipping_cost: sc, transformation_program_id: tpid})      
-    }
-
 
     registerAirflowScheduling(){
-      console.log(this.state)
       const obj = this;
       axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
         req_type: "make_airflow_script",
@@ -111,7 +92,6 @@ class JobConfigModal extends React.Component {
     }
 
     saveJobProperties(){
-      console.log(this.state)
       const obj = this;
       axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
         req_type: "save_job_properties",
@@ -120,19 +100,6 @@ class JobConfigModal extends React.Component {
         end_date: this.checkIsNull(obj.state.end_date) == '' ? '2020-01-01 00:00:00' : this.checkIsNull(obj.state.end_date),
         period: this.checkIsNull(obj.state.period),
         m_category: this.checkIsNull(obj.state.my_site_category),
-        targetsite_id: this.checkIsNull(obj.state.target_site_id),
-        t_category: this.checkIsNull(obj.state.target_site_category),
-        transformation_program_id: this.checkIsNull(obj.state.transformation_program_id),
-        cid: this.checkIsNull(obj.state.cid) == '' ? -999 : this.checkIsNull(obj.state.cid),
-        cnum: this.checkIsNull(obj.state.cnum) == '' ? -999 : this.checkIsNull(obj.state.cnum),
-        exchange_rate: this.checkIsNull(obj.state.exchange_rate) == ''? -999 : this.checkIsNull(obj.state.exchange_rate),
-        margin_rate: this.checkIsNull(obj.state.margin_rate) == ''? -999 : this.checkIsNull(obj.state.margin_rate),
-        tariff_threshold: this.checkIsNull(obj.state.tariff_threshold) == ''? -999 : this.checkIsNull(obj.state.tariff_threshold),
-        minimum_margin: this.checkIsNull(obj.state.minimum_margin) == ''? -999 : this.checkIsNull(obj.state.minimum_margin),
-        tariff_rate: this.checkIsNull(obj.state.tariff_rate) == ''? -999 : this.checkIsNull(obj.state.tariff_rate),
-        vat_rate: this.checkIsNull(obj.state.vat_rate) == ''? -999 : this.checkIsNull(obj.state.vat_rate),
-        shipping_cost: this.checkIsNull(obj.state.shipping_cost) == ''? -999 : this.checkIsNull(obj.state.shipping_cost),
-        delivery_company: this.checkIsNull(obj.state.delivery_company),
         num_worker: this.checkIsNull(obj.state.numWorker),
         num_thread: this.checkIsNull(obj.state.numThread)
       })
@@ -144,42 +111,36 @@ class JobConfigModal extends React.Component {
       });
     }
 
-    saveJobPropertiesOld(){
-      console.log(this.state)
+
+
+    loadJobProperties(){
       const obj = this;
-      
       axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
-        req_type: "save_job_properties",
+        req_type: "load_job_properties",
         job_id: obj.props.JobId,
-        start_date: obj.state.start_date,
-        end_date: obj.state.end_date,
-        period: obj.state.period,
-        m_category: obj.state.my_site_category,
-        targetsite_id: obj.state.target_site_id,
-        t_category: obj.state.target_site_category,
-        transformation_program_id: obj.state.transformation_program_id,
-        cid: obj.state.cid,
-        cnum: obj.state.cnum,
-        exchange_rate: obj.state.exchange_rate,
-        margin_rate: obj.state.margin_rate,
-        tariff_threshold: obj.state.tariff_threshold,
-        minimum_margin: obj.state.minimum_margin,
-        tariff_rate: obj.state.tariff_rate,
-        vat_rate: obj.state.vat_rate,
-        shipping_cost: obj.state.shipping_cost,
-        delivery_company: obj.state.delivery_company,
-        num_worker: obj.state.numWorker,
-        num_thread: obj.state.numThread
       })
       .then(function (response) {
-        
+        if(response['data']['result'].length == 0){
+          return;
+        }
+        if (response['data']['success'] == true) {
+          let start_date = response['data']['result'][0][0]
+          let end_date = response['data']['result'][0][1]
+          let period = response['data']['result'][0][2]
+          let m_category = response['data']['result'][0][3]
+          let num_worker = response['data']['result'][0][7]
+          let num_thread = response['data']['result'][0][8]
+          obj.setState({start_date: start_date, end_date: end_date, period:period, m_category: m_category,  numWorker: num_worker, numThread: num_thread})
+        }
       })
       .catch(function (error){
         console.log(error);
       });
     }
 
-    loadJobProperties(){
+
+
+    loadJobPropertiesOld(){
       const obj = this;
       axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
         req_type: "load_job_properties",
@@ -372,7 +333,7 @@ class JobConfigModal extends React.Component {
               <Page.Card 
                   title={"Target site properties"}
               >
-                <TargetConfigCategoryTree  refresh = {this.state.refresh} jobId={this.props.JobId} userId={this.props.userId} country={this.state.country} saveTargetSiteProperty = {this.saveTargetSiteProperty} targetsiteId={this.state.targetsite_id} tCategory={this.state.t_category} tPid = {this.state.transformation_program_id} cid = {this.state.cid} cnum = {this.state.cnum}/>
+                <TargetConfigCategoryTree  refresh = {this.state.refresh} jobId={this.props.JobId} userId={this.props.userId} country={this.state.country}  targetsiteId={this.state.targetsite_id} tCategory={this.state.t_category} tPid = {this.state.transformation_program_id} cid = {this.state.cid} cnum = {this.state.cnum}/>
               </Page.Card>            
 
               <div class='row' style = {{marginTop:'-3%'}}>

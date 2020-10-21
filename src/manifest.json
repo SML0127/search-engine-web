@@ -1,5 +1,5 @@
 {
-  "name": "PSE(197.35)",
+  "name": "PSE(197.33)",
   "devtools_page": "pse-extension.html",
   "permissions": ["<all_urls>", "tabs", "notifications", "downloads"],
   "content_scripts": [{

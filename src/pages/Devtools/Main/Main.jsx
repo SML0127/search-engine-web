@@ -212,7 +212,8 @@ class CustomLink extends React.Component {
                 style={{
                   cursor: "pointer",
                   marginRight:'4%',
-                  marginBottom:'1.5%'
+                  marginBottom:'1.5%',
+                  marginLeft:'4%'
                 }}
             />
             <OverlayTrigger
@@ -380,7 +381,7 @@ class CustomLink extends React.Component {
       return (
         <>
         <button className="metismenu-link" onClick={this.onClick}>
-          <label style={{fontSize:'17px', color:'black'}}>
+          <label style={{fontSize:'17px', color:'black', display:'inline'}}>
              <b>[</b>{country}<b>]</b> {this.props.label}
           </label>
           <OverlayTrigger
@@ -409,7 +410,6 @@ class CustomLink extends React.Component {
             <span>Count: </span>
             <span style={{textDecoration: "underline"}}>{this.state.count}</span>
             <span style={{float: "right"}}>{this.state.lastUpdate} </span>
-            {/* <span>Last Update: {lastUpdate}</span> */}
           </div>
         </button>
         <div className="metismenu-link">

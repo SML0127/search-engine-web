@@ -140,6 +140,14 @@ class SelectGatewayConfigModal extends React.Component {
     }
     
     componentWillReceiveProps(nextProps) {
+      if(this.props.selectedCid != null){
+        for(var idx in this.state.configurations){
+           if(this.state.configurations[idx]['id'] == this.props.selectedCid){
+             this.setState({selectedConfiguration: this.state.configurations[idx]['program']})
+           }
+        }
+        this.setState({selectedConfigurationId :this.props.selectedCid})
+      }
     }
 
     closeModal(){

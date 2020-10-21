@@ -2,17 +2,11 @@ import React, { Component } from "react";
 import Calendar from "react-calendar"
 import ReactTable from "react-table"
 import 'react-table/react-table.css'
-import TreeNode from "../config-category-tree-node";
-import AddButton from "../add-button";
-import ControlPanel from "../control-panel";
-import TextView from "../text-view";
 import "./tree.css";
 import {Button} from "tabler-react"
 import axios from 'axios'
 import jobConfigIcon from './job_config.png';
-import SelectTPModal from "./SelectTransformationProgramModal";
-import SelectGatewayConfigModal from "./SelectGatewayConfigModal";
-import SelectRateModal from "./SelectRateModal";
+import RegisterTargetSiteAndPricingInfoModal from "./RegisterTargetSiteAndPricingInfoModal";
 import { 
   Modal,
   ModalHeader,
@@ -23,949 +17,230 @@ import setting_server from '../../../setting_server';
 
 class Tree extends Component {
 
-    constructor(props) {
-        super(props);
-        this.state = this.initState();
-        this.changeTitle = this.changeTitle.bind(this);
-        this.selectCategoryNode = this.selectCategoryNode.bind(this);
-        this.doubleClickCategoryNode = this.doubleClickCategoryNode.bind(this);
-        this.addRootElement = this.addRootElement.bind(this);
-        this.addChild = this.addChild.bind(this);
-        this.checkRemove = this.checkRemove.bind(this);
-        this.removeNode = this.removeNode.bind(this);
-        this.saveState = this.saveState.bind(this);
-        this.loadState = this.loadState.bind(this);
-        this.onTextChange = this.onTextChange.bind(this);
-        this.nodesToString = this.nodesToString.bind(this);
-        this.changeDateFormat = this.changeDateFormat.bind(this);
-        this.selectRate = this.selectRate.bind(this);
-        this.saveTP = this.saveTP.bind(this);
-        this.saveGatewayConfiguration = this.saveGatewayConfiguration.bind(this);
-        this.updateDC = this.updateDC.bind(this)
-    }
-
-   onChange = date => this.setState({ date_psql: this.changeDateFormat(date) })
-
-   clickSelectTPModal(){
-    this.setState({showSelectTPModal: true})
+   constructor(props) {
+       super(props);
+       this.state = this.initState();
+       this.getRegisteredTargetSites = this.getRegisteredTargetSites.bind(this)
    }
 
-   clickSelectGatewayConfigModal(){
-    this.setState({showSelectGatewayConfigModal: true})
-   }
-   clickSelectRateModal(){
-    this.setState({showSelectRateModal: true})
+   clickRegisterModal(){
+    this.setState({showRegisterModal: true})
    }
 
-   selectRate(val1, val2){
-     this.setState({vatRate: val2, tariffRate: val1})
-   }
-
-   onTodoChange(key,value){
-     this.setState({
-       [key]: value
+   getRegisteredTargetSites(){
+     const obj = this;
+     axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
+       req_type: "get_registered_target_site",
+       job_id: obj.props.jobId,
+     })
+     .then(function (response) {
+       if (response['data']['success'] == true) {
+         let registeredTargetSites = response['data']['result'];
+         registeredTargetSites = registeredTargetSites.map(function(row, index){
+           const id = row[0];
+           const label = row[1];
+           const url = row[2];
+           const category = row[3];
+           const c_num = row[4] == -999 ? '' : row[4]
+           return {num: index+1, id: id, label: label, url: url, category: category, c_num: c_num};
+         });
+         obj.setState({registeredTargetSites: registeredTargetSites, selectedRegisteredTargetSiteIndex: null});
+       } else {
+         console.log('getRegisteredTargetSites Failed');
+       }
+     })
+     .catch(function (error){
+       console.log(error);
      });
    }
 
 
-    saveGatewayConfiguration(c, cid){
-      this.setState({        
-        selected_configuration: c,
-        selected_configuration_id: cid
-      })
-    }
 
-    saveTP(p, pid){
-      this.setState({        
-        selected_transformation_program: p,
-        selected_transformation_program_id: pid
-      })
-    }
-    getDeliveryCompanies(){
-      let userId = this.props.userId;
-      const obj = this;
-      axios.post(setting_server.DB_SERVER+'/api/db/delivery', {
-        req_type: "get_delivery_companies",
-        user_id: userId
-      })
-      .then(function (response) {
-        if (response['data']['success'] == true) {
-          let deliveryCompanyOptions = response['data']['result']
-              .map((code) => <option value={code['1']}>{code['1']}</option>);
-          obj.setState({
-            deliveryCompanyOptions: deliveryCompanyOptions,
-            deliveryCompany: response['data']['result'][0][1]
-          });
-        } else {
-          console.log('getDeliveryCompanies Failed');
-        }
-      })
-      .catch(function (error){
-        console.log(error);
-      });
-    }
 
-   updateDC(event) {
-     this.setState({deliveryCompany: event.target.value});
+   deregisterTargetSite(){
+     const obj = this;
+     axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
+       req_type: "deregister_target_site",
+       tjcid: obj.state.selectedRegisteredTargetSiteId
+
+     })
+     .then(function (response) {
+       if (response['data']['success'] == true) {
+
+         obj.getRegisteredTargetSites()
+       } else {
+         console.log('getRegisteredTargetSites Failed');
+       }
+     })
+     .catch(function (error){
+       console.log(error);
+     });
    }
 
-   getTargetSites(userId){
-      const obj = this;
-      axios.post(setting_server.DB_SERVER+'/api/db/targetsite', {
-        req_type: "get_target_sites",
-        user_id: userId
-      })
-      .then(function (response) {
-        if (response['data']['success'] == true) {
-          let targetSites = response['data']['result'];
-          targetSites = targetSites.map(function(row, index){
-            const id = row[0];
-            const label = row[1];
-            const url = row[2];
-            return {num: index+1, id: id, label: label, url: url};
-          });
-          obj.setState({targetSites: targetSites});
-          obj.setState({
-            selectedTargetSiteId: obj.props.targetsiteId,
-            selected_category_title: obj.props.tCategory,
-            selected_transformation_program_id: obj.props.targetsiteId,
-            selected_category_num: obj.props.cnum == -999 ? '' : obj.props.cnum
-          },() => {obj.getCategoryTreeWithSelection()})
-        } else {
-          console.log('getTargetSites Failed');
-        }
-      })
-      .catch(function (error){
-        console.log(error);
-      });
-    }
-
-
-   changeDateFormat(date){
-   
-    var year = date.getFullYear();            
-    var month = (1 + date.getMonth());        
-    month = month >= 10 ? month : '0' + month;
-    var day = date.getDate();                 
-    day = day >= 10 ? day : '0' + day;        
-    var hour = date.getHours().toString().padStart(2,'0');
-    var minute = date.getMinutes().toString().padStart(2,'0');
-    var sec = date.getSeconds().toString().padStart(2,'0');
-    return  year + '-' + month + '-' + day;
-    //return  year + '-' + month + '-' + day +' ' + hour + ':' + minute + ':' +sec;
-   }
 
     initState(){
-      let curUrl = window.location.href;
       return {
-        nodes:[],
-        savedNodes: [],
-        selected_category_id: "",
-        selected_category_title: "",
-        confirm_modal: false,
-        check_modal: false,
-        id: "",
-        date: new Date(),
-        date_psql: "2020-01-01",
-        time_psql: '00:00:00',
-        period: '7',
-        selectedTargetSiteIndex: null,
-        selectedTargetSiteId: -1,
-        selectedTargetSiteLabel: null,
-        selectedTargetSiteUrl: null,
-        showSelectDeliveryCompanyModal: false,
-        selectedDeliveryCompany: '',
-        exchangeRate: 1100,
-        deliveryCompany: '',
-        deliveryCompanyOptions: '',
+        selectedRegisteredTargetSiteIndex: null,
       }
     }
 
     componentWillReceiveProps(nextProps) {
       if(this.props.refresh != nextProps.refresh){
-         this.props.saveTargetSiteProperty(this.state.selectedTargetSiteId, this.state.selected_category_title, this.state.exchangeRate, this.state.marginRate, this.state.tariffThreshold,this.state.minMargin,this.state.tariffRate,this.state.vatRate,this.state.deliveryCompany, this.state.shippingCost, this.state.selected_transformation_program_id, this.state.selected_configuration_id, this.state.selected_category_num)
       }
     }
 
     componentDidMount(){
-      this.getExchangeRate()
-      let curUrl = window.location.href;
-      this.getTargetSites(this.props.userId);
-      this.getDeliveryCompanies();
-      this.loadTmpPricingInformation();
+      this.getRegisteredTargetSites();
+      //this.loadTmpPricingInformation();
       
     }
 
-    getExchangeRate(){
-      const obj = this;
-      axios.post(setting_server.DB_SERVER+'/api/db/exchangerate', {
-        req_type: "get_exchange_rate",
-        user_id: this.props.userId
-      })
-      .then(function (response) {
-        if (response['data']['success'] == true) {
-          //obj.setState({exchangeRate :response['data']['result'][0][0]});
-          console.log(obj.props)
-          obj.setState({exchangeRate :response['data']['result'][0][0][obj.props.country[0]]});
-          
-        } else {
-          console.log('Failed to update exchange rate');
-        }
-
-      })
-      .catch(function (error){
-        console.log(error);
-      });
-
-
-    }
-
-    closeModal(modal) {
-      this.setState({
-          [modal]: false
-          });
-    }
-    showModal_backup(modal, id) {
-      this.setState({
-          [modal]: true,
-          id: id
-          });
-    }
-    showModal(modal, id) {
-
-    }   
-    checkRemove(id) {
-      return () =>{
-        this.showModal('confirm_modal',id)
-      }
-    }
-
-    loadTmpPricingInformation(){
-      const obj = this;
-
-      if (!obj.props.targetsiteId || obj.props.tCategory == ''){
-        axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
-          req_type: "load_tmp_pricing_information",
-          job_id: obj.props.jobId
-        })
-        .then(function (response) {
-          console.log(response)
-          if (response['data']['success'] == true) {
-//exch  ange_rate float, tariff_rate float, vat_rate float, tariff_threshold float, margin_rate float, min_margin float, delivery_company varchar(2048), shipping_cost float
-            let exchange_rate = response['data']['result'][0][4] == -999 ? '' : response['data']['result'][0][4]
-            let tariff_rate  = response['data']['result'][0][5] == -999 ? '' : response['data']['result'][0][5]
-            let vat_rate = response['data']['result'][0][6] == -999 ? '' : response['data']['result'][0][6]
-            let tariff_threshold = response['data']['result'][0][7] == -999 ? '' : response['data']['result'][0][7]
-            let margin_rate = response['data']['result'][0][8] == -999 ? '' : response['data']['result'][0][8]
-            let min_margin = response['data']['result'][0][9] == -999 ? '' : response['data']['result'][0][9]
-            let delivery_company = response['data']['result'][0][10]
-            let shipping_cost  = response['data']['result'][0][11] == -999 ? '' : response['data']['result'][0][11]
-            obj.setState({exchangeRate: exchange_rate, tariffRate: tariff_rate, vatRate: vat_rate, tariffThreshold: tariff_threshold, marginRate: margin_rate, minMargin: min_margin, deliveryCompany: delivery_company, shippingCost: shipping_cost})
-          }
-        })
-        .catch(function (error){
-          console.log(error);
-        });
-      }
-    }
-
-
-
-
-    loadPricingInformation(){
-      const obj = this;
-      console.log(obj)
-
-      axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
-        req_type: "load_pricing_information",
-        job_id: obj.props.jobId,
-        targetsite_id: obj.props.targetsiteId,
-        t_category: obj.props.tCategory, 
-      })
-      .then(function (response) {
-        console.log(response)
-        if (response['data']['success'] == true) {
-//exchange_rate float, tariff_rate float, vat_rate float, tariff_threshold float, margin_rate float, min_margin float, delivery_company varchar(2048), shipping_cost float
-          let exchange_rate = response['data']['result'][0][4] == -999 ? '' : response['data']['result'][0][4]
-          let tariff_rate  = response['data']['result'][0][5] == -999 ? '' : response['data']['result'][0][5]
-          let vat_rate = response['data']['result'][0][6] == -999 ? '' : response['data']['result'][0][6]
-          let tariff_threshold = response['data']['result'][0][7] == -999 ? '' : response['data']['result'][0][7]
-          let margin_rate = response['data']['result'][0][8] == -999 ? '' : response['data']['result'][0][8]
-          let min_margin = response['data']['result'][0][9] == -999 ? '' : response['data']['result'][0][9]
-          let delivery_company = response['data']['result'][0][10]
-          let shipping_cost  = response['data']['result'][0][11] == -999 ? '' : response['data']['result'][0][11]
-          obj.setState({exchangeRate: exchange_rate, tariffRate: tariff_rate, vatRate: vat_rate, tariffThreshold: tariff_threshold, marginRate: margin_rate, minMargin: min_margin, deliveryCompany: delivery_company, shippingCost: shipping_cost})
-        }
-      })
-      .catch(function (error){
-        console.log(error);
-      });
-
-    }
-
-    selectPricingInformation(){
-      const obj = this;
-      console.log(obj)
-      axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
-        req_type: "load_pricing_information",
-        job_id: obj.props.jobId,
-        targetsite_id: obj.state.selectedTargetSiteId,
-        t_category: obj.state.selected_category_title, 
-      })
-      .then(function (response) {
-        console.log(response)
-        if (response['data']['success'] == true) {
-//exchange_rate float, tariff_rate float, vat_rate float, tariff_threshold float, margin_rate float, min_margin float, delivery_company varchar(2048), shipping_cost float
-          console.log(response['data']['result'].length)
-          if (response['data']['result'].length == 0){
-            obj.setState({exchangeRate: '', tariffRate: '', vatRate: '', tariffThreshold: '', marginRate: '', minMargin: '', shippingCost: ''})
-            obj.getExchangeRate()
-          }
-          else{
-            let exchange_rate = response['data']['result'][0][4] == -999 ? '' : response['data']['result'][0][4]
-            let tariff_rate  = response['data']['result'][0][5] == -999 ? '' : response['data']['result'][0][5]
-            let vat_rate = response['data']['result'][0][6] == -999 ? '' : response['data']['result'][0][6]
-            let tariff_threshold = response['data']['result'][0][7] == -999 ? '' : response['data']['result'][0][7]
-            let margin_rate = response['data']['result'][0][8] == -999 ? '' : response['data']['result'][0][8]
-            let min_margin = response['data']['result'][0][9] == -999 ? '' : response['data']['result'][0][9]
-            let delivery_company = response['data']['result'][0][10]
-            let shipping_cost  = response['data']['result'][0][11] == -999 ? '' : response['data']['result'][0][11]
-
-            obj.setState({exchangeRate: exchange_rate, tariffRate: tariff_rate, vatRate: vat_rate, tariffThreshold: tariff_threshold, marginRate: margin_rate, minMargin: min_margin, deliveryCompany: delivery_company, shippingCost: shipping_cost})
-          }
-        }
-      })
-      .catch(function (error){
-        console.log(error);
-      });
-    }
-
-
-
-    getCategoryTreeWithSelection(){
-        if (this.state.selectedTargetSiteId == null){
-          return;
-        }
-        let tid = this.state.selectedTargetSiteId
-        let userId = this.props.userId
-        const obj = this;
-        axios.post(setting_server.DB_SERVER+'/api/db/categorytree', {
-            req_type: "get_category_tree",
-            user_id: userId,
-            targetsite_id: tid
-        })
-        .then(function (resultData) {
-            let output = resultData['data']['output']
-            if(output){
-              let category_tree = JSON.parse(output[0])
-              obj.setState({
-                  nodes: obj.initializedСopy(category_tree),
-              })
-            }
-            else{
-              obj.setState({
-                  nodes: []
-              })
-            }
-            obj.loadPricingInformation()
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
-
-    }
-
-    getCategoryTree() {
-        if (this.state.selectedTargetSiteId == null){
-          return;
-        }
-        let tid = this.state.selectedTargetSiteId
-        let userId = this.props.userId
-        const obj = this;
-        axios.post(setting_server.DB_SERVER+'/api/db/categorytree', {
-            req_type: "get_category_tree",
-            user_id: userId,
-            targetsite_id: tid
-        })
-        .then(function (resultData) {
-            let output = resultData['data']['output']
-            if(output){
-              let category_tree = JSON.parse(output[0])
-              obj.setState({
-                  nodes: obj.initializedСopy(category_tree),
-                  selected_category_title: ''
-              })
-            }
-            else{
-              obj.setState({
-                  nodes: []
-              })
-            }
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
-
-    }
-
-    updateCategoryTree() {
-        let tid = this.state.selectedTargetSiteId
-        const obj = this;
-        axios.post(setting_server.DB_SERVER+'/api/db/categorytree', {
-            req_type: "update_category_tree",
-            category_tree: JSON.stringify(this.simplify(this.state.nodes)),
-            targetsite_id: tid
-        })
-        .then(function (resultData) {
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
-
-    }
-
-
-    initializedСopy(nodes, location) {
-        const nodesCopy = [];
-        for (let i = 0; i < nodes.length; i++) {
-            const { children, title } = nodes[i];
-            const hasChildren = children !== undefined;
-            const id = location ? `${location}.${i + 1}` : `${i + 1}`;
-            nodesCopy[i] = { 
-                    children: hasChildren ? this.initializedСopy(children, id) : undefined,
-                    changeTitle: this.changeTitle(id),
-                    selectCategoryNode: this.selectCategoryNode(id),
-                    doubleClickCategoryNode: this.doubleClickCategoryNode(id),
-                    checkRemove: this.checkRemove(id),
-                    removeNode: this.removeNode(id),
-                    addChild: this.addChild(id),
-                    id,
-                    title,
-            };
-        }
-        return nodesCopy;
-    }
-
-    changeTitle(id) {
-        return (newTitle) => {
-            id = id.split(".").map((str) => parseInt(str));
-            const nodes = this.initializedСopy(this.state.nodes);
-            let changingNode = nodes[id[0] - 1];
-
-            if (id.length > 1) {
-                for (let i = 1; i < id.length; i++) {
-                    changingNode = changingNode.children[id[i] - 1];
-                }
-            }
-
-            changingNode.title = newTitle;
-            this.setState({ nodes });
-        };
-    }
-
-
-
-
-    getRateUsingCategory() {
-      const obj = this;
-      axios.post(setting_server.DB_SERVER+'/api/db/tvrate', {
-        req_type: "get_rate_using_category",
-        user_id: obj.props.userId,
-        category: obj.state.selected_category_title
-      })
-      .then(function (response) {
-        console.log(response)
-        if (response['data']['success'] === true) {
-          let result = response['data']['result'];
-          obj.setState({
-            tariffRate: result[0][1],
-            vatRate: result[0][2],
-          });
-        } else {
-          console.log('Failed getRate');
-        }
-      })
-      .catch(function (error){
-        console.log(error);
-      });
-    }
-
-
-
-
-
-   getPricingInformation(){
-      let tid = this.state.selectedTargetSiteId;
-      let category = this.state.selected_category_title
-      let userId = this.props.userId
-      let jobId = this.props.jobId
-      const obj = this;
-      axios.post(setting_server.DB_SERVER+'/api/db/pricinginformation', {
-        req_type: "get_pricing_information",
-        user_id: userId,
-        targetsite_id: tid,
-        job_id: jobId,
-        category: category 
-      })
-      .then(function (response) {
-        console.log(response)
-        if (response['data']['success'] == true) {
-          if (Object.keys(response['data']['result']).length == 0){
-             return;
-          }
-          let result = response['data']['result'];
-          obj.setState({
-            exchangeRate: result[0][0],
-            tariffThreshold: result[0][3],
-            marginRate: result[0][4],
-            minMargin: result[0][5],
-          });
-        } else {
-          console.log('Failed to get pricing information ');
-        }
-      })
-      .catch(function (error){
-        console.log(error);
-      });
-    }
-
-    addPricingInformation(category){
-      let tid = this.state.selectedTargetSiteId;
-      let userId = this.props.userId
-      const obj = this;
-      axios.post(setting_server.DB_SERVER+'/api/db/pricinginformation', {
-        req_type: "add_pricing_information",
-        user_id: userId,
-        targetsite_id: tid,
-        category: category,
-        exchangeRate: 1200,
-        tariffThreshold: 10000,
-        marginRate: 0.2, 
-        minMargin: 15000,
-      })
-      .then(function (response) {
-        if (response['data']['success'] == true) {
-        } else {
-          console.log(response)
-          console.log('Failed to get pricing information ');
-        }
-      })
-      .catch(function (error){
-        console.log(error);
-      });
-    }
-
-    doubleClickCategoryNode(id) {
-        var obj = this;
-        return (title) => {
-            obj.setState({
-                selected_category_id: id,   
-                selected_category_title: title
-            }, () => {this.clickSelectRateModal()});
-        };
-    }
-
-
-    selectCategoryNode(id) {
-        var obj = this;
-        return (title) => {
-            obj.setState({
-                selected_category_id: id,   
-                selected_category_title: title
-            }, () => {this.selectPricingInformation(); });
-        };
-    }
-    addRootElement() {
-        var obj = this;
-        const id = obj.state.nodes.length ? `${obj.state.nodes.length + 1}` : "1";
-        const newNode = { 
-            children: undefined,
-            changeTitle: obj.changeTitle(id),
-            selectCategoryNode: obj.selectCategoryNode(id),
-            doubleClickCategoryNode: obj.doubleClickCategoryNode(id),
-            checkRemove: obj.checkRemove(id),
-            removeNode: obj.removeNode(id),
-            addChild: obj.addChild(id),
-            id,
-            title: "",
-        };
-        
-        const nodes = [...obj.state.nodes, newNode];
-        obj.setState({ nodes });
-    }
-
-    addChild(id) {
-        return () => {
-            id = id.split(".").map((str) => parseInt(str));
-            const nodes = this.initializedСopy(this.state.nodes);
-            let changingNode = nodes[id[0] - 1];
-
-            if (id.length > 1) {
-                for (let i = 1; i < id.length; i++) {
-                    changingNode = changingNode.children[id[i] - 1];
-                }
-            }
-
-            if (changingNode.children === undefined) {
-                changingNode.children = [];
-            }
-            
-            id = `${id.join(".")}.${changingNode.children.length + 1}`;
-
-            changingNode.children = [
-                ...changingNode.children,
-                { 
-                    children: undefined,
-                    changeTitle: this.changeTitle(id),
-                    selectCategoryNode: this.selectCategoryNode(id),
-                    doubleClickCategoryNode: this.doubleClickCategoryNode(id),
-                    checkRemove: this.checkRemove(id),
-                    removeNode: this.removeNode(id),
-                    addChild: this.addChild(id),
-                    id,
-                    title: "",
-                }];
-
-            this.setState({ nodes });
-        }
-    }
-
-    
-    removeNode(id) {
-        return () => {
-            id = id.split(".").map((str) => parseInt(str));
-            const nodes = this.initializedСopy(this.state.nodes);
-            if (id.length === 1) {
-                const newNodes = [
-                    ...nodes.slice(0, [id[0] - 1]),
-                    ...nodes.slice(id[0])
-                ];
-
-                this.setState( { nodes: this.initializedСopy(newNodes) } );
-            } else {
-                let changingNode = nodes[id[0] - 1];
-                for (let i = 2; i < id.length; i++) {
-                    changingNode = changingNode.children[id[i - 1] - 1];
-                }
-
-                const index = id[id.length - 1] - 1;
-
-                const newChildren = [
-                    ...changingNode.children.slice(0, index),
-                    ...changingNode.children.slice(index + 1),
-                ];
-                changingNode.children = newChildren;
-
-                this.setState({ nodes: this.initializedСopy(nodes) });
-            }
-            this.closeModal('confirm_modal')
-        }
-    }
-
-    saveState() {
-        this.setState({ savedNodes: this.initializedСopy(this.state.nodes) });
-    }
-
-    loadState() {
-        this.setState({ nodes: this.initializedСopy(this.state.savedNodes) });
-    }
-
-    onTextChange(e) { 
-        this.setState({ nodes: this.initializedСopy(JSON.parse(e.target.value)) });
-    }
-
-    nodesToString() {
-        return JSON.stringify(this.simplify(this.state.nodes), undefined, 2);
-    }
-
-
-
-    simplify(nodes) {
-        const nodesCopy = [];
-        for (let i = 0; i < nodes.length; i++) {
-            const { children, title } = nodes[i];
-            const hasChildren = children !== undefined && children.length > 0;
-            nodesCopy[i] = { 
-                title,
-                children: hasChildren ? this.simplify(children) : undefined,
-            };
-        }
-        return nodesCopy;
-    }
-
-
 
     render() {
-        const { nodes, savedNodes } = this.state;
-        const { addRootElement, saveState, 
-                loadState, onTextChange, nodesToString} = this;
-        const hasSaved = savedNodes.length !== 0;
 
         return (
             <div>
-              <div className="VMTree">
-                <div className="VMTree-LeftSide">
-                  <label for="name"  style={{display: "flex",justifyContent: "center",alignItems: "center", fontWeight: "bold", fontSize:'20px'}}> Target Site </label>
-                  <ReactTable
-                    data = {this.state.targetSites}
-                    getTdProps={(state, rowInfo, column, instance) => {
-                      if(rowInfo){
-                        if(this.state.selectedTargetSiteIndex !== null){ 
-                          return {
-                            onClick: (e) => {
-                              this.setState({
-                                selectedTargetSiteIndex: rowInfo.index,
-                                selectedTargetSiteId: rowInfo.original['id'],
-                                selectedTargetSiteLabel: rowInfo.original['label'],
-                                selectedTargetSiteUrl: rowInfo.original['url']
-                              }, () => {console.log(this.state.selectedTargetSiteId); this.getCategoryTree()});
-                            },
-                            style: {
-                              background: rowInfo.original['id'] == this.state.selectedTargetSiteId ? '#00ACFF' : null
-                            }
-                          }
-                        }
-                        else { // When you click a row at first.
-                          return {
-                            onClick: (e) => {
-                              this.setState({
-                                selectedTargetSiteIndex: rowInfo.index,
-                                selectedTargetSiteId: rowInfo.original['id'],
-                                selectedTargetSiteLabel: rowInfo.original['label'],
-                                selectedTargetSiteUrl: rowInfo.original['url']
-                              }, () => {console.log(this.state.selectedTargetSiteId); this.getCategoryTree()});
-                            },
-                            style: {
-                              background: rowInfo.original['id'] == this.state.selectedTargetSiteId ? '#00ACFF' : null
-                            }
-                          }
+              <label for="name"  style={{display: "flex",justifyContent: "center",alignItems: "center", fontWeight: "bold", fontSize:'20px'}}> Registered Target Site & Category </label>
+              <ReactTable
+                data = {this.state.registeredTargetSites}
+                getTdProps={(state, rowInfo, column, instance) => {
+                  if(rowInfo){
+                    if(this.state.selectedRegisteredTargetSiteIndex !== null){ 
+                      return {
+                        onClick: (e) => {
+                          this.setState({
+                            selectedRegisteredTargetSiteIndex: rowInfo.index,
+                            selectedRegisteredTargetSiteId: rowInfo.original['id'],
+                          });
+                        },
+                        style: {
+                          background: rowInfo.index == this.state.selectedRegisteredTargetSiteIndex ? '#00ACFF' : null
                         }
                       }
-                      else{
-                        if(this.state.selectedTargetSiteIndex !== null){ // When you click a row not at first.
-                          return {
-                            
-                          }
+                    }
+                    else { // When you click a row at first.
+                      return {
+                        onClick: (e) => {
+                          this.setState({
+                            selectedRegisteredTargetSiteIndex: rowInfo.index,
+                            selectedRegisteredTargetSiteId: rowInfo.original['id'],
+                          });
+                        },
+                        style: {
+                          background: rowInfo.index == this.state.selectedRegisteredTargetSiteIndex ? '#00ACFF' : null
                         }
-                        else { // When you click a row at first.
-                          return {
-                            
-                          }
-                        }
+                      }
+                    }
+                  }
+                  else{
+                    if(this.state.selectedRegisteredTargetSiteIndex !== null){ // When you click a row not at first.
+                      return {
+                        
+                      }
+                    }
+                    else { // When you click a row at first.
+                      return {
+                        
+                      }
+                    }
 
-                      }
-                    }}
-                    columns={[
-                      {
-                        Header: "Target Site",
-                        resizable: false,
-                        accessor: "label",
-                        Cell: ( row ) => {
-                          return (
-                            <div
-                              style={{
-                                textAlign:"center",
-                                paddingTop:"4px"
-                              }}
-                            > {row.value} </div>
-                          )
-                        }
-                      },
-                      {
-                        Header: "URL",
-                        resizable: false,
-                        accessor: "url",
-                        Cell: ( row ) => {
-                          return (
-                            <div
-                              style={{
-                                textAlign:"center",
-                                paddingTop:"4px"
-                              }}
-                            > {row.value} </div>
-                          )
-                        }
-                      },
-                    ]}
-                    minRows={6}
-                    defaultPageSize={1000}
-                    showPagination ={false}
-                    bordered = {false} 
-                    style={{
-                      height: "280px"
-                    }}
-                    className="-striped -highlight"
-                  />
-                </div>
-                <div className="VMTree-RightSide">
-                  <label for="name"  style={{display: "flex",justifyContent: "center",alignItems: "center", fontWeight: "bold", fontSize:'20px'}}> Target Site Category</label>
-                  <div>
-                    <Button 
-                        class="btn btn-outline-dark"
-                        type="button"
-                        onClick={addRootElement}
-                        style={{marginLeft:"30px", width:"100px"}}
-                    >
-                        Add Root
-                    </Button>
-                    <Button 
-                        class="btn btn-outline-dark"
-                        type="button"
-                        onClick={() => {this.updateCategoryTree()}}
-                        style={{marginLeft:"30px", width:"100px"}}
-                    >
-                        Update
-                    </Button>
-                  </div>
-                  <ul className="Nodes" style={{marginTop:"5px",overflow:'auto',width:'100%',height:'175px'}}>
-                    { nodes.map((nodeProps) => {
-                      const { id, ...others } = nodeProps;
+                  }
+                }}
+                columns={[
+                  {
+                    Header: "Target Site",
+                    resizable: false,
+                    accessor: "label",
+                    Cell: ( row ) => {
                       return (
-                        <TreeNode 
-                          key={id}
-                          {...others}
-                        />
-                      );}) }
-                  </ul>
-                  <label style={{marginLeft:'10%', marginTop:'2%', width:"90%", fontWeight:'600'}} >
-                    <div class = 'row' style = {{width:'100%'}}>
-                    <label style={{marginTop:'1.4%'}}>
-                    Category:
-                    </label>
-                    <input readonly='readonly' name="selected_Category" class="form-control"style={{width:"20%", marginLeft:'2%'}} value= {this.state.selected_category_title } />
-                    <label style={{marginLeft:'15%', marginTop:'1.4%'}}>
-                    Category number: 
-                    </label>
-                    <input type='integer'class="form-control"style={{width:"20%", marginLeft:'2%', float:'right'}} value= {this.state.selected_category_num }  onChange={e => this.onTodoChange('selected_category_num',e.target.value)}/>
-                    </div>
-                  </label>
-                  <Button 
-                    class="btn btn-outline-dark"
-                    type="button"
-                    style={{float:'right'}}
-                    onClick = {()=> this.clickSelectGatewayConfigModal()}
-                  >
-                    Select Gateway Configuration 
-                  </Button>
-                </div>
-
-              </div>
-              <div style={{borderBottom: '1px solid rgba(0, 0, 0, 0.09)', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)', marginRight:'-20px', marginLeft:'-20px', marginTop:'30px'}}>
-              </div>
-              <div style={{marginTop:'30px'}}>
-                <label for="name"  style={{display: "flex",justifyContent: "center",alignItems: "center", fontWeight: "bold", fontSize:'20px'}}> Pricing information </label>
-                <div class='row' style = {{marginTop:'2%'}}>
-                  <div class='col-sm-6'>
-                    <div class='row'>
-                      <div class='row' style={{width:'49%', marginLeft:'1%'}}>
-                        <label style={{marginTop:'8px', marginLeft: '3%', width:'50%'}}> Exchange rate :</label>
-                        <input name="name" class="form-control" style={{marginLeft:'3%', width:"30%", float: 'right'}} value= {this.state.exchangeRate} onChange={e => this.onTodoChange('exchangeRate',e.target.value)}/>
-                      </div>
-                      <div class='row' style={{width:'49%'}}>
-                        <label style={{marginTop:'8px', marginLeft: '2%', width:'50%'}}> Margin rate :</label>
-                        <input name="name" class="form-control" style={{marginLeft:'3%', width:"30%", float: 'right'}} value= {this.state.marginRate} onChange={e => this.onTodoChange('marginRate',e.target.value)}/>
-                      </div>
-                    </div>
-
-                    <div class='row'>
-                      <div class='row' style={{width:'49%', marginLeft:'1%'}}>
-                        <label style={{marginTop:'8px', marginLeft: '3%', width:'50%'}}> Tariff rate :</label>
-                        <input  name="name" class="form-control" style={{marginLeft:'3%', width:"30%", float: 'right'}} value= {this.state.tariffRate} onChange={e => this.onTodoChange('tariffRate',e.target.value)}/>
-                      </div>
-                      <div class='row' style={{width:'49%'}}>
-                        <label style={{marginTop:'8px', marginLeft: '2%', width:'50%'}}> VAT rate :</label>
-                        <input  name="name" class="form-control" style={{marginLeft:'3%', width:"30%", float: 'right'}}value= {this.state.vatRate} onChange={e => this.onTodoChange('vatRate',e.target.value)}/>
-                      </div>                     
-                    </div>
-
-
-                  </div>
-                  <div class='col-sm-6'>
-
-                    <div class='row'>
-                      <div class='row' style={{width:'52%'}}>
-                        <label style={{marginTop:'8px', marginLeft: '0%', width:'52%'}}> Tariff threshold ($) :</label>
-                        <input name="name" class="form-control" style={{width:"45%", float: 'right'}}  value= {this.state.tariffThreshold} onChange={e => this.onTodoChange('tariffThreshold',e.target.value)}/>
-                      </div>
-                      <div class='row' style={{marginLeft: '3%', width:'46%'}}>
-                        <label style={{marginTop:'8px', marginLeft: '2%', width:'54%'}}> Minimum margin :</label>
-                        <input name="name" class="form-control"  style={{width:"40%", float: 'right'}} value= {this.state.minMargin} onChange={e => this.onTodoChange('minMargin',e.target.value)}/>
-                      </div>
-                    </div>
-
-                    <div class='row'>
-                      <div class='row' style={{width:'52%'}}>
-                        <label style={{marginTop:'8px', marginLeft: '0px', width:'52%'}}> Delivery company :</label>
-                        <select
-                          class="form-control"
-                          style={{width:"45%", float: 'right'}}
-                          value={this.state.deliveryCompany}
-                          onChange={this.updateDC}
-                          ref={ref => this.deliveryCompany = ref}
-                        >
-                          {this.state.deliveryCompanyOptions}
-                        </select>
-
-                      </div>
-                      <div class='row' style={{marginLeft: '3%', width:'46%'}}>
-                        <label style={{marginTop:'8px', marginLeft: '2%', width:'54%'}}> Shipping cost :</label>
-                        <input class="form-control"  style={{width:"40%", float: 'right'}} value= {this.state.shippingCost} onChange={e => this.onTodoChange('shippingCost',e.target.value)}/>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-              </div>
-              <div class='row' style={{marginTop:'40px', float:'right' }}>
-                <Button 
-                  class="btn btn-outline-dark"
-                  type="button"
-                  style={{marginRight:'10px'}}
-                  onClick = {()=> this.clickSelectTPModal()}
-                >
-                Select Trasformation program
-                </Button>
-              </div>
-              <Modal isOpen={this.state.confirm_modal} toggle={this.closeModal.bind(this, 'confirm_modal')}>
-                <ModalHeader toggle={this.closeModal.bind(this, 'confirm_modal')}>
-                Confirm to remove
-                </ModalHeader>
-                <ModalBody>
-                  Are you sure to do this?
-                  <p></p>
-                  <Button style={{float:'right'}}onClick={this.closeModal.bind(this, 'confirm_modal')}>
-                  No
-                  </Button>
-                  <Button style={{float:'right'}}onClick={this.removeNode(this.state.id)}>
-                  Yes
-                  </Button>
-                  
-                </ModalBody>
-              </Modal>
-              
-              <SelectGatewayConfigModal
-                  show={this.state.showSelectGatewayConfigModal}
-                  JobId = {this.props.id}
-                  userId={this.props.userId}
-                  selectedCid={this.props.cid}
-                  saveGatewayConfiguration = {this.saveGatewayConfiguration}
-                  setModalShow = {(s) => this.setState({showSelectGatewayConfigModal: s})}
+                        <div
+                          style={{
+                            textAlign:"center",
+                            paddingTop:"4px"
+                          }}
+                        > {row.value} </div>
+                      )
+                    }
+                  },
+                  {
+                    Header: "URL",
+                    resizable: false,
+                    accessor: "url",
+                    Cell: ( row ) => {
+                      return (
+                        <div
+                          style={{
+                            textAlign:"center",
+                            paddingTop:"4px"
+                          }}
+                        > {row.value} </div>
+                      )
+                    }
+                  },
+                  {
+                    Header: "Category",
+                    resizable: false,
+                    accessor: "category",
+                    Cell: ( row ) => {
+                      return (
+                        <div
+                          style={{
+                            textAlign:"center",
+                            paddingTop:"4px"
+                          }}
+                        > {row.value} </div>
+                      )
+                    }
+                  },
+                  {
+                    Header: "Category Num",
+                    resizable: false,
+                    accessor: "c_num",
+                    Cell: ( row ) => {
+                      return (
+                        <div
+                          style={{
+                            textAlign:"center",
+                            paddingTop:"4px"
+                          }}
+                        > {row.value} </div>
+                      )
+                    }
+                  }
+                ]}
+                minRows={3}
+                showPagination ={false}
+                bordered = {false} 
+                style={{
+                  height: "160px"
+                }}
+                className="-striped -highlight"
               />
-              
-              <SelectTPModal
-                  show={this.state.showSelectTPModal}
-                  JobId = {this.props.id}
+
+              <Button 
+                class="btn btn-outline-dark"
+                type="button"
+                style={{marginTop:'10px', float:'right'}}
+                onClick = {()=> this.deregisterTargetSite() }
+              >
+              Deregister
+              </Button>
+              <Button 
+                class="btn btn-outline-dark"
+                type="button"
+                style={{marginTop:'10px',marginRight:'1%', float:'right'}}
+                onClick = {()=> this.clickRegisterModal() }
+              >
+              Register
+              </Button>
+
+              <RegisterTargetSiteAndPricingInfoModal
+                  show={this.state.showRegisterModal}
+                  JobId = {this.props.jobId}
                   userId={this.props.userId}
-                  selectedPid={this.props.tPid}
-                  saveTP = {this.saveTP}
-                  setModalShow = {(s) => this.setState({showSelectTPModal: s})}
-              />
-              <SelectRateModal
-                  show={this.state.showSelectRateModal}
-                  JobId = {this.props.id}
-                  userId={this.props.userId}
-                  selectRate = {this.selectRate}
-                  setModalShow = {(s) => this.setState({showSelectRateModal: s})}
+                  country={this.props.country}
+                  getRegisteredTargetSites = {this.getRegisteredTargetSites}
+                  setModalShow = {(s) => this.setState({showRegisterModal: s})}
               />
             </div>
         );

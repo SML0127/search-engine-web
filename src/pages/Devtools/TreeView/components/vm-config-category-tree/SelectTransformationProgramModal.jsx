@@ -140,6 +140,14 @@ class SelectTransformationProgramModal extends React.Component {
     }
     
     componentWillReceiveProps(nextProps) {
+      if(this.props.selectedPid != null){
+        for(var idx in this.state.transformationPrograms){
+           if(this.state.transformationPrograms[idx]['id'] == this.props.selectedPid){
+             this.setState({selectedTransformationProgram: this.state.transformationPrograms[idx]['program']})
+           }
+        }
+        this.setState({selectedTransformationProgramId :this.props.selectedPid})
+      }
     }
 
     closeModal(){
