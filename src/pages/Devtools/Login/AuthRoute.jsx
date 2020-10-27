@@ -13,7 +13,7 @@ class AuthRoute extends React.Component {
       <Route
         render={props =>
           obj.props.authenticated ? (
-            <MainPage userId={obj.props.userId}/>
+            <MainPage userId={obj.props.userId} is_dev = {obj.props.is_dev}/>
           ) : (
             <Redirect
             to={{ pathname: '/login', state: { from: props.location } }}
@@ -25,25 +25,3 @@ class AuthRoute extends React.Component {
   }
 }
 export default AuthRoute;
-
-
-
-
-// function AuthRoute({ authenticated, component: Component, render, ...rest }) {
-//   return (
-//     <Route
-//       {...rest}
-//       render={props =>
-//         authenticated ? (
-//           render ? render(props) : <Component {...props} />
-//         ) : (
-//           <Redirect
-//             to={{ pathname: '/login', state: { from: props.location } }}
-//           />
-//         )
-//       }
-//     />
-//   );
-// }
-
-// export default AuthRoute;

@@ -17,6 +17,8 @@ import "../TreeView/App.css";
 import JobTab from './JobTab';
 import HomeTab from './HomeTab';
 import ConfigTab from './ConfigTab';
+import ScheduleTab from './ScheduleTab';
+import WorkerTab from './WorkerTab';
 import './style.css';
 import setting_server from '../setting_server';
 
@@ -31,6 +33,8 @@ import MetisMenu from 'react-metismenu';
 import './react-metismenu-standart.css';
 import newGroupIcon from './add.png';
 import configIcon from './gear.png';
+import scheduleIcon from './schedule.png';
+import workerIcon from './worker.png';
 import folderIcon from './folder.png';
 import productIcon from './product.png';
 import jobConfigIcon from './job_config.png';
@@ -381,7 +385,7 @@ class CustomLink extends React.Component {
       return (
         <>
         <button className="metismenu-link" onClick={this.onClick}>
-          <label style={{fontSize:'17px', color:'black', display:'inline'}}>
+          <label style={{fontSize:'13px', color:'black', display:'inline'}}>
              <b>[</b>{country}<b>]</b> {this.props.label}
           </label>
           <OverlayTrigger
@@ -529,6 +533,8 @@ export default class Main extends React.Component {
       // this.setSelectedProjectId = this.setSelectedProjectId.bind(this);
       this.addJobTab = this.addJobTab.bind(this);
       this.addConfigTab = this.addConfigTab.bind(this);
+      this.addWorkerTab = this.addWorkerTab.bind(this);
+      this.addScheduleTab = this.addScheduleTab.bind(this);
       this.makeNewProject = this.makeNewProject.bind(this);
       this.makeNewGroup = this.makeNewGroup.bind(this);
       this.deleteGroup = this.deleteGroup.bind(this);
@@ -777,7 +783,7 @@ export default class Main extends React.Component {
     if (!currentKeys.includes(jobId)) {
       const newTab = (
         <DTab key={jobId} title={jobLabel} {...this.makeListeners(jobId)}>
-          <JobTab jobId={jobId} url={url}/>
+          <JobTab jobId={jobId} url={url} is_dev = {this.props.is_dev} />
         </DTab>
       );
       let newTabs = currentTabs.concat([newTab]);
@@ -791,6 +797,33 @@ export default class Main extends React.Component {
       });
     }
   }
+
+  addScheduleTab() { 
+    const scheduleTabId = "Schedule"; 
+    const scheduleTabLabel = "Schedule"; 
+    const currentTabs = this.state.tabs;
+    const currentKeys = currentTabs.map((tab) => {
+      return tab.key;
+    });
+    if (!currentKeys.includes(scheduleTabId)) {
+      const newTab = (
+        <DTab key={scheduleTabId} title={scheduleTabLabel} {...this.makeListeners(scheduleTabId)}>
+          <ScheduleTab userId={this.props.userId}></ScheduleTab>
+        </DTab>
+      );
+      let newTabs = currentTabs.concat([newTab]);
+      this.setState({
+        tabs: newTabs,
+        selectedTab: scheduleTabId
+      });
+    } else {
+      this.setState({
+        selectedTab: scheduleTabId
+      })
+    }
+  }
+
+
 
   addConfigTab() { // This function is similar to addJobTab function. You could integrate this function with addJobTab function.
     const configTabId = "Configuration"; // This code assumes that there is no tab which id is configuration.
@@ -813,6 +846,33 @@ export default class Main extends React.Component {
     } else {
       this.setState({
         selectedTab: configTabId
+      })
+    }
+  }
+
+
+
+  addWorkerTab() { // This function is similar to addJobTab function. You could integrate this function with addJobTab function.
+    const workerTabId = "Worker"; // This code assumes that there is no tab which id is configuration.
+    const workerTabLabel = "Worker"; // In that case, you need modify jobId of this function.
+    const currentTabs = this.state.tabs;
+    const currentKeys = currentTabs.map((tab) => {
+      return tab.key;
+    });
+    if (!currentKeys.includes(workerTabId)) {
+      const newTab = (
+        <DTab key={workerTabId} title={workerTabLabel} {...this.makeListeners(workerTabId)}>
+          <WorkerTab userId={this.props.userId}></WorkerTab>
+        </DTab>
+      );
+      let newTabs = currentTabs.concat([newTab]);
+      this.setState({
+        tabs: newTabs,
+        selectedTab: workerTabId
+      });
+    } else {
+      this.setState({
+        selectedTab: workerTabId
       })
     }
   }
@@ -996,11 +1056,13 @@ export default class Main extends React.Component {
       tabAfter: {}
     };
     const obj = this;
-    
-    return (
+   
+
+    if (obj.props.is_dev == true){
+      return (
       <>
         <div className="sidebar">
-          <div className="accountInfo" style={{color:'#00ACFF'}}>User ID:<label style={{color:'black', marginLeft:'2%'}}> {this.props.userId}</label></div>
+          <div className="accountInfo" style={{color:'#00ACFF'}}> Dev User ID:<label style={{color:'black', marginLeft:'2%'}}> {this.props.userId}</label></div>
           <div className="myJobs">
             <label style = {{marginLeft:'2%', color:'#5F6162'}}>
             All Groups
@@ -1008,6 +1070,81 @@ export default class Main extends React.Component {
             {/* <button onClick={this.handleClick}>
               alertA
             </button> */}
+
+            
+            <span style={{float: "right", marginRight:'4px'}}>
+              <OverlayTrigger
+                placement="left"
+                delay={{ show: 250, hide: 400 }}
+                overlay={
+                  <Tooltip >
+                    Set common information <br/>(e.g. Exchange Rate)
+                  </Tooltip>
+                }
+              >
+                <img
+                  src={configIcon}
+                  width="22"
+                  height="22"
+                  onClick={() =>
+                    this.addConfigTab()
+                  }
+                  style={{
+                    cursor: "pointer",
+                    marginBottom: "50%"
+                  }}
+                />
+              </OverlayTrigger> 
+            </span>
+
+            <span style={{float: "right", marginRight:'4px'}}>
+              <OverlayTrigger
+                placement="left"
+                delay={{ show: 250, hide: 400 }}
+                overlay={
+                  <Tooltip >
+                    Manage worker
+                  </Tooltip>
+                }
+              >
+                <img
+                  src={workerIcon}
+                  width="22"
+                  height="22"
+                  onClick={() =>
+                    this.addWorkerTab()
+                  }
+                  style={{
+                    cursor: "pointer",
+                    marginBottom: "50%"
+                  }}
+                />
+              </OverlayTrigger> 
+            </span>
+            <span style={{float: "right", marginRight:"4px"}}>
+              <OverlayTrigger
+                placement="left"
+                delay={{ show: 250, hide: 400 }}
+                overlay={
+                  <Tooltip >
+                    Manage registered schedules
+                  </Tooltip>
+                }
+              >
+                <img
+                  src={scheduleIcon}
+                  width="26"
+                  height="26"
+                  onClick={() =>
+                    this.addScheduleTab()
+                  }
+                  style={{
+                    cursor: "pointer",
+                    marginBottom: "50%"
+                  }}
+                />
+              </OverlayTrigger> 
+            </span>
             <span style={{float: "right", marginRight: "4px"}}>
               <OverlayTrigger
                 placement="left"
@@ -1032,30 +1169,6 @@ export default class Main extends React.Component {
                   }}
                 />
               </OverlayTrigger> 
-            </span>
-            <span style={{float: "right"}}>
-              <OverlayTrigger
-                placement="left"
-                delay={{ show: 250, hide: 400 }}
-                overlay={
-                  <Tooltip >
-                    Set common information <br/>(e.g. Exchange Rate)
-                  </Tooltip>
-                }
-              >
-                <img
-                  src={configIcon}
-                  width="22"
-                  height="22"
-                  onClick={() =>
-                    this.addConfigTab()
-                  }
-                  style={{
-                    cursor: "pointer"
-                  }}
-                />
-              </OverlayTrigger> 
-
             </span>
           </div>
           <MetisMenu
@@ -1130,5 +1243,166 @@ export default class Main extends React.Component {
         }
       </>
     );
+    }
+    else{
+      return (
+      <>
+        <div className="sidebar">
+          <div className="accountInfo" style={{color:'#00ACFF'}}>User ID:<label style={{color:'black', marginLeft:'2%'}}> {this.props.userId}</label></div>
+          <div className="myJobs">
+            <label style = {{marginLeft:'2%', color:'#5F6162'}}>
+            All Groups
+            </label>
+
+            <span style={{float: "right", marginRight:'4px'}}>
+              <OverlayTrigger
+                placement="left"
+                delay={{ show: 250, hide: 400 }}
+                overlay={
+                  <Tooltip >
+                    Manage worker
+                  </Tooltip>
+                }
+              >
+                <img
+                  src={workerIcon}
+                  width="22"
+                  height="22"
+                  onClick={() =>
+                    this.addWorkerTab()
+                  }
+                  style={{
+                    cursor: "pointer",
+                    marginBottom: "50%"
+                  }}
+                />
+              </OverlayTrigger> 
+            </span>
+            <span style={{float: "right", marginRight:"4px"}}>
+              <OverlayTrigger
+                placement="left"
+                delay={{ show: 250, hide: 400 }}
+                overlay={
+                  <Tooltip >
+                    Manage registered schedules
+                  </Tooltip>
+                }
+              >
+                <img
+                  src={scheduleIcon}
+                  width="26"
+                  height="26"
+                  onClick={() =>
+                    this.addScheduleTab()
+                  }
+                  style={{
+                    cursor: "pointer",
+                    marginBottom: "50%"
+                  }}
+                />
+              </OverlayTrigger> 
+            </span>
+            <span style={{float: "right", marginRight: "4px"}}>
+              <OverlayTrigger
+                placement="left"
+                delay={{ show: 250, hide: 400 }}
+                overlay={
+                  <Tooltip>
+                    Create new group
+                  </Tooltip>
+                }
+              >
+                <img
+                  src={newGroupIcon}
+                  width="25"
+                  height="25"
+                  onClick={() =>
+                    this.setState({
+                      newGroupModalShow: true
+                    })
+                  }
+                  style={{
+                    cursor: "pointer"
+                  }}
+                />
+              </OverlayTrigger> 
+            </span>
+          </div>
+          <MetisMenu
+            className="menu"
+            content={this.state.groupJobList}
+            LinkComponent={CustomLink}
+            onSelected={this.jobSelected}
+            activeLinkFromLocation
+            activeLinkId={this.state.activeLinkId}
+          />
+        </div>
+        <div style={{height: "100vh", overflow: "auto"}}>
+          <Container fluid>
+            <Row>
+              <Col style={{marginLeft:"-1%", marginRight:'-5%'}}>
+                <DTabs
+                  tabsStyles={tabsStyles}
+                  selectedTab={this.state.selectedTab}
+                  onTabSelect={this.handleTabSelect.bind(this)}
+                  onTabClose={this.handleTabClose.bind(this)}
+                  tabAddButton = {false}
+                  onTabPositionChange={this.handleTabPositionChange.bind(this)}
+                  tabs={this.state.tabs}
+                />
+              </Col>
+            </Row>
+          </Container>
+        </div>
+        <NewGroupModal
+          show={this.state.newGroupModalShow}
+          makeNewGroup={this.makeNewGroup}
+          setModalShow={(s) => this.setState({newGroupModalShow: s})}
+          userId={this.props.userId}
+          groupNameList={this.state.groupJobList.filter(function(item){
+            return item.parentId === undefined;
+          }).map((item) => {return item.label;})}
+        />
+        {
+          obj.state.groupJobList.filter(function(item){
+            return item.parentId !== undefined;
+          })
+          .map(function(item, index){
+            return (
+              <DeleteJobModal
+                show={obj.state.deleteJobModalShow[index]}
+                jobId={item.id}
+                jobLabel={item.label}
+                jobUrl={item.url}
+                index={index}
+                setModalShow={obj.setDeleteJobModalShow}
+                deleteJob={obj.deleteJob}
+              />
+            );
+          })
+        }
+        {
+          obj.state.groupJobList.filter(function(item){
+            return item.parentId === undefined;
+          })
+          .map(function(item, index){
+            return (
+              <DeleteGroupModal
+                show={obj.state.deleteGroupModalShow[index]}
+                groupId={item.id}
+                groupLabel={item.label}
+                index={index}
+                setModalShow={obj.setDeleteGroupModalShow}
+                deleteGroup={obj.deleteGroup}
+              />
+            );
+          })
+        }
+      </>
+    );
+
+
+    }
+    
   }
 }

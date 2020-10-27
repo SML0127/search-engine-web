@@ -26,7 +26,8 @@ class PSEMainPage extends React.Component {
     this.state = {
       //auth: true, // auto login?
       //userId: 'psetest' // set userId when auth is true
-      userId: 'dblabtest' // set userId when auth is true
+      userId: 'dblabtest', // set userId when auth is true
+      is_dev: false 
     }
   }
 
@@ -36,26 +37,9 @@ class PSEMainPage extends React.Component {
   setUserId(id) {
     this.setState({userId: id});
   }
-
-
-
-
-  //render(){
-  //  return (
-  //    <div class='pse'>
-  //      <div id="edit-selector" class="col-lg-10">
-	//	    	<div class="input-group">
-	//	    		  <span class="input-group-btn">
-	//	    			<Button class="btn btn-default" action='select-selector' type="button">Select1</Button>
-	//	    		  </span>
-	//	    	</div>
-	//	    </div>
-  //      <RunPage /> 
-  //      <ExecutionsPage  />
-  //    </div>
-  //  );
-  //}
-
+  setIsDev(bool) {
+    this.setState({is_dev: bool});
+  }
   render() {
     const obj = this;
     return (
@@ -69,10 +53,11 @@ class PSEMainPage extends React.Component {
                   authenticated={this.state.auth}
                   setAuth={this.setAuth.bind(this)}
                   setUserId={this.setUserId.bind(this)}
+                  setIsDev={this.setIsDev.bind(this)}
                 />
               )}
             />
-            <AuthRoute authenticated={this.state.auth} userId={this.state.userId}/>
+            <AuthRoute authenticated={this.state.auth} userId={this.state.userId} is_dev = {this.state.is_dev}/>
           </Switch>
         </Router>
       </React.StrictMode>

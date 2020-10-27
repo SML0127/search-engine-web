@@ -557,7 +557,6 @@ class PIModal extends React.Component {
             })
         })
         .catch(function (error){
-            console.log(error)
         });
     }
 

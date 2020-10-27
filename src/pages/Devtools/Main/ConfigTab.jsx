@@ -36,7 +36,7 @@ class ConfigTab extends React.Component {
         this.state = {
           country: '',
           usage: '',
-          path: '/var/lib/postgresql/9.5/main',
+          path: '/var/lib/postgresql/12/main',
           countryOptions: '',
           allExchangeRate: '',
           targetSites: [],
@@ -159,14 +159,19 @@ class ConfigTab extends React.Component {
         path: obj.state.path
       })
       .then(function (response) {
+        console.log('222222222222')
+        console.log(response['data'])
         if (response['data']['success'] == true) {
           //{'Size': '3.6T', 'Used': '2.6T', 'Avail': '916G', 'Use%': '74%'}
+          console.log(response['data']['result'])
           obj.setState({diskSize: response['data']['result']['Size'], diskUsed: response['data']['result']['Used'], diskAvail: response['data']['result']['Avail'], diskUsedPercentage: response['data']['result']['Use%']})
         } else {
-          console.log('Failed to update exchange rate');
+          console.log('Failed to update disk usage');
         }
       })
       .catch(function (error){
+        console.log('333333')
+        console.log('Failed to update disk usage');
         console.log(error);
       });
     }

@@ -72,7 +72,8 @@ class JobConfigModal extends React.Component {
         period: obj.state.period,
         check_c: obj.state.check_c,
         check_m: obj.state.check_vmm,
-        check_t: obj.state.check_vmt
+        check_t: obj.state.check_vmt,
+        user_id: obj.props.userId
       })
       .then(function (response) {
         

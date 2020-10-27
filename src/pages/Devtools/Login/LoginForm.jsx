@@ -28,12 +28,18 @@ class LoginForm extends React.Component {
       password: this.state.password
     })
     .then((resultData) => {
+      console.log(resultData['data'])
       if(resultData['data']['success'] === true) {
         const auth = resultData['data']['auth'];
+     
         console.log(auth);
         if (auth === true) {
+          if ( resultData['data']['is_dev'] == true){
+            this.state.userId = resultData['data']['normal_user_id']
+          }
           this.props.setUserId(this.state.userId);
           this.props.setAuth(auth);
+          this.props.setIsDev(resultData['data']['is_dev']);
         } else {
           alert('Failed to login');
           this.setState({userId: '', password: ''});

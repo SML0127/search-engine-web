@@ -120,14 +120,19 @@ class JobTab extends React.Component {
         return this.createUserProgram(open_url, zipcode_url, open_url_id, nodeIds, operator, edges, options, node_of_workflow, BFSIteratorNodeIds, workflow)
     }
 
-/*
-{
-  "id":0,
-  "name":"Test 1",
-  "dataDb":"host=141.223.197.33 port=54320 user=pse password=pse dbname=pse",
-  "logDb":"host=141.223.197.33 port=54320 user=pse password=pse dbname=pse",
-  "queue":"real_queue","ops":[{"id":1,"name":"OpenURL","label":16,"url":"https://search.rakuten.co.jp/search/mall/-/565751/tg1012290/?min=5000&review=4.5",
-*/
+
+    updateChromeTab(url) {
+     
+      if (!url.match(/^https?:\/\//i)) {
+        chrome.tabs.update({url: 'http://'+ url});
+      }
+      else{
+        chrome.tabs.update({url: url});
+      }
+     
+    }
+
+
     loadRecentProgram() { 
         var obj = this;
         axios.post(setting_server.DB_SERVER+'/api/db/userprogram', {
@@ -155,7 +160,12 @@ class JobTab extends React.Component {
                  let tmp = obj.state.refresh
 
                  g_user_program = user_program
+                 let url = user_program['ops'][0]['url']
                  
+                 if (url != null){
+                   //obj.updateChromeTab(url)
+                 }
+
                  obj.setState({
                    refresh:++tmp, 
                    dataDB: JSON.stringify(user_program['dataDb'], null, 2), 
@@ -163,6 +173,8 @@ class JobTab extends React.Component {
                    upid: upid,
                    nodes: user_program['object_tree']
                  })
+                 
+
                }
             }
         })
@@ -188,7 +200,7 @@ class JobTab extends React.Component {
         }
     }
 
-  createUserProgram(open_url, zipcode_url, open_url_id, nodeIds, operator, edges, options, node_of_workflow, BFSIteratorNodeIds, workflow){
+    createUserProgram(open_url, zipcode_url, open_url_id, nodeIds, operator, edges, options, node_of_workflow, BFSIteratorNodeIds, workflow){
         var program_name = "Test 1"
         var queue_name = "real_queue"
         var id = 0
@@ -389,26 +401,6 @@ class JobTab extends React.Component {
       
     }
 
-    // loadCategory() {
-    //   const obj = this;
-    //   axios.post('https://dblabpse.postech.ac.kr:5000/api/db/category', {
-    //     req_type: "get_category",
-    //   })
-    //   .then(function (resultData) {
-    //     if (resultData['data']['success'] == true) {
-    //       const output = resultData['data']['output'];
-    //       const category = JSON.parse(output[0]);
-    //       obj.setState({
-    //           category: category,
-    //       });
-    //     } else {
-    //       console.log('loadCategory Failed');
-    //     }
-    //   })
-    //   .catch(function (error) {
-    //       console.log(error);
-    //   });
-    // }
 
     refreshList() {
       const obj = this;
@@ -439,8 +431,7 @@ class JobTab extends React.Component {
     }
     componentWillMount() {
       this.refreshList();
-      console.log('-------------1-----------')
-      console.log(g_user_program)
+      //console.log(g_user_program)
       this.loadRecentProgram()
       //this.getUrl();
     }
@@ -623,219 +614,6 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
         return op
     }
 
-
-
-
-
-
-    //getOperatorAndProps(operator, id, options){
-    //    var op, props
-    //    switch(operator) {
-    //        case "BFSIterator":
-    //            op =  {
-    //                'props':{
-    //                    'id': id,
-    //                    'name': operator,
-    //                    'timeout': 10   
-    //                },
-    //                'operators': []
-    //            }
-    //            if(Object.keys(options).length != 3 || typeof options['rows'][0] == "undefined"){
-    //                props = {
-    //                   'id': (id - 1),
-    //                   'name': "Stage",
-    //                   'type': 0,
-    //                   'input': (id - 2),
-    //                   'max_num_tasks': options['max_num_tasks'],
-    //                   'max_num_local_tasks': options['max_num_local_tasks'],
-    //                   'urls': []     
-    //                }
-    //            }
-    //            else{
-    //                var query = ""
-    //                var initial_values = []
-    //                var increments = []
-    //                for(var idx in options['rows']){
-    //                    query += options['rows'][idx]['query']
-    //                    initial_values.push(options['rows'][idx]['initial'])
-    //                    increments.push(options['rows'][idx]['increase'])
-    //                }
-    //                props = {
-    //                   'id': (id - 1),
-    //                   'name': "Stage",
-    //                   'type': 1,
-    //                   'input': (id - 2),
-    //                   "query": query,
-    //                   "initial_values": initial_values,
-    //                   "increments": increments,
-    //                   'max_num_tasks': options['max_num_tasks'],
-    //                   'max_num_local_tasks': options['max_num_local_tasks'],
-    //                   'urls': []     
-    //                }
-    //            }
-    //            return [op, props]              
-    //        case "ExtractPageURL":
-    //            if(Object.keys(options).length == 3 ){
-    //                if(options['base_query'] != "" && options['value_query'] != "" && options['value_attr']!= ""){
-    //                    op =  {
-    //                        "props":{
-    //                           "id": id,
-    //                           "name": "Expander",
-    //                           "type": 1,
-    //                           "base_query": options['base_query'],
-    //                           "value_query": options['value_query'],
-    //                           "value_attr": options['value_attr']
-    //                        },
-    //                        "operators":[]
-    //                    }
-    //                }
-    //                else{
-    //                    op =  {
-    //                        "props":{
-    //                           "id": id,
-    //                           "name": "Expander",
-    //                           "type": 0
-    //                        },
-    //                        "operators":[]
-    //                    }
-    //                }
-    //            }
-    //            else{
-    //                op =  {
-    //                    "props":{
-    //                       "id": id,
-    //                       "name": "Expander",
-    //                       "type": 0
-    //                    },
-    //                    "operators":[]
-    //                }
-    //            }
-    //            break;
-    //        case "ExtractItemDetail":
-    //            var columns_itemdetail = []
-    //            for(var idx1 in options['rows']){
-    //                if(options['rows'][idx1]['col_name'] != "" && options['rows'][idx1]['col_query'] && options['rows'][idx1]['col_attr'] && options['rows'][idx1]['col_essential']){
-    //                    var col = {
-    //                        "name":options['rows'][idx1]['col_name'],
-    //                        "query":options['rows'][idx1]['col_query'],
-    //                        "attr":options['rows'][idx1]['col_attr'],
-    //                        "essential":options['rows'][idx1]['col_essential']
-    //                    }
-    //                    columns_itemdetail.push(col)
-    //                }
-    //            }
-    //            op =  {
-    //                "props": {
-    //                    "id": id,
-    //                    "name": "RowScrapper",
-    //                    "table": options['table_name'],
-    //                    "columns": columns_itemdetail
-    //                },
-    //                "operators": []
-    //            }             
-    //            break;
-    //        case "ExtractItemList":
-    //            var columns_itemlist = []
-    //            for(var idx2 in options['rows']){
-    //                if(options['rows'][idx2]['col_name'] != "" && options['rows'][idx2]['col_query'] && options['rows'][idx2]['col_attr'] && options['rows'][idx2]['col_essential']){
-    //                    var col2 = {
-    //                        "name":options['rows'][idx2]['col_name'],
-    //                        "query":options['rows'][idx2]['col_query'],
-    //                        "attr":options['rows'][idx2]['col_attr'],
-    //                        "essential":options['rows'][idx2]['col_essential']
-    //                    }
-    //                    columns_itemlist.push(col2)
-    //                }
-    //            }
-    //            op =  {
-    //                "props": {
-    //                    "id": id,
-    //                    "name": "RowsScrapper",
-    //                    "table": options['table_name'],
-    //                    "base_query": options['base_query'],
-    //                    "columns": columns_itemlist
-    //                },
-    //                "operators": []
-    //            }             
-    //            break;
-    //        case "ClickOption":
-    //            var columns_options = []
-    //            for(var idx3 in options['rows']){
-    //                if(options['rows'][idx3]['col_query'] &&  options['rows'][idx3]['col_essential']){
-    //                    var col = {
-    //                        "query":options['rows'][idx3]['col_query'],
-    //                        "essential":options['rows'][idx3]['col_essential']
-    //                    }
-    //                    columns_options.push(col)
-    //                }
-    //            }
-    //            op =  {
-    //                "props": {
-    //                    "id": id,
-    //                    "name": "ClickOperator",
-    //                    "columns": columns_options
-    //                },
-    //                "operators": []
-    //            }             
-    //            break;
-    //        case "ValuesScrapper":
-    //            var columns_itemlist = []
-    //            for(var idx4 in options['rows']){
-    //                if(options['rows'][idx4]['col_key'] != "" && options['rows'][idx4]['col_query'] && options['rows'][idx4]['col_attr'] && options['rows'][idx4]['col_essential']){
-    //                    var col2 = {
-    //                        "key":options['rows'][idx4]['col_key'],
-    //                        "query":options['rows'][idx4]['col_query'],
-    //                        "attr":options['rows'][idx4]['col_attr'],
-    //                        "essential":options['rows'][idx4]['col_essential']
-    //                    }
-    //                    columns_itemlist.push(col2)
-    //                }
-    //            }
-    //            op =  {
-    //                "props": {
-    //                    "id": id,
-    //                    "name": "ValuesScrapper",
-    //                    "object_id": options['objectId'],
-    //                    "pairs": columns_itemlist
-    //                },
-    //                "operators": []
-    //            }             
-    //            break;
-    //        case "DictionaryScrapper":
-    //            op =  {
-    //                "props":{
-    //                   "id": id,
-    //                   "name": "DictionaryScrapper",
-    //                   "object_id": options['objectId'],
-    //                   "rows_query": options['rowsQuery'],
-    //                   "key_query": options['keyQuery'],
-    //                   "key_attr": options['keyAttr'],
-    //                   "value_query": options['valueQuery'],
-    //                   "value_attr": options['valueAttr']
-    //                },
-    //                "operators":[]
-    //            }
-    //            break;
-    //        case "ListScrapper":
-    //            op =  {
-    //                "props":{
-    //                   "id": id,
-    //                   "name": "ListScrapper",
-    //                   "object_id": options['objectId'],
-    //                   "rows_query": options['rowsQuery'],
-    //                   "attr": options['attr'],
-    //                },
-    //                "operators":[]
-    //            }
-
-    //            break;
-    //        default:
-    //            console.log("Not defined opeartor")
-    //    }
-    //    return op
-    //}
-
-
   getUrl() {
     const obj = this;
     axios.post(setting_server.DB_SERVER+'/api/db/job', {
@@ -894,300 +672,391 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
        }
    }
 
-
-//   getR(){
-//     console.log("--------------------")
-//     var deferredSelector = this.getContentScript.selectSelector({
-//       allowedElements: "*"
-//     });
-//     //console.log(selector.getItemCSSSelector())
-//     deferredSelector.done(function(result) {
-//       console.log("Controller.js result")
-//       console.log(result)
-//     }.bind(this));
-//
-//   }
-//
-//   getContentScript(location) {
-//   
-//     var contentScript;
-//     console.log(location)
-//   
-//     // Handle calls from different places
-//     if(location === "ContentScript") {
-//       contentScript = ContentScript;
-//       contentScript.backgroundScript = getBackgroundScript("ContentScript");
-//       return contentScript;
-//     }
-//     else if(location === "BackgroundScript" || location === "DevTools") {
-//       var backgroundScript = getBackgroundScript(location);
-//   
-//       // if called within background script proxy calls to content script
-//       contentScript = {};
-//         Object.keys(ContentScript).forEach(function(attr) {
-//         if(typeof ContentScript[attr] === 'function') {
-//           contentScript[attr] = function(request) {
-//   
-//             var reqToContentScript = {
-//               contentScriptCall: true,
-//               fn: attr,
-//               request: request
-//             };
-//   
-//             return backgroundScript.executeContentScript(reqToContentScript);
-//           };
-//         }
-//         else {
-//           contentScript[attr] = ContentScript[attr];
-//         }
-//       });
-//       contentScript.backgroundScript = backgroundScript;
-//       return contentScript;
-//     }
-//     else {
-//       throw "Invalid ContentScript initialization - " + location;
-//     }
-//   };
-
-
-  //convertToWorkflow(user_program){
-  //    if(Object.keys(user_program).length == 0){
-  //        return {}
-  //    }
-  //   
-  //    if(typeof user_program['root_data'] != "undefined"){
-  //        var workflow = {}
-  //        var nodes = {}
-  //        workflow['id'] = "work-flow@1.0.0"
-
-  //        var openurl_data = user_program['root_data']
-  //        nodes[user_program['root_data']['id']] = openurl_data
-  //        for(var idx in user_program['operators']){
-  //            for(var idxx in user_program['operators'][idx]['operators']){
-  //                nodes[ user_program['operators'][idx]['operators'][idxx]['workflow_data']['id']] = user_program['operators'][idx]['operators'][idxx]['workflow_data']
-  //            }
-  //        }
-  //        
-  //        workflow['nodes'] = nodes
-  //    }
-  //    return workflow
-  //}
-
     render() {
         const {items} = this.state;
-        return (
-        <>
-          <Grid.Row>
-            <Grid.Col sm={12} lg={12}>
-              <Card
-                  style={{
-                      marginTop:"-7px",
-                      marginLeft:'1px',
-                      borderTop:'2px solid black'
-                  }}
-                  title="Your workflow"
-              >
-              <ReteGraph saveGraphData={this.saveGraphData} editor = {this.convertToWorkflow(g_user_program)} refresh={this.state.refresh} style={{marginBottom:'10%'}} job_id = {this.props.jobId}/>
 
-              </Card>
-            </Grid.Col> 
-          </Grid.Row>
-          <Grid.Row>
-            <Grid.Col sm={12} lg={12}>
-              <Card
-                  style={{
-                      marginTop:"-30px",
-                      marginLeft:'1px',
-                      borderTop:'0px solid',
-                      height:'40px'
-                  }}
-              >
-                <div class = 'row' style = {{marginLeft:'75%'}}>
-                <Button 
-                  type="button" 
-                  color="primary"
-                  style = {{float:'right',marginRight:"0.5%"}}
-                  className="ml-auto" 
-                  onClick={() => {
-                        this.updateProgram()
-                      }
-                  }
-                >
-                UPDATE
-                </Button>
-                <Button 
-                  type="button" 
-                  color="primary"
-                  style = {{float:'right',marginRight:"0.5%"}}
-                  className="ml-auto" 
-                  onClick={() => {
-                        this.setState({savemodalShow: true})
-                      }
-                  }
-                >
-                SAVE
-                </Button>
-
-                <Button 
-                  type="button" 
-                  color="primary"
-                  className="ml-auto" 
-                  style = {{float:'right',marginRight:"5%"}}
-                  onClick={() => {
-                        this.setState({loadmodalShow: true})
-                      }
-                  }
-                >
-                LOAD
-		            </Button>
-
-
-		          </div>
-              </Card>
-            </Grid.Col> 
-          </Grid.Row>
-          <Grid.Row>
-            <Grid.Col sm={12} lg={12}>
-              <Card
-                  style={{
-                      marginTop:"-25px",
-                      marginLeft:'1px',
-                      borderTop:'2px solid black'
-                  }}
-                  title="Executions"
-              >
-                <ReactTable
-                    data = {items}
-                    getTdProps={(state, rowInfo, column, instance) => {
-                        return {
-                            onDoubleClick: (e) => {
-                                if(typeof rowInfo != 'undefined'){
-                                  // gSelectedExeuctionId = rowInfo['original'][0]
-                                  this.setState({modalShow: true })
-                                }
-                            }
-                        }
+        if(this.props.is_dev == true){
+          console.log('render RETE')
+          return (
+          <>
+            <Grid.Row>
+              <Grid.Col sm={12} lg={12}>
+                <Card
+                    style={{
+                        marginLeft:'1px',
+                        borderTop:'2px solid black'
                     }}
-                    columns={[
-                        {
-                            Header: "Execution ID",
-                            width: 150,
-                            resizable: false,
-                            accessor: "0",
-                            Cell: ( row ) => {
-                                return (
-                                    <div
-                                      style={{
-                                          textAlign:"center",
-                                          paddingTop:"4px"
-                                      }}
-                                    > {row.value} </div>
-                                )
-                            }
+                    title="Your workflow"
+                >
+                <ReteGraph saveGraphData={this.saveGraphData} editor = {this.convertToWorkflow(g_user_program)} refresh={this.state.refresh} style={{marginBottom:'10%'}} job_id = {this.props.jobId}/>
+
+                </Card>
+              </Grid.Col> 
+            </Grid.Row>
+            <Grid.Row>
+              <Grid.Col sm={12} lg={12}>
+                <Card
+                    style={{
+                        marginTop:"-30px",
+                        marginLeft:'1px',
+                        borderTop:'0px solid',
+                        height:'51px'
+                    }}
+                >
+                  <div class = 'row' style = {{marginLeft:'79%'}}>
+                  <Button 
+                    color="secondary"
+                    style = {{float:'right',marginRight:"5%"}}
+                    onClick={() => {
+                          this.updateProgram()
+                        }
+                    }
+                  >
+                  UPDATE
+                  </Button>
+                  <Button 
+                    color="secondary"
+                    style = {{float:'right',marginRight:"5%"}}
+                    onClick={() => {
+                          this.setState({savemodalShow: true})
+                        }
+                    }
+                  >
+                  SAVE
+                  </Button>
+
+                  <Button 
+                    color="secondary"
+                    style = {{float:'right'}}
+                    onClick={() => {
+                          this.setState({loadmodalShow: true})
+                        }
+                    }
+                  >
+                  LOAD
+		              </Button>
 
 
-                        },
-                        {
-                            Header: "Start Time",
-                            resizable: false,
-                            accessor: "3",
-                            Cell: ( row ) => {
-                                return (
-                                    <div
+		            </div>
+                </Card>
+              </Grid.Col> 
+            </Grid.Row>
+            <Grid.Row>
+              <Grid.Col sm={12} lg={12}>
+                <Card
+                    style={{
+                        marginTop:"-25px",
+                        marginLeft:'1px',
+                        borderTop:'2px solid black'
+                    }}
+                    title="Executions"
+                >
+                  <ReactTable
+                      data = {items}
+                      getTdProps={(state, rowInfo, column, instance) => {
+                          return {
+                              onDoubleClick: (e) => {
+                                  if(typeof rowInfo != 'undefined'){
+                                    // gSelectedExeuctionId = rowInfo['original'][0]
+                                    this.setState({modalShow: true })
+                                  }
+                              }
+                          }
+                      }}
+                      columns={[
+                          {
+                              Header: "Execution ID",
+                              width: 150,
+                              resizable: false,
+                              accessor: "0",
+                              Cell: ( row ) => {
+                                  return (
+                                      <div
                                         style={{
                                             textAlign:"center",
                                             paddingTop:"4px"
                                         }}
-                                    > {row.value} </div>
-                                )
-                            }
-                        },
-                        {
-                            Header: "Finish Time",
-                            resizable: false,
-                            accessor: "4",
-                            Cell: ( row ) => {
-                                if (row.value == null){
-                                    return (
-                                        <div
-                                            style={{
-                                                textAlign:"center",
-                                                paddingTop:"4px",
-                                                paddingLeft:"15px"
-                                            }}
-                                        > Running... </div>
-                                    )
-                                }
-                                else{
-                                    return (
-                                        <div
-                                            style={{
-                                                textAlign:"center",
-                                                paddingTop:"4px",
-                                                paddingLeft:"12px"
-                                            }}
-                                        > {row.value} </div>
-                                    )
-                                }
-                            }
-                        },
-                        {
-                            Header: "# of crawled product",
-                            resizable: false,
-                            accessor: "6",
-                            Cell: ( row ) => {
-                                if (row.value == null){
-                                    return (
-                                        <div
-                                            style={{
-                                                textAlign:"center",
-                                                paddingTop:"4px",
-                                                paddingLeft:"15px"
-                                            }}
-                                        > Running... </div>
-                                    )
-                                }
-                                else{
-                                    return (
-                                        <div
-                                            style={{
-                                                textAlign:"center",
-                                                paddingTop:"4px",
-                                                paddingLeft:"12px"
-                                            }}
-                                        > {row.value} </div>
-                                    )
-                                }
-                            }
-                        }
-                    ]}
-                    minRows={10}
-                    defaultPageSize={1000}
-                    showPagination ={false}
-                    bordered = {false} 
+                                      > {row.value} </div>
+                                  )
+                              }
+
+
+                          },
+                          {
+                              Header: "Start Time",
+                              resizable: false,
+                              accessor: "3",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "Finish Time",
+                              resizable: false,
+                              accessor: "4",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "# of crawled product",
+                              resizable: false,
+                              accessor: "6",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          }
+                      ]}
+                      minRows={10}
+                      defaultPageSize={1000}
+                      showPagination ={false}
+                      bordered = {false} 
+                      style={{
+                          height: "500px"
+                      }}
+                      className="-striped -highlight"
+                  />
+                  <LoadProgramModal
+                      show={this.state.loadmodalShow}
+                      drawWorkflow= {this.drawWorkflow}
+                      jobId= {this.props.jobId}
+                      setModalShow={(s) => this.setState({loadmodalShow: s})}
+                      selectedProjectId={this.state.selectedProjectId}
+                  />
+                  <SaveProgramModal
+                      show={this.state.savemodalShow}
+                      saveProgram={this.saveProgram}
+                      setModalShow={(s) => this.setState({savemodalShow: s})}
+                      selectedProjectId={this.state.selectedProjectId}
+                  />
+                  </Card>
+                </Grid.Col> 
+              </Grid.Row>
+            </>
+          );
+        }
+        else{
+          return (
+          <>
+            <Grid.Row>
+              <Grid.Col sm={12} lg={12}>
+                <Card
                     style={{
-                        height: "500px"
+                        marginLeft:'1px',
+                        borderTop:'2px solid black'
                     }}
-                    className="-striped -highlight"
-                />
-                <LoadProgramModal
-                    show={this.state.loadmodalShow}
-                    drawWorkflow= {this.drawWorkflow}
-                    jobId= {this.props.jobId}
-                    setModalShow={(s) => this.setState({loadmodalShow: s})}
-                    selectedProjectId={this.state.selectedProjectId}
-                />
-                <SaveProgramModal
-                    show={this.state.savemodalShow}
-                    saveProgram={this.saveProgram}
-                    setModalShow={(s) => this.setState({savemodalShow: s})}
-                    selectedProjectId={this.state.selectedProjectId}
-                />
-                </Card>
-              </Grid.Col> 
-            </Grid.Row>
-          </>
-        );
+                    title="Executions"
+                >
+                  <ReactTable
+                      data = {items}
+                      getTdProps={(state, rowInfo, column, instance) => {
+                          return {
+                              onDoubleClick: (e) => {
+                                  if(typeof rowInfo != 'undefined'){
+                                    // gSelectedExeuctionId = rowInfo['original'][0]
+                                    this.setState({modalShow: true })
+                                  }
+                              }
+                          }
+                      }}
+                      columns={[
+                          {
+                              Header: "Execution ID",
+                              width: 150,
+                              resizable: false,
+                              accessor: "0",
+                              Cell: ( row ) => {
+                                  return (
+                                      <div
+                                        style={{
+                                            textAlign:"center",
+                                            paddingTop:"4px"
+                                        }}
+                                      > {row.value} </div>
+                                  )
+                              }
+
+
+                          },
+                          {
+                              Header: "Start Time",
+                              resizable: false,
+                              accessor: "3",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "Finish Time",
+                              resizable: false,
+                              accessor: "4",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "# of crawled product",
+                              resizable: false,
+                              accessor: "6",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          }
+                      ]}
+                      minRows={10}
+                      defaultPageSize={1000}
+                      showPagination ={false}
+                      bordered = {false} 
+                      style={{
+                          height: "500px"
+                      }}
+                      className="-striped -highlight"
+                  />
+                  <LoadProgramModal
+                      show={this.state.loadmodalShow}
+                      drawWorkflow= {this.drawWorkflow}
+                      jobId= {this.props.jobId}
+                      setModalShow={(s) => this.setState({loadmodalShow: s})}
+                      selectedProjectId={this.state.selectedProjectId}
+                  />
+                  <SaveProgramModal
+                      show={this.state.savemodalShow}
+                      saveProgram={this.saveProgram}
+                      setModalShow={(s) => this.setState({savemodalShow: s})}
+                      selectedProjectId={this.state.selectedProjectId}
+                  />
+                  </Card>
+                </Grid.Col> 
+              </Grid.Row>
+            </>
+          );
+        }
     }
 }
 export default JobTab;
