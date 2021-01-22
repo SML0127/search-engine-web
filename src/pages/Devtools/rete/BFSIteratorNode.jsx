@@ -2,6 +2,8 @@ import React from "react";
 import { Node, Socket} from "rete-react-render-plugin";
 import { Form, Button } from "tabler-react";
 import Modal from 'react-bootstrap/Modal';
+import Tooltip from 'react-bootstrap/Tooltip'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 
 export class BFSIteratorNode extends Node {
     constructor(props){
@@ -48,13 +50,12 @@ export class BFSIteratorNode extends Node {
         //    [name]: value
         //};
         rows[idx][name] = value
-        console.log(rows)
         this.setState({ rows: rows })
     };
                                                                      
  
     handleAddRow = () => {
-        const item = {};
+        const item = {query:'', initial:'', increase:''};
         this.setState({
             rows: [...this.state.rows, item]
         });
@@ -127,28 +128,70 @@ export class BFSIteratorNode extends Node {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    Max # of tasks
-                    <input id="tasks" name="tasks" type="text" defaultValue={this.state.max_num_tasks}></input>
-                    <p></p> 
-                    QUERY
-                    <Form.Textarea
-                        row={12}
-                        defaultValue={this.state.query}
-                    />
-                    Selected Button Query
-                    <Form.Textarea
-                        row={12}
-                        defaultValue={this.state.selected_button_query}
-                    />
-                    URL QUERY
+                    <div class = 'row' style={{width:'100%'}}>
+                      <label style={{width:'17%', marginTop:'5px', paddingLeft:'2%'}}>
+                      Max # of pages
+                      </label>
+                      <Form.Textarea
+                          row={2}
+                          style={{width:'80%', height:'30px', marginLeft:'3%', textAlign:'right', overflow:'hidden'}}
+                          defaultValue={this.state.max_num_tasks}
+                      />
+                    </div>
+                    <div class = 'row' style={{width:'100%'}}>
+                      <OverlayTrigger
+                        placement="right"
+                        delay={{ show: 250, hide: 400 }}
+                        overlay={
+                          <Tooltip>
+                            for checking web page is properly loaded
+                          </Tooltip>
+                        }
+                      >
+                        <label style={{width:'17%', marginTop:'5px', paddingLeft:'2%'}}>
+                        XPath
+                        </label>
+                      </OverlayTrigger>
+                      <Form.Textarea
+                          row={2}
+                          style={{width:'80%', height:'30px', marginLeft:'3%', textAlign:'right', overflow:'hidden'}}
+                          defaultValue={this.state.query}
+                      />
+                    </div>
+
+                    <div class = 'row' style={{width:'100%'}}>
+                      <OverlayTrigger
+                        placement="right"
+                        delay={{ show: 250, hide: 400 }}
+                        overlay={
+                          <Tooltip>
+                            for checking whether the last page
+                          </Tooltip>
+                        }
+                      >
+
+                        <label style={{width:'17%', marginTop:'5px', paddingLeft:'2%'}}>
+                        XPath of Selected Button
+                        </label>
+                      </OverlayTrigger>
+                      <Form.Textarea
+                          row={2}
+                          style={{width:'80%', height:'30px', marginLeft:'3%', textAlign:'right', overflow:'hidden'}}
+                          defaultValue={this.state.selected_button_query}
+                      />
+                    </div>
+                    <label style = {{marginLeft:'1%'}}>
+                    Pagination Query
+                    </label>
                     <table
                         className="table table-bordered table-hover"
                         id="tab_logic"
+                        style={{marginLeft:'1%',width:'98%'}}
                     >
                         <thead>
                             <tr>
                                 <th className="text-center"> Query </th>
-                                <th className="text-center"> Initial </th>
+                                <th className="text-center"> Init value </th>
                                 <th className="text-center"> Increase </th>
                                 <th />
                             </tr>
@@ -183,10 +226,11 @@ export class BFSIteratorNode extends Node {
                                             className="form-control"
                                         />
                                     </td>
-                                    <td>
+                                    <td style = {{width:'10%'}}>
                                         <button
                                             className="btn btn-outline-danger btn-sm"
                                             onClick={this.handleRemoveSpecificRow(idx)}
+                                            style={{width:'100%'}}
                                         >
                                         Remove
                                         </button>
@@ -196,24 +240,23 @@ export class BFSIteratorNode extends Node {
                         }
                     </tbody>
                 </table>
-                <button onClick={this.handleAddRow} className="btn btn-primary">
-                    Add Row
-                </button> 
-                <div id="edit-selector" style={{float:"right"}}>
-                    
-		            	  <Button color="primary" action='select-selector' type="button">
-                      Get Relative XPath
+                <div id="edit-selector" style={{marginLeft:'1%', width:'98%'}}>
+		            	  <Button color='secondary' onClick={this.handleAddRow}  style={{width:'90%'}}>
+                      +
+                    </Button>
+		            	  <Button color="secondary" action='select-selector' type="button"  style={{width:'10%'}}>
+                      Get XPath
                     </Button>
 		            </div>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button color="primary" 
                         onClick={(obj) => {
-
-                                var input_max_num_tasks = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[1].value
-                                var input_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[4].value
-                                var input_selected_button_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[6].value
-                                var table_rows = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[8].childNodes[1].childNodes
+                                
+                                var input_max_num_tasks = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[0].childNodes[1].value
+                                var input_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[1].childNodes[1].value
+                                var input_selected_button_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[2].childNodes[1].value
+                                var table_rows = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[4].childNodes[1].childNodes
                                
                                 var rows_data = []
                                 var is_there_empty_cell = false;

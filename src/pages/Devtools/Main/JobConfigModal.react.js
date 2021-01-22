@@ -275,22 +275,6 @@ class JobConfigModal extends React.Component {
     //}
 
 
-    loadUserProgram(nextProps) {
-        var obj = this;
-        axios.post(setting_server.DB_SERVER+'/api/db/userprogramtemp', {
-            req_type: "get_user_program",
-            project_id: nextProps.selectedProjectId
-        })
-        .then(function (resultData){
-            obj.setState({
-                programs_info: resultData["data"]['output']
-            })
-        })
-        .catch(function (error){
-            console.log(error)
-        });
-    }
-
     closeModal(){
         this.props.setModalShow(false)
     }

@@ -1,5 +1,4 @@
 $(function () {
-  console.log("app.js for controller")
 	// init bootstrap alerts
 
 	new Controller({
@@ -7,7 +6,6 @@ $(function () {
 });
 
 var Controller = function (options) {
-  console.log("var controller in controller.js")
 	for (var i in options) {
 		this[i] = options[i];
 	}
@@ -21,7 +19,6 @@ Controller.prototype = {
 
 
 	control: function (controls) {
-    console.log("contttttttttttrol")
 		var controller = this;
     console.log(document.body)
     console.log(controls)
@@ -54,7 +51,6 @@ Controller.prototype = {
 //			'SitemapSelectorGraph',
 //			'DataPreview',
 		];
-    console.log("controller 56")
 		var templatesLoaded = 0;
 		//var cbLoaded = function (templateId, template) {
     //  console.log("???????/")
@@ -73,14 +69,11 @@ Controller.prototype = {
 		//}.bind(this));
 		//ich.addTemplate('SelectorEdit', $.get('SelectorEdit.html'));
     cbAllTemplatesLoaded();
-    console.log("controller 68")
 	},
 
 	init: function () {
-    console.log("init controller")
 		this.loadTemplates(function () {
 			// currently viewed objects
-      console.log("controller 76")
 
 			// render main viewport
 			//ich.Viewport().appendTo("body");
@@ -90,7 +83,6 @@ Controller.prototype = {
 				return false;
 			});
 
-      console.log("controller 85")
 			this.control({
 				//"#selector-tree tr button[action=data-preview-selector]": {
 				//	click: this.previewSelectorDataFromSelectorTree

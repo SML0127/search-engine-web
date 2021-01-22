@@ -85,6 +85,9 @@ Controller.prototype = {
 				"#edit-selector Button[action=select-selector]": {
 					click: this.selectSelector
 				},
+				"#edit-selector Button[action=select-selector-url]": {
+					click: this.selectSelectorURL
+				},
 				//"#edit-selector button[action=preview-selector]": {
 				//	click: this.previewSelector
 				//},
@@ -1005,7 +1008,6 @@ Controller.prototype = {
 //		return deferredResponse.promise();
 //	},
 
-
 	selectSelector: function () {
 	//selectSelector: function () {
 		//var input = $(button).closest(".form-group").find("input.selector-value");
@@ -1018,14 +1020,12 @@ Controller.prototype = {
 		//var parentCSSSelector = sitemap.selectors.getParentCSSSelectorWithinOnePage(currentStateParentSelectorIds);
     //console.log(parentCSSSelector)
     //var contentScript = new ContentScript({})
-    console.log("--------------------")
 		var deferredSelector = this.contentScript.selectSelector({
 			//parentCSSSelector: parentCSSSelector,
 			allowedElements: "*"
 		});
     //console.log(selector.getItemCSSSelector())
 		deferredSelector.done(function(result) {
-      console.log("Controller.js result")
       console.log(result)
 			//$(input).val(result.CSSSelector);
       //console.log(result.CSSSelector)// result.CSSSelector = css selector
@@ -1054,6 +1054,16 @@ Controller.prototype = {
 			//	}.bind(this));
 			//}//no touch
 
+		}.bind(this));
+	},
+
+	selectSelectorURL: function () {
+
+		var deferredSelector = this.contentScript.selectSelectorURL({
+			allowedElements: "*"
+		});
+		deferredSelector.done(function(result) {
+      console.log(result)
 		}.bind(this));
 	},
 //

@@ -32,7 +32,6 @@ class LoadProgramModal extends React.Component {
 
     loadUserProgram(nextProps) {
         var obj = this;
-        //console.log(obj.props.jobId)
         axios.post(setting_server.DB_SERVER+'/api/db/userprogram', {
             req_type: "get_user_program",
             job_id: obj.props.jobId
@@ -99,7 +98,7 @@ class LoadProgramModal extends React.Component {
                             }
                         },*/
                         {
-                            Header: "Site",
+                            Header: "Name",
                             resizable: false,
                             accessor: "1",
                             Cell: ( row ) => {
@@ -113,7 +112,7 @@ class LoadProgramModal extends React.Component {
                             }
                         },
                         {
-                            Header: "Category",
+                            Header: "Description",
                             resizable: false,
                             accessor: "2",
                             Cell: ( row ) => {

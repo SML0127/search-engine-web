@@ -1,4 +1,4 @@
-chrome.devtools.panels.create("PSE(197.33)", null, "pse-extension.html");
+chrome.devtools.panels.create("PSE(197.35)", null, "pse-extension.html");
 
 
 //chrome.runtime.onMessage.addListener(

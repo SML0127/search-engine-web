@@ -33,6 +33,7 @@ import MetisMenu from 'react-metismenu';
 import './react-metismenu-standart.css';
 import newGroupIcon from './add.png';
 import configIcon from './gear.png';
+import refreshIcon from './refresh.png';
 import scheduleIcon from './schedule.png';
 import workerIcon from './worker.png';
 import folderIcon from './folder.png';
@@ -599,7 +600,7 @@ export default class Main extends React.Component {
     }
   }
 
-  makeNewJob(userId, parentId, url, jobLabel, country) {
+  makeNewJob(userId, parentId, url, jobLabel, country, site) {
     const obj = this;
     axios.post(setting_server.DB_SERVER+'/api/db/job', {
       req_type: "make_new_job",
@@ -607,7 +608,8 @@ export default class Main extends React.Component {
       parent_id: parentId,
       url: url,
       job_label: jobLabel,
-      job_country: country
+      job_country: country,
+      site: site
     })
     .then(function (response) {
       console.log(response)
@@ -633,7 +635,7 @@ export default class Main extends React.Component {
         });
         const newTab = (
           <DTab key={jobId} title={jobLabel} {...obj.makeListeners(jobId)}>
-            <JobTab jobId={jobId} url={url}/>
+            <JobTab jobId={jobId} url={url} userId = {obj.props.userId} is_dev = {obj.props.is_dev}  />
           </DTab>
         );
         let newTabs = currentTabs.concat([newTab]);
@@ -655,13 +657,13 @@ export default class Main extends React.Component {
     console.log('handleTabSelect key:', key);
     this.setState({selectedTab: key});
   }
-
+  
   handleTabClose(e, key, currentTabs) {
-      console.log('tabClosed key:', key);
-      console.log('currentTabs: ', currentTabs);
-      this.setState({tabs: currentTabs});
+    console.log('tabClosed key:', key);
+    console.log('currentTabs: ', currentTabs);
+    this.setState({tabs: currentTabs});
   }
-
+  
   handleTabPositionChange(e, key, currentTabs) {
     console.log('tabPositionChanged key:', key);
     console.log('currentTabs: ', currentTabs);
@@ -674,62 +676,12 @@ export default class Main extends React.Component {
       // onDoubleClick: (e) => { console.log('onDoubleClick', key, e); this.handleTabDoubleClick(key, e)},
     }
   }
-
+  
   loadGroupList() {
     const obj = this;
     let group;
     let job;
     let group_job;
-    //$.ajax({ 
-    //    type: 'POST',
-    //    async: false,
-    //    data: {
-    //      req_type: 'get_group_list',
-    //      user_id: obj.props.userId
-    //    },
-    //    url: setting_server.DB_SERVER+'/api/db/group',
-    //    success: function (response) {
-    //      console.log(response)
-    //      if (response['data']['success'] == true) {
-    //        group = response['data']['result'][0][0];
-    //        $.ajax({ 
-    //            type: 'POST',
-    //            async: false,
-    //            data: {
-    //              req_type: 'get_job_list',
-    //              user_id: obj.props.userId
-    //            },
-    //            url: setting_server.DB_SERVER+'/api/db/job',
-    //            success: function (response) {
-    //              if(response['data']['success'] == true) {
-    //                job = response['data']['result'][0][0];
-    //                if (group == null){
-    //                   group_job = []
-    //                }
-    //                else{
-    //                   group_job = group.concat(job);
-    //                }
-    //                obj.setState({
-    //                  groupJobList: group_job,
-    //                  // deleteProjectModalShow: Array(len).fill(false)
-    //                });
-    //                console.log(group_job)
-    //              } else{
-    //                console.log(response)
-    //                console.log('loadJobList Failed');
-    //              }
-    //           },
-    //           error:function(err) {
-    //             console.log(err)
-    //           }
-    //        })
-    //      }
-    //    },
-    //    error:function(err) {
-    //      console.log(err)
-    //    }
-    //});
-
     axios.post(setting_server.DB_SERVER+'/api/db/group', {
       req_type: "get_group_list",
       user_id: obj.props.userId
@@ -782,8 +734,8 @@ export default class Main extends React.Component {
     });
     if (!currentKeys.includes(jobId)) {
       const newTab = (
-        <DTab key={jobId} title={jobLabel} {...this.makeListeners(jobId)}>
-          <JobTab jobId={jobId} url={url} is_dev = {this.props.is_dev} />
+      <DTab key={jobId} title={jobLabel} {...this.makeListeners(jobId)}>
+        <JobTab jobId={jobId} url={url} userId = {this.props.userId} is_dev = {this.props.is_dev}  />
         </DTab>
       );
       let newTabs = currentTabs.concat([newTab]);
@@ -915,7 +867,8 @@ export default class Main extends React.Component {
           parent_id: groupId,
           url: '',
           job_label: '',
-          job_country: ''
+          job_country: '',
+          site: -1
         })
         .then(function(response){
           console.log(response)
@@ -1067,6 +1020,19 @@ export default class Main extends React.Component {
             <label style = {{marginLeft:'2%', color:'#5F6162'}}>
             All Groups
             </label>
+            <img
+              src={refreshIcon}
+              width="20"
+              height="20"
+              onClick={() =>
+                this.loadGroupList()
+              }
+              style={{
+                cursor: "pointer",
+                marginLeft:'2%',
+                marginTop:'-0.5%'
+              }}
+            />
             {/* <button onClick={this.handleClick}>
               alertA
             </button> */}
@@ -1253,7 +1219,19 @@ export default class Main extends React.Component {
             <label style = {{marginLeft:'2%', color:'#5F6162'}}>
             All Groups
             </label>
-
+            <img
+              src={refreshIcon}
+              width="20"
+              height="20"
+              onClick={() =>
+                this.loadGroupList()
+              }
+              style={{
+                cursor: "pointer",
+                marginLeft:'2%',
+                marginTop:'-0.5%'
+              }}
+            />
             <span style={{float: "right", marginRight:'4px'}}>
               <OverlayTrigger
                 placement="left"

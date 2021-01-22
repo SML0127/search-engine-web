@@ -2,8 +2,7 @@ import React from "react";
 import { Node, Socket } from "rete-react-render-plugin";
 import { Form, Button } from "tabler-react";
 import Modal from 'react-bootstrap/Modal';
-import DropdownButton from 'react-bootstrap/DropdownButton'
-import Dropdown from 'react-bootstrap/Dropdown'
+import Checkbox from 'rc-checkbox';
 
 export class ExpanderNode extends Node {
     constructor(props){
@@ -11,18 +10,20 @@ export class ExpanderNode extends Node {
         this.state = {
             modalShow:false,
             query:"",
-            indices:"",
             attribute:"",
-            noMatchSelf: "True",
-            matchSelf: "True"
+            noMatchSelf: false,
+            matchSelf: false,
+            prevNoMatchSelf: false,
+            prevMatchSelf: false
         }
         this.updateState() 
+        this.checkBox1 = this.checkBox1.bind(this);
+        this.checkBox2 = this.checkBox2.bind(this);
     }
    
     updateState(){
         if(Object.keys(this.props.node.data).length >= 1 ){
             this.state.query = this.props.node.data['query']
-            this.state.indices = this.props.node.data['indices']
             this.state.attribute = this.props.node.data['attribute']
             this.state.prefix = this.props.node.data['prefix']
             this.state.suffix = this.props.node.data['suffix']
@@ -32,12 +33,24 @@ export class ExpanderNode extends Node {
             this.state.matchSelf = this.props.node.data['matchSelf'];
         }
         if(typeof this.props.node.data['noMatchSelf'] == undefined){
-            this.state.noMatchSelf = "True"
+            this.state.noMatchSelf = false
         }
         if(typeof this.props.node.data['matchSelf'] == undefined){
-            this.state.matchSelf = "True"
+            this.state.matchSelf = false
         }
     }
+
+
+    checkBox1(){
+      this.setState({noMatchSelf : !this.state.noMatchSelf})
+    }
+
+    checkBox2(){
+      this.setState({matchSelf : !this.state.matchSelf})
+    }
+
+
+
 
     render() {
         const { node, bindSocket } = this.props;
@@ -99,72 +112,107 @@ export class ExpanderNode extends Node {
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        QUERY
-                        <Form.Textarea
-                            row={12}
-                            defaultValue={this.state.query}
-                        />
-                        Prefix(site)
-                        <Form.Textarea
-                            row={12}
-                            defaultValue={this.state.prefix}
-                        />
-                        Suffix
-                        <Form.Textarea
-                            row={12}
-                            defaultValue={this.state.suffix}
-                        />
-                        Attr delimiter
-                        <Form.Textarea
-                            row={12}
-                            defaultValue={this.state.attr_delimiter}
-                        />
-                        Attr Index
-                        <Form.Textarea
-                            row={12}
-                            defaultValue={this.state.attr_idx}
-                        />
-                        INDICES
-                        <Form.Textarea
-                            row={12}
-                            defaultValue={this.state.indices}
-                        />
-                        ATTRIBUTE
-                        <Form.Textarea
-                            row={12}
-                            defaultValue={this.state.attribute}
-                        />
-                        Add current url if there is no match
-                        <DropdownButton id="dropdown-basic-secondary" title={this.state.noMatchSelf}>
-                          <Dropdown.Item onClick={()=>{this.setState({noMatchSelf: "True"})}}>True</Dropdown.Item>
-                          <Dropdown.Item onClick={()=>{this.setState({noMatchSelf: "False"})}}>False</Dropdown.Item>
-                        </DropdownButton>
-                        Add current url if there is a match
-                        <DropdownButton id="dropdown-basic-secondary" title={this.state.matchSelf} style={{paddingTop:"1px", width:"15%", display:"inline"}} >
-                          <Dropdown.Item onClick={()=>{this.setState({matchSelf: "True"})}}>True</Dropdown.Item>
-                          <Dropdown.Item onClick={()=>{this.setState({matchSelf: "False"})}}>False</Dropdown.Item>
-                        </DropdownButton>
-                <div id="edit-selector" style={{float:"right"}}>
-                    
-		            	  <Button color="primary" action='select-selector' type="button">
-                      Get Relative XPath
-                    </Button>
-		            </div>
+                        <div class = 'row' style={{width:'100%'}}>
+                          <label style={{width:'17%', marginTop:'5px', paddingLeft:'2%'}}>
+                          XPath
+                          </label>
+                          <Form.Textarea
+                              row={2}
+                              style={{width:'80%', height:'30px', marginLeft:'3%', textAlign:'right', overflow:'hidden'}}
+                              defaultValue={this.state.query}
+                          />
+                        </div>
+                        <div class = 'row' style={{width:'100%'}}>
+                          <label style={{width:'17%', marginTop:'5px', paddingLeft:'2%'}}>
+                          ATTRIBUTE
+                          </label>
+                          <Form.Textarea
+                              row={12}
+                              style={{width:'80%', height:'30px', marginLeft:'3%', textAlign:'right', overflow:'hidden'}}
+                              defaultValue={this.state.attribute}
+                          />
+                        </div>
+                        <div class = 'row' style={{width:'100%'}}>
+                          <label style={{width:'17%', marginTop:'5px', paddingLeft:'2%'}}>
+                          (optional) Prefix
+                          </label>
+                          <Form.Textarea
+                              row={12}
+                              style={{width:'80%', height:'30px', marginLeft:'3%', textAlign:'right', overflow:'hidden'}}
+                              defaultValue={this.state.prefix}
+                          />
+                        </div>
+                        <div class = 'row' style={{width:'100%'}}>
+                          <label style={{width:'17%', marginTop:'5px', paddingLeft:'2%'}}>
+                          (optional) Suffix
+                          </label>
+                          <Form.Textarea
+                              row={12}
+                              style={{width:'80%', height:'30px', marginLeft:'3%', textAlign:'right', overflow:'hidden'}}
+                              defaultValue={this.state.suffix}
+                          />
+                        </div>
+                        <div class = 'row' style={{width:'100%'}}>
+                          <label style={{width:'17%', marginTop:'5px', paddingLeft:'2%'}}>
+                          (optional) Attr delimiter
+                          </label>
+                          <Form.Textarea
+                              row={12}
+                              style={{width:'80%', height:'30px', marginLeft:'3%', textAlign:'right', overflow:'hidden'}}
+                              defaultValue={this.state.attr_delimiter}
+                          />
+                        </div>
+                        <div class = 'row' style={{width:'100%'}}>
+                          <label style={{width:'17%', marginTop:'5px', paddingLeft:'2%'}}>
+                          (optional) Attr Index
+                          </label>
+                          <Form.Textarea
+                              row={12}
+                              style={{width:'80%', height:'30px', marginLeft:'3%', textAlign:'right', overflow:'hidden'}}
+                              defaultValue={this.state.attr_idx}
+                          />
+                        </div>
+                        <div class = 'row' style = {{width:'100%', marginLeft:'1%', marginTop:'1%'}}>
+                          Add current url if there is no match in XPath
+                          <div
+                            onClick = {()=> this.checkBox1()}
+                            style={{marginLeft:'1%'}}
+                          >
+                            <Checkbox
+                              checked={this.state.noMatchSelf}
+                            />
+                          </div>
+
+                        </div>
+                        <div class = 'row' style = {{width:'100%', marginLeft:'1%', marginTop:'1%'}}>
+                          Add current url if there is a match in XPath
+                          <div
+                            onClick = {()=> this.checkBox2()}
+                            style={{marginLeft:'1.85%'}}
+                          >
+                            <Checkbox
+                              checked={this.state.matchSelf}
+                            />
+                          </div>
+                        </div>
+                    <div id="edit-selector" style={{float:"right", width:'100%'}}>
+		                	 <Button color="secondary" action='select-selector-url' type="button"  style={{marginLeft:'86%', width:'14%'}}>
+                          Get XPath for URL
+                      </Button>
+		                </div>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button color="primary" 
                             onClick={(obj) => {
-                                    var input_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[1]['value']
-                                    var input_prefix = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[3]['value']
-                                    var input_suffix = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[5]['value']
-                                    var input_attr_delimiter = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[7]['value']
-                                    var input_attr_idx = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[9]['value']
-                                    var input_indices = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[11]['value']
-                                    var input_attribute = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[13]['value']
+                                    var input_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[0].childNodes[1]['value']
+                                    var input_attribute = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[1].childNodes[1]['value']
+                                    var input_prefix = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[2].childNodes[1]['value']
+                                    var input_suffix = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[1]['value']
+                                    var input_attr_delimiter = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[4].childNodes[1]['value']
+                                    var input_attr_idx = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[5].childNodes[1]['value']
                                     this.setState(
                                         {
                                             query: input_query, 
-                                            indices: input_indices, 
                                             attribute: input_attribute, 
                                             prefix: input_prefix,
                                             suffix: input_suffix,
@@ -175,7 +223,6 @@ export class ExpanderNode extends Node {
                                     )
                                     //console.log(this.props)
                                     this.props.node.data['query'] = input_query;
-                                    this.props.node.data['indices'] = input_indices;
                                     this.props.node.data['attribute'] = input_attribute;
                                     this.props.node.data['prefix'] = input_prefix;
                                     this.props.node.data['suffix'] = input_suffix;
@@ -191,7 +238,7 @@ export class ExpanderNode extends Node {
                         </Button>
                         <Button color="secondary" 
                             onClick={(obj) => {
-                                    this.setState({modalShow:false})
+                                    this.setState({modalShow:false, noMatchSelf:this.state.prevNoMatchSelf, matchSelf:this.state.prevMatchSelf})
                                 }
                             }
                         >

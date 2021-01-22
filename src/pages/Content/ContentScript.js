@@ -41,7 +41,35 @@ var ContentScript = {
 	 * @param request.parentCSSSelector
 	 * @param request.allowedElements
 	 */
-  // smlee, 3. called by clicking web page element
+
+	selectSelectorURL: function(request) {
+		var deferredResponse = $.Deferred();
+			var contentSelector = new ContentSelector({
+				allowedElements: "*"//request.allowedElements
+			});
+			window.cs = contentSelector;
+
+			var deferredCSSSelector = contentSelector.getCSSSelectorURL();
+			deferredCSSSelector.done(function(response) {
+				this.removeCurrentContentSelector().done(function(){
+					deferredResponse.resolve(response);
+          console.log(response)
+					window.cs = undefined;
+				}.bind(this));
+			}.bind(this)).fail(function(message) {
+				deferredResponse.reject(message);
+				window.cs = undefined;
+			}.bind(this));
+
+		//}.bind(this));
+
+		return deferredResponse.promise();
+	},
+
+
+
+
+// smlee, 3. called by clicking web page element
 	selectSelector: function(request) {
 		var deferredResponse = $.Deferred();
 

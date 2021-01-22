@@ -12,6 +12,7 @@ class HomeTab extends React.Component {
       country: '',
       countryOptions: '',
       url: '',
+      site: '',
       jobLabel: ''
     };
 
@@ -19,6 +20,7 @@ class HomeTab extends React.Component {
     this.handleLChange = this.handleLChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.updateCountry = this.updateCountry.bind(this)
+    this.updateSite = this.updateSite.bind(this)
   }
 
   componentDidMount() {
@@ -79,6 +81,13 @@ class HomeTab extends React.Component {
   }
 
 
+      
+  updateSite(event) {
+    console.log(event.target.value)
+    this.setState({site: event.target.value});
+  }
+
+
 
       
   updateCountry(event) {
@@ -93,6 +102,9 @@ class HomeTab extends React.Component {
             break;
         case 'warning_country':
             NotificationManager.warning('Select country of \n e-commerce site','WARNING',  3000);
+            break;
+        case 'warning_country':
+            NotificationManager.warning('Select e-commerce site','WARNING',  3000);
             break;
         case 'error':
             NotificationManager.error('Error message', 'Click me!', 5000, () => {
@@ -124,15 +136,17 @@ class HomeTab extends React.Component {
     else if(String(this.state.country).trim() == ''){
       this.createNotification('warning_country')
     }
+    else if(String(this.state.site).trim() == ''){
+      this.createNotification('warning_site')
+    }
     else{
 
-      console.log(this.props.parentId)
       if (!this.state.url.match(/^https?:\/\//i)) {
-        this.props.makeNewJob(this.props.userId, this.props.parentId, 'http://'+this.state.url, this.state.jobLabel, this.state.country);
+        this.props.makeNewJob(this.props.userId, this.props.parentId, 'http://'+this.state.url, this.state.jobLabel, this.state.country, this.state.site);
         chrome.tabs.update({url: 'http://'+this.state.url});
       }
       else{
-        this.props.makeNewJob(this.props.userId, this.props.parentId, this.state.url, this.state.jobLabel, this.state.country);
+        this.props.makeNewJob(this.props.userId, this.props.parentId, this.state.url, this.state.jobLabel, this.state.country, this.state.site);
         chrome.tabs.update({url: this.state.url});
       }
     }
@@ -147,8 +161,8 @@ class HomeTab extends React.Component {
         <h1 class="text-center" style={{color:'#00ACFF', marginBottom: "10pt", fontSize: "30pt"}}> Product Search Engine</h1>
 
         <form onSubmit={obj.handleSubmit} style={{marginTop:'3%', textAlign: "center", height:'10%',minHeight:'20px'}}>
-          <div class = 'row' style={{height:'100%'}}>
-            <div class = 'form-group' style = {{marginLeft: '10%',width:'15%', height:'100%'}} >
+          <div class = 'row' style={{marginLeft:'5%',height:'100%'}}>
+            <div class = 'form-group' style = {{width:'15%', height:'100%'}} >
               <input
                 class='form-control'
                 onChange={obj.handleLChange}
@@ -168,6 +182,19 @@ class HomeTab extends React.Component {
 
             <select
               class="form-control"
+              style={{width:"15%", float: 'right',height:'50px'}}
+              value={this.state.site}
+              onChange={this.updateSite}
+            >
+              <option value="" disabled selected>Select Site</option>
+              <option value="0">Amazon US</option>);
+              <option value="1">Jomashop</option>);
+              <option value="2">Zalando</option>);
+              <option value="3">Rakuten</option>);
+              <option value="4">Ebay</option>);
+            </select>
+            <select
+              class="form-control"
               style={{width:"15%", float: 'right', marginRight:'3%',height:'50px'}}
               value={this.state.country}
               onChange={this.updateCountry}
@@ -177,10 +204,7 @@ class HomeTab extends React.Component {
               {this.state.countryOptions}
             </select>
 
-            <Button type='submit' class="btn btn-info btn-md" style={{width:'15%', backgroundColor:'#00ACFF', height:'50px'}}>Get Started!</Button>
-          </div>
-          <div class = 'row' style={{height:'100%', marginLeft:'3%', marginTop:'3%'}}>
-            <a style={{marginLeft:'83%',float:'right'}}href={'http://'+setting_server.HOST_SERVER+':5003/admin/'} target="_blank"> Airflow Link</a>
+            <Button type='submit' class="btn btn-info btn-md" style={{width:'10%', backgroundColor:'#00ACFF', height:'50px'}}>Get Started!</Button>
           </div>
         </form>
         <NotificationContainer/>

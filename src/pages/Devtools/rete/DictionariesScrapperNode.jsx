@@ -54,7 +54,7 @@ export class DictionariesScrapperNode extends Node {
     };
   
     handleAddRow = () => {
-        const item = {};
+        const item = {'col_key':'', 'col_rows_query':'', 'col_key_query':'','col_key_attribute':'', 'col_value_query':'','col_value_attribute':''};
         this.setState({
             rows: [...this.state.rows, item]
         });
@@ -62,7 +62,9 @@ export class DictionariesScrapperNode extends Node {
 
     handleRemoveSpecificRow = (idx) => () => {
         const rows = [...this.state.rows]
+        console.log(rows)
         rows.splice(idx, 1)
+        console.log(rows)
         this.setState({ rows })
     }
 
@@ -132,7 +134,7 @@ export class DictionariesScrapperNode extends Node {
                         >
                         <thead>
                             <tr>
-                                <th className="text-center"> QUERY </th>
+                                <th className="text-center"> XPATH </th>
                                 <th />
                             </tr>
                         </thead>
@@ -153,7 +155,7 @@ export class DictionariesScrapperNode extends Node {
                                       />
                                       <p/>
                                       <label style={{width:"13%"}}> 
-                                        ROWS QUERY :
+                                        ROWS XPath :
                                       </label>
                                       <input
                                           type="text"
@@ -165,7 +167,7 @@ export class DictionariesScrapperNode extends Node {
                                       />
                                       <p/>
                                       <label style={{width:"13%"}}> 
-                                        KEY QUERY :
+                                        KEY XPath :
                                       </label>
                                       <input
                                           type="text"
@@ -184,7 +186,7 @@ export class DictionariesScrapperNode extends Node {
                                           name="col_key_attribute"
                                           value={this.state.rows[idx]['col_key_attribute']}
                                           onChange={this.handleChange(idx)}
-                                          style={{width:"60%", display:"inline"}}
+                                          style={{width:"73%", display:"inline", height:'33px', paddingTop:'1px'}}
                                           className="form-control"
                                       />
 
@@ -199,7 +201,7 @@ export class DictionariesScrapperNode extends Node {
 
                                       <p/>
                                       <label style={{width:"13%"}}> 
-                                        VALUE QUERY :
+                                        VALUE XPath :
                                       </label>
                                       <input
                                           type="text"
@@ -218,7 +220,7 @@ export class DictionariesScrapperNode extends Node {
                                           name="col_value_attribute"
                                           value={this.state.rows[idx]['col_value_attribute']}
                                           onChange={this.handleChange(idx)}
-                                          style={{width:"60%", display:"inline"}}
+                                          style={{width:"73%", display:"inline", height:'33px', paddingTop:'1px'}}
                                           className="form-control"
                                       />
 
@@ -227,7 +229,6 @@ export class DictionariesScrapperNode extends Node {
                                         <Dropdown.Item onSelect={()=>{this.handleChangeValueAttr(idx,"src")}}>src</Dropdown.Item>
                                         <Dropdown.Item onSelect={()=>{this.handleChangeValueAttr(idx,"href")}}>href</Dropdown.Item>
                                         <Dropdown.Item onSelect={()=>{this.handleChangeValueAttr(idx,"innerHTML")}}>innerHTML</Dropdown.Item>
-                                        <Dropdown.Item onSelect={()=>{this.handleChangeValueAttr(idx,"data-price")}}>data-price</Dropdown.Item>
                                       </DropdownButton>
 
                                     </td>
@@ -235,7 +236,7 @@ export class DictionariesScrapperNode extends Node {
                                     <td style={{width:"6%"}}>
                                         <button
                                             className="btn btn-outline-danger btn-sm"
-                                            style={{height:"465px"}}
+                                            style={{height:"300px"}}
                                             onClick={this.handleRemoveSpecificRow(idx)}
                                         >
                                             Remove
@@ -246,15 +247,14 @@ export class DictionariesScrapperNode extends Node {
                         }
                     </tbody>
                 </table>
-                <div id="edit-selector" style={{float:"right"}}>
-                    <button onClick={this.handleAddRow} className="btn btn-primary" style={{marginRight:"10px"}}>
-                      Add Row
-                    </button>
-                    
-		    <Button color="primary" action='select-selector' type="button">
-                      Get Relative XPath
+                <div id="edit-selector" style={{float:"right", width:'100%'}}>
+		            	  <Button color='secondary' onClick={this.handleAddRow}  style={{width:'90%'}}>
+                      +
                     </Button>
-		</div> 
+		            	  <Button color="secondary" action='select-selector' type="button"  style={{width:'10%'}}>
+                      Get XPath
+                    </Button>
+		            </div>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button color="primary" 

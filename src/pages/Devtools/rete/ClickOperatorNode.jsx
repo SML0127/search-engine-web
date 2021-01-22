@@ -49,7 +49,9 @@ export class ClickOperatorNode extends Node {
 
     handleAddRow = () => {
         const item = {
-          'col_delay':5
+          'col_delay':5,
+          'col_query':'',
+          'col_repeat':''
         };
         this.setState({
             rows: [...this.state.rows, item]
@@ -75,7 +77,7 @@ export class ClickOperatorNode extends Node {
                 }
             >
                 <div className="title">
-                  {node.name}
+                  Click
                 </div>
                 
                 <div>
@@ -130,7 +132,7 @@ export class ClickOperatorNode extends Node {
                     >
                         <thead>
                             <tr>
-                                <th className="text-center"> QUERY </th>
+                                <th className="text-center"> XPath </th>
                                 <th className="text-center"> DELAY </th>
                                 <th className="text-center"> REPEAT </th>
                                 <th />
@@ -186,14 +188,12 @@ export class ClickOperatorNode extends Node {
                         }
                       </tbody>
                     </table>
-
-                    <div id="edit-selector" style={{float:"right"}}>
-                        <button onClick={this.handleAddRow} className="btn btn-primary" style={{marginRight:"10px"}}>
-                          Add Row
-                        </button>
-                        
-		                	  <Button color="primary" action='select-selector' type="button">
-                          Get Relative XPath
+                    <div id="edit-selector" style={{float:"right", width:'100%'}}>
+		                	  <Button color='secondary' onClick={this.handleAddRow}  style={{width:'90%'}}>
+                          +
+                        </Button>
+		                	  <Button color="secondary" action='select-selector' type="button"  style={{width:'10%'}}>
+                          Get XPath
                         </Button>
 		                </div>
                         

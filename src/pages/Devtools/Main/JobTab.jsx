@@ -21,8 +21,10 @@ import $ from "min-jquery";
 import EditableTree from '../TreeView/components/tree';
 import LoadProgramModal from "./LoadProgramModal.react";
 import SaveProgramModal from "./SaveProgramModal.react";
+import UploadModal from "./OneTimeUploadModal.react";
 import axios from 'axios'
 import setting_server from '../setting_server';
+import refreshIcon from './refresh.png';
 window.React = React;
 
 
@@ -55,9 +57,11 @@ class JobTab extends React.Component {
                   }]
               }],
           nodes:[],
-          selectedProjectId: -1
+          selectedProjectId: -1,
+          addOneTimeUploadModalShow: false,
         }
         
+        this.addOneTimeUploadModal = this.addOneTimeUploadModal.bind(this);
         this.saveProgram = this.saveProgram.bind(this)
         this.saveGraphData = this.saveGraphData.bind(this)
         this.getTreeNodes = this.getTreeNodes.bind(this)
@@ -65,6 +69,9 @@ class JobTab extends React.Component {
         this.drawWorkflow = this.drawWorkflow.bind(this)
     }
 
+    addOneTimeUploadModal(){
+      this.setState({addOneTimeUploadModalShow: true})
+    }
 
     workflowToUserProgram(){
         var nodes =  this.state.GraphData.nodes
@@ -133,13 +140,64 @@ class JobTab extends React.Component {
     }
 
 
+
+    runDriver(){
+      const obj = this;
+      axios.post(setting_server.DRIVER_UTIL_SERVER+'/api/driver/', {
+        req_type: "run_driver",
+        wf: obj.state.upid,
+        job_id: obj.props.jobId,
+      })
+      .then(function (response) {
+        console.log(response['data'])
+        if (response['data']['success'] == true) {
+         
+        } else {
+          console.log('Failed to update run driver');
+        }
+      })
+      .catch(function (error){
+        console.log('Failed to update run driver');
+        console.log(error);
+      });
+    }
+
+
+
+
+    updateMysite(){
+      const obj = this;
+      axios.post(setting_server.DRIVER_UTIL_SERVER+'/api/driver/', {
+        req_type: "update_mysite",
+        job_id: obj.props.jobId,
+      })
+      .then(function (response) {
+        console.log(response['data'])
+        if (response['data']['success'] == true) {
+         
+        } else {
+          console.log('Failed to update mysite');
+        }
+      })
+      .catch(function (error){
+        console.log('Failed to update mysite');
+        console.log(error);
+      });
+    }
+
+
+
+
     loadRecentProgram() { 
         var obj = this;
+        //console.log("Load latest program")
+        //console.log(obj.props)
         axios.post(setting_server.DB_SERVER+'/api/db/userprogram', {
             req_type: "get_last_user_program",
             job_id: obj.props.jobId
         })
         .then(function (response) {
+            //console.log(response)
             if (response['data']['success'] == true) {
                if( !response['data']['result']){
                  g_user_program = {}
@@ -158,13 +216,25 @@ class JobTab extends React.Component {
                  let upid = response['data']['result'][0];
                  let user_program = result
                  let tmp = obj.state.refresh
+                 let url_node_id 
+                 for(let node in user_program['workflow']['nodes']){
+                   if(user_program['workflow']['nodes'][node]['name'] == "OpenURL"){
+                     user_program['workflow']['nodes'][node]['data']['url'] = obj.props.url 
+                   }
+                 }
 
                  g_user_program = user_program
+                 //console.log(g_user_program) 
                  let url = user_program['ops'][0]['url']
                  
                  if (url != null){
+                   // only for chrome extension
                    //obj.updateChromeTab(url)
                  }
+                 else{
+                   //obj.updateChromeTab(obj.props.url)
+                 }
+
 
                  obj.setState({
                    refresh:++tmp, 
@@ -224,7 +294,7 @@ class JobTab extends React.Component {
         id++
         var operators = []
         var ops = {}
-        console.log(zipcode_url)
+        //console.log(zipcode_url)
         if(operator[cur_nodeId] == "OpenURL"){
             ops = {
               'id': open_url_id,
@@ -403,6 +473,7 @@ class JobTab extends React.Component {
 
 
     refreshList() {
+      console.log('refresh list')
       const obj = this;
       axios.post(setting_server.DB_SERVER+'/api/db/executions', {
         req_type: "get_executions",
@@ -467,6 +538,45 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
     getOperatorAndProps(operator, id, options, edges){
         var op
         switch(operator) {
+            case "Wait":
+                op = {
+                  "id": id,
+                  "name": "Wait",
+                  "wait": options['wait'],
+                }
+                this.removeEmpty(op)
+                break;
+            case "Hover":
+                op = {
+                  "id": id,
+                  "name": "Hover",
+                  "query": options['hover'],
+                }
+                this.removeEmpty(op)
+                break;
+            case "Scroll":
+                op = {
+                  "id": id,
+                  "name": "Scroll",
+                }
+                this.removeEmpty(op)
+                break;
+            case "Input":
+                var rowsValuesSp = []
+                for(var idxValuesSp in options['rows']){
+                  var rowValuesSp = {
+                      "query": options['rows'][idxValuesSp]['col_query'],
+                      "value": options['rows'][idxValuesSp]['col_value'],
+                  }
+                  rowsValuesSp.push(rowValuesSp)
+                }
+                op =  {
+                  "id": id,
+                  "name": "Input",
+                  "queries": rowsValuesSp
+                }
+                break;
+
             case "Expander":
                 op = {
                   "id": id,
@@ -478,8 +588,8 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                   "suffix": options['suffix'],
                   "attr_delimiter": options['attr_delimiter'],
                   "attr_idx": options['attr_idx'],
-                  "stateSelf": options['stateSelf'],
-                  "stateMatchSelf": options['stateMatchSelf']
+                  "matchSelf": options['matchSelf'],
+                  "noMatchSelf": options['noMatchSelf']
                 }
                 this.removeEmpty(op)
                 break;
@@ -526,8 +636,7 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                 var rowsClickOp = []
                 for(var idxClickOp in options['rows']){
                   var rowClickOp = {
-                      "query": options['rows'][idxClickOp]['col_name'],
-                      "indices": options['rows'][idxClickOp]['col_query'],
+                      "query": options['rows'][idxClickOp]['col_query'],
                       "delay": options['rows'][idxClickOp]['col_delay'],
                       "repeat": options['rows'][idxClickOp]['col_repeat'],
                   }
@@ -676,7 +785,6 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
         const {items} = this.state;
 
         if(this.props.is_dev == true){
-          console.log('render RETE')
           return (
           <>
             <Grid.Row>
@@ -700,44 +808,69 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                         marginTop:"-30px",
                         marginLeft:'1px',
                         borderTop:'0px solid',
-                        height:'51px'
+                        height:'80px'
                     }}
                 >
-                  <div class = 'row' style = {{marginLeft:'79%'}}>
+                  <div class = 'row' style = {{marginLeft:'75%'}}>
+                    <Button 
+                      color="secondary"
+                      style = {{float:'right',marginRight:"5%"}}
+                      onClick={() => {
+                            this.updateProgram()
+                          }
+                      }
+                    >
+                    SAVE
+                    </Button>
+                    <Button 
+                      color="secondary"
+                      style = {{float:'right',marginRight:"5%"}}
+                      onClick={() => {
+                            this.setState({savemodalShow: true})
+                          }
+                      }
+                    >
+                    SAVE as
+                    </Button>
+
+                    <Button 
+                      color="secondary"
+                      style = {{float:'right'}}
+                      onClick={() => {
+                            this.setState({loadmodalShow: true})
+                          }
+                      }
+                    >
+                    LOAD
+		                </Button>
+		              </div>
+
+                  <div class = 'row' style = {{width:'100%', height:'5px'}}>
+                  </div>
+                  <div class = 'row' style = {{marginLeft:'73%'}}>
                   <Button 
                     color="secondary"
                     style = {{float:'right',marginRight:"5%"}}
                     onClick={() => {
-                          this.updateProgram()
+                          this.runDriver()
                         }
                     }
                   >
-                  UPDATE
+                  Crawling
                   </Button>
                   <Button 
                     color="secondary"
                     style = {{float:'right',marginRight:"5%"}}
                     onClick={() => {
-                          this.setState({savemodalShow: true})
+                          this.addOneTimeUploadModal()
+                          //this.updateMysite()
                         }
                     }
                   >
-                  SAVE
+                  Upload / Update
                   </Button>
+                  </div>
 
-                  <Button 
-                    color="secondary"
-                    style = {{float:'right'}}
-                    onClick={() => {
-                          this.setState({loadmodalShow: true})
-                        }
-                    }
-                  >
-                  LOAD
-		              </Button>
-
-
-		            </div>
                 </Card>
               </Grid.Col> 
             </Grid.Row>
@@ -751,6 +884,19 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                     }}
                     title="Executions"
                 >
+
+                  <img
+                    src={refreshIcon}
+                    width="20"
+                    height="20"
+                    onClick={() =>
+                      this.refreshList()
+                    }
+                    style = {{float:'right', cursor:'pointer', marginTop:'-3.35%', marginLeft:'9.5%', marginBottom:'1.5%' }}
+
+                  />
+
+
                   <ReactTable
                       data = {items}
                       getTdProps={(state, rowInfo, column, instance) => {
@@ -841,7 +987,7 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                               }
                           },
                           {
-                              Header: "# of crawled product",
+                              Header: "# of crawled product (# of total)",
                               resizable: false,
                               accessor: "6",
                               Cell: ( row ) => {
@@ -864,7 +1010,7 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                                                   paddingTop:"4px",
                                                   paddingLeft:"12px"
                                               }}
-                                          > {row.value} </div>
+                                          > {row.value} ({row.original[7]}) </div>
                                       )
                                   }
                               }
@@ -891,6 +1037,12 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                       saveProgram={this.saveProgram}
                       setModalShow={(s) => this.setState({savemodalShow: s})}
                       selectedProjectId={this.state.selectedProjectId}
+                  />
+                  <UploadModal
+                      show={this.state.addOneTimeUploadModalShow}
+                      JobId = {this.props.jobId}
+                      userId = {this.props.userId}
+                      setModalShow={(s) => this.setState({addOneTimeUploadModalShow: s})}
                   />
                   </Card>
                 </Grid.Col> 
@@ -1051,9 +1203,16 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                       setModalShow={(s) => this.setState({savemodalShow: s})}
                       selectedProjectId={this.state.selectedProjectId}
                   />
+                  <UploadModal
+                      show={this.state.addOneTimeUploadModalShow}
+                      JobId = {this.props.jobId}
+                      userId = {this.props.userId}
+                      setModalShow={(s) => this.setState({addOneTimeUploadModalShow: s})}
+                  />
                   </Card>
                 </Grid.Col> 
               </Grid.Row>
+
             </>
           );
         }

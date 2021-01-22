@@ -53,7 +53,7 @@ export class ValuesScrapperNode extends Node {
     };                                                                
  
     handleAddRow = () => {
-        const item = {};
+        const item = {'col_key':'', 'col_attr':'', 'col_query':'','col_essential':''};
         this.setState({
             rows: [...this.state.rows, item]
         });
@@ -62,6 +62,7 @@ export class ValuesScrapperNode extends Node {
     handleRemoveSpecificRow = (idx) => () => {
         const rows = [...this.state.rows]
         rows.splice(idx, 1)
+        //this.state.rows = rows
         this.setState({ rows: rows })
     }
 
@@ -134,8 +135,7 @@ export class ValuesScrapperNode extends Node {
                         <thead>
                             <tr>
                                 <th className="text-center"> KEY </th>
-                                <th className="text-center"> QUERY
-                                </th>
+                                <th className="text-center"> XPATH</th>
                                 <th className="text-center"> ATTRIBUTE </th>
                                 <th className="text-center"> ESSENTIAL </th>
                                 <th />
@@ -144,32 +144,34 @@ export class ValuesScrapperNode extends Node {
                         <tbody>
                             {this.state.rows.map((item, idx) => (
                                 <tr id="addr0" key={idx}>
-                                    <td>
+                                    <td style = {{width:'12%'}}>
                                         <input
                                             type="text"
                                             name="col_key"
                                             value={this.state.rows[idx]['col_key']}
                                             onChange={this.handleChange(idx)}
                                             className="form-control"
+                                            style={{height:'33px'}}
                                         />
                                     </td>
-                                    <td>
+                                    <td style = {{width:'40%'}}>
                                         <input
                                             type="text"
                                             name="col_query"
                                             value={this.state.rows[idx]['col_query']}
                                             onChange={this.handleChange(idx)}
                                             className="form-control"
+                                            style={{width:'100%', display:'inline'}}
                                         />
                                     </td>
 
-                                    <td>
+                                    <td style = {{width:'20%'}}>
                                         <input
                                             type="text"
                                             name="col_attr"
                                             value={this.state.rows[idx].col_attr}
                                             onChange={this.handleChange(idx)}
-                                            style={{width:"60%", display:"inline"}}
+                                            style={{width:"60%", display:"inline", height:'33px', paddingTop:'1px'}}
                                             className="form-control"
                                         />
 
@@ -178,14 +180,14 @@ export class ValuesScrapperNode extends Node {
                                           <Dropdown.Item onSelect={()=>{this.handleChangeAttr(idx,"src")}}>src</Dropdown.Item>
                                           <Dropdown.Item onSelect={()=>{this.handleChangeAttr(idx,"href")}}>href</Dropdown.Item>
                                           <Dropdown.Item onSelect={()=>{this.handleChangeAttr(idx,"innerHTML")}}>innerHTML</Dropdown.Item>
-                                          <Dropdown.Item onSelect={()=>{this.handleChangeAttr(idx,"data-price")}}>data-price</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeAttr(idx,"outerHTML")}}>outerHTML</Dropdown.Item>
                                         </DropdownButton>
                                     </td>
-                                    <td style={{display: "flex"}}>
+                                    <td style = {{width:'18%'}}>
                                       <input
                                           type="text"
                                           name="col_essential"
-                                          style={{width:"60%", display:"inline"}}
+                                          style={{width:"60%", display:"inline", height:'33px', paddingTop:'1px'}}
                                           value={this.state.rows[idx]['col_essential']}
                                           className="form-control"
                                           readonly="readonly"
@@ -200,6 +202,7 @@ export class ValuesScrapperNode extends Node {
                                         <button
                                             className="btn btn-outline-danger btn-sm"
                                             onClick={this.handleRemoveSpecificRow(idx)}
+                                            style={{width:'100%'}}
                                         >
                                             Remove
                                         </button>
@@ -209,13 +212,12 @@ export class ValuesScrapperNode extends Node {
                         }
                     </tbody>
                 </table>
-                <div id="edit-selector" style={{float:"right"}}>
-                    <button onClick={this.handleAddRow} className="btn btn-primary" style={{marginRight:"10px"}}>
-                      Add Row
-                    </button>
-                    
-		            	  <Button color="primary" action='select-selector' type="button">
-                      Get Relative XPath
+                <div id="edit-selector" style={{float:"right", width:'100%'}}>
+		            	  <Button color='secondary' onClick={this.handleAddRow}  style={{width:'90%'}}>
+                      +
+                    </Button>
+		            	  <Button color="secondary" action='select-selector' type="button"  style={{width:'10%'}}>
+                      Get XPath
                     </Button>
 		            </div>
                 </Modal.Body>

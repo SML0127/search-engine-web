@@ -59,6 +59,7 @@ class ConfigTab extends React.Component {
           selectedVRate: null,
           newDeliveryCompanyModalShow: false,
           editDeliveryCompanyModalShow: false,
+          time_condition: ''
         };
         this.makeNewTargetSite = this.makeNewTargetSite.bind(this);
         this.makeNewRate = this.makeNewRate.bind(this);
@@ -67,7 +68,17 @@ class ConfigTab extends React.Component {
         this.setUpdateExchangeRateModalShow = this.setUpdateExchangeRateModalShow.bind(this)
         this.updateExchangeRate = this.updateExchangeRate.bind(this)
         this.getDiskUsage = this.getDiskUsage.bind(this)
+        this.emptyDiskUsage = this.emptyDiskUsage.bind(this)
+        this.updateTimeCondition = this.updateTimeCondition.bind(this)
     }
+
+      
+    updateTimeCondition(event) {
+      console.log(event.target.value)
+      this.setState({time_condition: event.target.value});
+    }
+
+
 
     updateCountry(event) {
       let selected_country = event.target.value
@@ -86,6 +97,9 @@ class ConfigTab extends React.Component {
       switch (type) {
         case 'warning':
             NotificationManager.warning('Select delivery company','WARNING',  3000);
+            break;
+        case 'exchange_rate':
+            NotificationManager.error('Failed to update exchange rate','Error',  3000);
             break;
         case 'error':
             NotificationManager.error('Error message', 'Click me!', 5000, () => {
@@ -119,6 +133,31 @@ class ConfigTab extends React.Component {
         }
         return nodesCopy;
     }
+
+
+
+    emptyDiskUsage(){
+      const obj = this;
+      if (obj.state.time_condition != ''){
+        axios.post(setting_server.DB_SERVER+'/api/db/productlist', {
+          req_type: "delete_product",
+          user_id: this.props.userId,
+          time: obj.state.time_condition
+        })
+        .then(function (response) {
+          if (response['data']['success'] == true) {
+            
+          } else {
+            console.log('Failed to empty disk ');
+          }
+          obj.getDiskUsage()
+        })
+        .catch(function (error){
+          console.log(error);
+        });
+      }
+    }
+
 
 
     getExchangeRate(){
@@ -191,6 +230,7 @@ class ConfigTab extends React.Component {
           obj.getExchangeRate()
         } else {
           console.log('Failed to update exchange rate');
+          obj.createNotification('exchange_rate')
         }
       })
       .catch(function (error){
@@ -523,7 +563,7 @@ class ConfigTab extends React.Component {
                 </label>
                 <select
                   class="form-control"
-                  style={{width:"7%", float: 'right', marginLeft:'40%'}}
+                  style={{width:"8%", float: 'right', marginLeft:'40%'}}
                   value={this.state.country}
                   onChange={this.updateCountry}
                   ref={ref => this.country = ref}
@@ -545,7 +585,7 @@ class ConfigTab extends React.Component {
                     </Tooltip>
                   }
                 >
-                  <Button color="secondary" style = {{marginLeft:'40%', width:'7%',float:'right'}}
+                  <Button color="secondary" style = {{marginLeft:'40%', width:'8%',float:'right'}}
                     onClick={() => {
                             this.setState({updateExchangeRateModalShow: true})
                      //this.updateExchangeRate()
@@ -996,7 +1036,7 @@ class ConfigTab extends React.Component {
              Avail(%): {this.state.diskUsedPercentage} 
             </label>
 
-            <Button color="secondary" style = {{marginLeft:'10%', width:'7%',float:'right'}}
+            <Button color="secondary" style = {{marginLeft:'10%', width:'8%',float:'right'}}
               onClick={() => {
                       this.getDiskUsage()
                //this.updateExchangeRate()
@@ -1004,6 +1044,29 @@ class ConfigTab extends React.Component {
             >
             Update
             </Button>
+
+            <Button color="secondary" style = {{marginLeft:'10%', width:'8%',float:'right',  height:'36px'}}
+              onClick={() => {
+                      this.emptyDiskUsage()
+              }}
+            >
+            Empty
+            </Button>
+            <select
+              class="form-control"
+              style={{marginRight:'-9%', width:"23%", float: 'right' }}
+              value={this.state.time_condition}
+              onChange={this.updateTimeCondition}
+              ref={ref => this.time_condition = ref}
+            >
+              <option value="" disabled selected>Select period</option>
+              <option value="1">Keep data for the last 7 days</option>
+              <option value="2">Keep data for the last 30 days</option>
+              <option value="3">Keep data for the last 90 days</option>
+            </select>
+
+
+
           </Page.Card>
 
 

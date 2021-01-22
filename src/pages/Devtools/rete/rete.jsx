@@ -17,6 +17,11 @@ import { RowScrapperNode } from "./RowScrapperNode";
 import { RowsScrapperNode } from "./RowsScrapperNode";
 import { ClickNode } from "./ClickNode";
 import { ClickOperatorNode } from "./ClickOperatorNode";
+import { InputNode } from "./InputNode";
+import { WaitNode } from "./WaitNode";
+import { ScrollNode } from "./ScrollNode";
+import { BranchNode } from "./BranchNode";
+import { HoverNode } from "./HoverNode";
 import DockPlugin from 'rete-dock-plugin';
 import AutoArrangePlugin from 'rete-auto-arrange-plugin';
 import ConnectionPathPlugin from 'rete-connection-path-plugin';
@@ -119,6 +124,81 @@ class ClickOperatorComponent extends Rete.Component {
 
 
 
+class ScrollOperatorComponent extends Rete.Component {
+    constructor() {
+        super("Scroll");
+        this.data.component = ScrollNode;
+    }
+    
+    builder(node) {
+        var out = new Rete.Output("toRight", "", numSocket);
+        var input = new Rete.Input('input', "INPUT", numSocket);
+        return node.addInput(input).addOutput(out);
+    }
+
+    worker(node, inputs, outputs) {}
+}
+
+
+
+
+class HoverOperatorComponent extends Rete.Component {
+    constructor() {
+        super("Hover");
+        this.data.component = HoverNode;
+    }
+    
+    builder(node) {
+        var out = new Rete.Output("toRight", "", numSocket);
+        var input = new Rete.Input('input', "INPUT", numSocket);
+        return node.addInput(input).addOutput(out);
+    }
+
+    worker(node, inputs, outputs) {}
+}
+
+
+
+
+class InputOperatorComponent extends Rete.Component {
+    constructor() {
+        super("Input");
+        this.data.component = InputNode;
+    }
+    
+    builder(node) {
+        var out = new Rete.Output("toRight", "", numSocket);
+        var input = new Rete.Input('input', "INPUT", numSocket);
+        return node.addInput(input).addOutput(out);
+    }
+
+    worker(node, inputs, outputs) {}
+}
+
+
+
+
+
+class WaitOperatorComponent extends Rete.Component {
+    constructor() {
+        super("Wait");
+        this.data.component = WaitNode;
+    }
+    
+    builder(node) {
+        var out = new Rete.Output("toRight", "", numSocket);
+        var input = new Rete.Input('input', "INPUT", numSocket);
+        return node.addInput(input).addOutput(out);
+    }
+
+    worker(node, inputs, outputs) {}
+}
+
+
+
+
+
+
 
 class DictionariesScrapperComponent extends Rete.Component {
     constructor() {
@@ -184,6 +264,8 @@ class ClickOptionComponent extends Rete.Component {
     worker(node, inputs, outputs) {}
 }
 
+
+
 class ExpanderComponent extends Rete.Component {
     constructor() {
         super("Expander");
@@ -200,35 +282,19 @@ class ExpanderComponent extends Rete.Component {
     worker(node, inputs, outputs) {}
 }
 
-class ExtractItemListComponent extends Rete.Component {
+class BranchOperatorComponent extends Rete.Component {
     constructor() {
-        super("ExtractItemList");
-        this.data.component = RowsScrapperNode;
+        super("Branch");
+        this.data.component = BranchNode;
     }
     
     builder(node) {
-        var out = new Rete.Output("toRight", "", numSocket);
-        var ctrl = new NothingControl("", "nothing", node);
-        var input = new Rete.Input('input', "INPUT", numSocket);
-
-        return node.addInput(input).addControl(ctrl).addOutput(out);
+        var out = new Rete.Output("True", "", numSocket);
+        var out2 = new Rete.Output("False", "", numSocket);
+        var input = new Rete.Input('fromLeft', "INPUT", numSocket);
+        return node.addInput(input).addOutput(out).addOutput(out2);
     }
-    worker(node, inputs, outputs) {}
-}
 
-class ExtractItemDetailComponent extends Rete.Component {
-    constructor() {
-        super("ExtractItemDetail");
-        this.data.component = RowScrapperNode;
-    }
-    
-    builder(node) {
-        var out = new Rete.Output("toRight", "", numSocket);
-        var ctrl = new NothingControl("", "nothing", node);
-        var input = new Rete.Input('input', "INPUT", numSocket);
-
-        return node.addInput(input).addControl(ctrl).addOutput(out);
-    }
     worker(node, inputs, outputs) {}
 }
 
@@ -264,7 +330,7 @@ export async function createEditor(container, editor, saveGraphData, GraphData, 
             //}
         },
         items: {
-           'OpenURL': false 
+           'OpenURL': false
         },
         searchBar: false
 
@@ -277,7 +343,7 @@ export async function createEditor(container, editor, saveGraphData, GraphData, 
             itemClass: 'dock-item',
             plugins: [ReactRenderPlugin]
     });
-    var components = [new OpenURLComponent(), new ExpanderComponent(), new BFSIteratorComponent(), new OpenNodeComponent(), new CloseNodeComponent(), new ValuesScrapperComponent(), new ListsScrapperComponent(), new DictionariesScrapperComponent(), new ClickOperatorComponent() ];
+    var components = [new OpenURLComponent(), new ExpanderComponent(), new BFSIteratorComponent(), new ValuesScrapperComponent(), new ListsScrapperComponent(), new DictionariesScrapperComponent(), new ClickOperatorComponent(), new InputOperatorComponent(), new WaitOperatorComponent(), new ScrollOperatorComponent(), new BranchOperatorComponent(), new HoverOperatorComponent() ];
     components.map(c => {
         editor.register(c);
         engine.register(c);
@@ -319,7 +385,7 @@ export async function updateEditor(editor, saveGraphData, GraphData, job_id) {
     //    });
     //}
 
-    var components = [new OpenURLComponent(), new ExpanderComponent(), new BFSIteratorComponent(), new OpenNodeComponent(), new CloseNodeComponent(), new ValuesScrapperComponent(), new ListsScrapperComponent(), new DictionariesScrapperComponent(), new ClickOperatorComponent() ];
+    var components = [new OpenURLComponent(), new ExpanderComponent(), new BFSIteratorComponent(), new ValuesScrapperComponent(), new ListsScrapperComponent(), new DictionariesScrapperComponent(), new ClickOperatorComponent(), new InputOperatorComponent(), new WaitOperatorComponent(), new ScrollOperatorComponent(), new BranchOperatorComponent(), new HoverOperatorComponent()];
     components.map(c => {
         engine.register(c);
     });

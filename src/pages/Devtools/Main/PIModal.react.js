@@ -103,17 +103,20 @@ class PIModal extends React.Component {
 
 
     getMpid(){
-       let mpid_list = []
-       for(let val of this.state.productLists){
-          if (val['boxChecked'] == true){ 
-             mpid_list.push(val['mpid'])
-          }
-       }
+      let mpid_list = []
+      for(let val of this.state.productLists){
+         if (val['boxChecked'] == true){ 
+            mpid_list.push(val['mpid'])
+         }
+      }
+      console.log(mpid_list)
       const obj = this;
       //console.log(userId, obj.props.JobId, statu)
       axios.post(setting_server.DRIVER_UTIL_SERVER+'/api/driver/', {
-          req_type: "run_transformation_to_mysite",
-          job_id: obj.props.JobId
+//          req_type: "run_transformation_to_mysite",
+          req_type:"upload_targetsite",
+          job_id: obj.props.JobId,
+          mpids : mpid_list
       })
       .then(function (resultData) {
 
@@ -190,7 +193,7 @@ class PIModal extends React.Component {
 
     componentWillReceiveProps(nextProps) {
       this.getProductList(this.props.userId);
-      this.loadUserProgram(nextProps);
+      //this.loadUserProgram(nextProps);
     }
 
     initState() {

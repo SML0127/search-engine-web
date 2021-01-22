@@ -223,7 +223,7 @@ class Tree extends Component {
                 style={{marginTop:'10px', float:'right'}}
                 onClick = {()=> this.deregisterTargetSite() }
               >
-              Deregister
+              Delete
               </Button>
               <Button 
                 class="btn btn-outline-dark"

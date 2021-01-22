@@ -41,7 +41,7 @@ class NothingControl extends Rete.Control {
 
 class OpenURLComponent extends Rete.Component {
     constructor() {
-        super("OpenURL");
+        super("Open");
         this.data.component = OpenURLNode;
     }
     
@@ -262,7 +262,8 @@ export async function createPEditor(container, editor, saveGraphData, GraphData)
             //}
         },
         items: {
-           'OpenURL': false 
+           'OpenURL': false,
+           'Open': false 
         },
         searchBar: false
 

@@ -5,7 +5,7 @@ import { Button, Form } from "tabler-react";
 import Modal from 'react-bootstrap/Modal';
 import ReactTable from "react-table";
 import 'react-table/react-table.css'
-import TreeNode from "../config-category-tree-node";
+import TreeNode from "../vm-config-category-tree-node";
 import ControlPanel from "../control-panel";
 import TextView from "../text-view";
 import "./tree.css";
@@ -139,7 +139,10 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
 
 
    checkIsNull(value){
-      if(value == null || !value || typeof value === undefined ){
+      if(value == 0 || value == '0'){
+        return '0'
+      }
+      else if(value == null || !value || typeof value === undefined ){
         return ''
       }
       else{
@@ -186,6 +189,24 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
      .catch(function (error){
        console.log(error);
      });
+   }
+
+   initPricingInformation(){
+     this.setState({tariffRate: '', vatRate: '', tariffThreshold: '', marginRate: '', minMargin: '', deliveryCompany: '', shippingCost: ''})
+     this.setState({
+       t_category: '',
+       transformation_program_id: '',
+       cid: '', 
+       cnum: '',
+       exchange_rate:  '',
+       margin_rate: '', 
+       tariff_threshold: '',
+       minimum_margin: '', 
+       tariff_rate: '',
+       vat_rate: '',
+       shipping_cost: '',
+       delivery_company: '',
+     })
    }
 
    getTargetSites(userId){
@@ -241,7 +262,6 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
         savedNodes: [],
         selected_category_id: "",
         selected_category_title: "",
-        confirm_modal: false,
         check_modal: false,
         id: "",
         selectedTargetSiteIndex: null,
@@ -262,11 +282,8 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
         user_id: this.props.userId
       })
       .then(function (response) {
-        console.log('-------------')
-        console.log(response)
         if (response['data']['success'] == true) {
           //obj.setState({exchangeRate :response['data']['result'][0][0]});
-          console.log(obj.props)
           obj.setState({exchangeRate :response['data']['result'][0][0][obj.props.country[0]]});
           
         } else {
@@ -303,7 +320,6 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
 
     loadPricingInformation(){
       const obj = this;
-      console.log(obj)
 
       axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
         req_type: "load_pricing_information",
@@ -324,6 +340,9 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
           let delivery_company = response['data']['result'][0][6]
           let shipping_cost  = response['data']['result'][0][7] == -999 ? '' : response['data']['result'][0][7]
           obj.setState({exchangeRate: exchange_rate, tariffRate: tariff_rate, vatRate: vat_rate, tariffThreshold: tariff_threshold, marginRate: margin_rate, minMargin: min_margin, deliveryCompany: delivery_company, shippingCost: shipping_cost})
+        }
+        else{
+          obj.initPricingInformation()
         }
       })
       .catch(function (error){
@@ -375,11 +394,13 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
 
 
     getCategoryTreeWithSelection(){
+        this.initPricingInformation()
         if (this.state.selectedTargetSiteId == null){
           return;
         }
         let tid = this.state.selectedTargetSiteId
         let userId = this.props.userId
+        console.log(this.props)
         const obj = this;
         axios.post(setting_server.DB_SERVER+'/api/db/categorytree', {
             req_type: "get_category_tree",
@@ -399,7 +420,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
                   nodes: []
               })
             }
-            //obj.loadPricingInformation()
+            obj.loadPricingInformation()
         })
         .catch(function (error) {
             console.log(error);
@@ -408,9 +429,11 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
     }
 
     getCategoryTree() {
+        this.initPricingInformation()
         if (this.state.selectedTargetSiteId == null){
           return;
         }
+        console.log(this.props)
         let tid = this.state.selectedTargetSiteId
         let userId = this.props.userId
         const obj = this;
@@ -726,7 +749,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
     }
    
     componentDidMount(){
-
+      console.log(this.props)
       this.getExchangeRate()
       this.getTargetSites(this.props.userId);
       this.getDeliveryCompanies();
@@ -769,7 +792,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
                                   selectedTargetSiteId: rowInfo.original['id'],
                                   selectedTargetSiteLabel: rowInfo.original['label'],
                                   selectedTargetSiteUrl: rowInfo.original['url']
-                                }, () => {console.log(this.state.selectedTargetSiteId); this.getCategoryTree()});
+                                }, () => {console.log(this.state.selectedTargetSiteId); this.getCategoryTreeWithSelection()});
                               },
                               style: {
                                 background: rowInfo.original['id'] == this.state.selectedTargetSiteId ? '#00ACFF' : null
@@ -784,7 +807,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
                                   selectedTargetSiteId: rowInfo.original['id'],
                                   selectedTargetSiteLabel: rowInfo.original['label'],
                                   selectedTargetSiteUrl: rowInfo.original['url']
-                                }, () => {console.log(this.state.selectedTargetSiteId); this.getCategoryTree()});
+                                }, () => {console.log(this.state.selectedTargetSiteId); this.getCategoryTreeWithSelection()});
                               },
                               style: {
                                 background: rowInfo.original['id'] == this.state.selectedTargetSiteId ? '#00ACFF' : null

@@ -17,7 +17,7 @@ class SaveProgramModal extends React.Component {
 
     
     componentDidMount(){
-        this.loadUserProgram()
+        //this.loadUserProgram()
     }
     
     componentWillReceiveProps(nextProps) {
@@ -32,8 +32,10 @@ class SaveProgramModal extends React.Component {
 
     loadUserProgram() {
         var obj = this;
+        console.log('get_user_program in SaveP ')
         axios.post(setting_server.DB_SERVER+'/api/db/userprogram', {
             req_type: "get_user_program",
+            job_id: obj.props.jobId
         })
         .then(function (resultData){
             obj.setState({
@@ -68,11 +70,11 @@ class SaveProgramModal extends React.Component {
             </Modal.Header>
             <Modal.Body>
                 <div class="form-group">
-                    <label for="name">Site</label>
+                    <label for="name">Name</label>
                     <input type="text" name="site" class="form-control"/>
                 </div>
                 <div class="form-group">
-                    <label for="email">Category</label>
+                    <label for="email">Description</label>
                     <input type="text" name="category" class="form-control"/>
                 </div>
                     

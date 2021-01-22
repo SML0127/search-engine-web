@@ -39,16 +39,23 @@ ContentSelector.prototype = {
 
 		if(this.deferredCSSSelectorResponse.state() !== "rejected") {
 
-			// elements that are selected by the user
 			this.selectedElements;
       this.resultXpath;
-			// element selected from top
 			this.top = 0;
-
-			// initialize css selector
-			//this.initCssSelector(false);
-
 			this.initGUI();
+		}
+
+		return this.deferredCSSSelectorResponse.promise();
+	},
+
+	getCSSSelectorURL: function(request) {
+
+		if(this.deferredCSSSelectorResponse.state() !== "rejected") {
+
+			this.selectedElements = [];
+      this.resultXpath;
+			this.top = 0;
+			this.initGUIURL();
 		}
 
 		return this.deferredCSSSelectorResponse.promise();
@@ -120,6 +127,29 @@ ContentSelector.prototype = {
 		return this.deferredCSSSelectorResponse.promise();
 	},
 
+
+	initGUIURL: function () {
+
+		this.$allElements = $(this.allowedElements+":not(#-selector-toolbar):not(#-selector-toolbar *)", this.parent);
+
+		if(this.parent !== document.body) {
+			this.$allElements.push(this.parent);
+		}
+
+		this.unbindElementSelection();
+		this.unbindElementHighlight();
+		this.removeToolbar();
+
+
+		this.bindElementHighlight();
+		this.bindElementHighlightURL();
+		this.bindElementSelectionURL();
+	
+		this.attachToolbarURL();
+	},
+
+
+
 	initGUI: function () {
 
 		//this.highlightParent();
@@ -131,20 +161,216 @@ ContentSelector.prototype = {
 			this.$allElements.push(this.parent);
 		}
 
-		this.bindElementHighlight();
-		this.bindElementSelection();
+		this.unbindElementSelection();
+		this.unbindElementHighlight();
+		this.removeToolbar();
+
+    this.bindElementOperationTips()
+	  this.attachOperationTips()
+
+    //tmp 
+		//this.bindElementHighlight();
+		//this.bindElementSelection();
+		//this.attachToolbar();
+
+
 		//this.bindKeyboardSelectionManipulations();
-		this.attachToolbar();
 		//this.bindMultipleGroupCheckbox();
 		//this.bindMultipleGroupPopupHide();
 		//this.bindMoveImagesToTop();
 	},
+
+  getListXpath: function(x1, x2){
+
+     let output1 = x1.split('//')
+     let output2 = x2.split('//')
+
+     let output1_len = output1.length
+     let output_idx
+
+     for(let idx in output1){
+       if(output1[output1_len - idx] != output2[output1_len - idx]){
+         output = output1[output1_len - idx]
+         output = output.split('[')[0]
+         output_idx = output1_len - idx
+       }
+     }
+
+     let fin = ''
+     for(let idx in output1){
+       if(idx == 0){
+         continue;
+       }
+       if(idx == output_idx){
+         fin = fin + '//' + output
+       }
+       else{
+         fin = fin + '//' + output1[idx]
+       }
+     }
+     return fin
+  },
+
+	bindElementSelectionURL: function () {
+
+    if(this.selectedElements.length >=2){
+      this.selectedElements = []
+		  $(".-sitemap-select-item-selected").removeClass('-sitemap-select-item-selected');
+    }
+		this.$allElements.bind("click.elementSelector", function (e) {
+			var element = e.currentTarget;
+      //let elementsOfXPath = document.evaluate(optListXpath,document);
+      this.selectedElements.push(element)
+      let num_selected = this.selectedElements.length
+      console.log(this.selectedElements)
+      console.log(num_selected)
+      if(num_selected >= 2){
+        let elem1 = this.selectedElements[num_selected - 1]
+        let elem2 = this.selectedElements[num_selected - 2]
+			  $(elem1).removeClass("-sitemap-select-item-hover");
+			  $(elem1).removeClass('-sitemap-select-item-selected');
+			  $(elem2).removeClass("-sitemap-select-item-hover");
+			  $(elem2).removeClass('-sitemap-select-item-selected');
+        var optRelXpath1 = this.generateRelXpath(elem1);
+        console.log("optRelXPath = ", optRelXpath1)
+        var absXpath1 = this.generateAbsXpath(elem1);
+        console.log("absXPath = ", absXpath1)
+        var listXpath1 = this.generateListXpath(absXpath1)
+        console.log("listXPath = ", listXpath1)
+
+        var optRelXpath2 = this.generateRelXpath(elem2);
+        console.log("optRelXPath = ", optRelXpath2)
+        var absXpath2 = this.generateAbsXpath(elem2);
+        console.log("absXPath = ", absXpath2)
+        var listXpath2 = this.generateListXpath(absXpath2)
+        console.log("listXPath = ", listXpath2)
+
+        this.resultXpath = optRelXpath1;
+
+
+        let suffixListXpath = this.getListXpath(listXpath1, listXpath2)
+        console.log(suffixListXpath)
+        let x1 = absXpath1
+        let x2 = absXpath2
+
+        let output1 = x1.split('/')
+        let output2 = x2.split('/')
+
+        let output1_len = output1.length
+        let output_idx
+
+        for(let idx in output1){
+          if(output1[idx] != output2[idx]){
+            output_idx = idx
+            break;
+          }
+        }
+
+        let fin = ''
+        for(let idx in output1){
+          if(idx == 0){
+            continue;
+          }
+          if(parseInt(idx) < parseInt(output_idx)){
+            fin = fin + '/' + output1[idx]
+          }
+          else{
+            break;
+            //fin = fin + '/' + output1[idx]
+          }
+        }
+        let finalXpath = fin + suffixListXpath
+
+
+
+        let res = document.evaluate(finalXpath, document);
+        let tmpElements = [];
+        let node
+        while(node = res.iterateNext()) {
+          tmpElements.push(node)
+        }
+        let limit_num = tmpElements.length
+
+        let idx1 = finalXpath.lastIndexOf('//')
+        let idx2 = finalXpath.lastIndexOf('[')
+        let last_tag = finalXpath.slice(idx1+2, idx2)
+        if(last_tag == 'a'){
+          console.log(finalXpath)
+			    this.highlightSelectedElementsURL(finalXpath);
+			    return false;
+        }
+        else{
+          let candidate1 = finalXpath.slice(0, idx1+2) + 'a'
+
+          console.log(candidate1)
+          let res1 = document.evaluate(candidate1, document);
+          let tmpElements1 = [];
+          let node1
+          while(node1 = res1.iterateNext()) {
+            tmpElements1.push(node)
+          }
+          let candidate_limit_num = tmpElements1.length
+          console.log(candidate_limit_num, limit_num)
+          if(parseInt(candidate_limit_num) <= parseInt(limit_num) && parseInt(candidate_limit_num) != 0 ){
+            finalXpath = candidate1
+            console.log(finalXpath)
+			      this.highlightSelectedElementsURL(finalXpath);
+			      return false;
+          }
+          else{
+            let candidate2 = finalXpath + '//a'
+            console.log(candidate2)
+
+            let res2 = document.evaluate(candidate2, document);
+            let tmpElements2 = [];
+            let node2
+            while(node2 = res2.iterateNext()) {
+              tmpElements2.push(node)
+            }
+            let candidate_limit_num2 = tmpElements2.length
+            console.log(candidate_limit_num2)
+            if(parseInt(candidate_limit_num2) <= parseInt(limit_num) && parseInt(candidate_limit_num2) != 0 ){
+              finalXpath = candidate2
+              console.log(finalXpath)
+			        this.highlightSelectedElementsURL(finalXpath);
+			        return false;
+            }
+          }
+
+			    this.highlightSelectedElementsURL(finalXpath);
+			    return false;
+        }
+      }
+
+
+			// Cancel all other events
+			return false;
+		}.bind(this));
+	},
+
+
+
+
+	bindElementOperationTips: function () {
+
+		this.$allElements.bind("click.elementSelector", function (e) {
+
+			// Cancel all other events
+			return false;
+		}.bind(this));
+	},
+
+
+
 
 	bindElementSelection: function () {
 
 		this.$allElements.bind("click.elementSelector", function (e) {
 			var element = e.currentTarget;
 			$(element).removeClass("-sitemap-select-item-hover");
+			//$(".-sitemap-select-item-selected").removeClass('-sitemap-select-item-selected');
+			$(element).removeClass('-sitemap-select-item-selected');
+      console.log(element)
       var optRelXpath = this.generateRelXpath(element);
       console.log("optRelXPath = ")
       console.log(optRelXpath)
@@ -155,8 +381,6 @@ ContentSelector.prototype = {
       console.log("listXPath = ")
       console.log(listXpath)
       let optListXpath
-      //console.log(element.id)
-      //console.log(element.className)
       if(element.id != ''){
         optListXpath = listXpath.slice(0,-2) + "@id='" + element.id + "']"
         console.log(optListXpath)
@@ -191,11 +415,8 @@ ContentSelector.prototype = {
 	},
 
   generateListXpath: function(xpath){
-    //console.log(xpath)
     let xpathDiv = xpath.split("/");
-    //console.log(xpathDiv)
     let leng = xpathDiv.length;
-    //console.log(leng)
     let topADEdgeIndex = 1;
     let prevTopADEdgeIndex = 0;
     let xpathPrefix = "//";
@@ -203,20 +424,14 @@ ContentSelector.prototype = {
     let lastCandidate = ""
     while(topADEdgeIndex <= leng -1){
       let candidate = ""
-      //console.log(topADEdgeIndex)
       for (i = leng -1 ; i > topADEdgeIndex; i--){
-        //console.log(i)
-        //console.log(xpathDiv[i])
-        //console.log(xpathPrefix);// e.g.  //h1[1]
         let res;
         if(xpathPrefix != '//'){
           candidate = xpathDiv[i] + candidate;
-          //console.log(xpathPrefix +'//'+ candidate)
           res = document.evaluate(xpathPrefix +'//'+ candidate, document);//Can't find elements in iframe 
         }
         else{
           candidate = xpathDiv[i] +candidate;
-          //console.log(xpathPrefix + candidate)
           res = document.evaluate(xpathPrefix + candidate, document);//Can't find elements in iframe 
         }
         let cnt = 0;
@@ -225,44 +440,28 @@ ContentSelector.prototype = {
           cnt++;
         }
         if(cnt == 1){
-          //console.log(candidate);
-          //console.log(xpathPrefix);
           topADEdgeIndex = i;
-          //i = leng - 1;
           if(xpathPrefix == '//'){
             xpathPrefix = xpathPrefix + xpathDiv[i]; 
           }
           else{
             xpathPrefix = xpathPrefix +'//'+ xpathDiv[i]; 
           }
-          //console.log(xpathPrefix);
           break;
         }
         else{
           candidate = '/' + candidate
-          //console.log(candidate)
         }
       }
-      lastCandidate = candidate
-      //console.log(topADEdgeIndex)
-      //console.log(i)
       if(topADEdgeIndex == i){
         if(prevTopADEdgeIndex == topADEdgeIndex){
-        //for
           xpathPrefix = '/' + candidate
-          //console.log(xpathPrefix)
           prevTopADEdgeIndex = topADEdgeIndex
-          //console.log(prevTopADEdgeIndex)
-          //console.log(topADEdgeIndex)
           return xpathPrefix;
           break;
         }
         else{
-          //for first case
-          //xpathPrefix = '//' + candidate
-          //console.log(xpathPrefix)
           prevTopADEdgeIndex = topADEdgeIndex
-          //console.log(prevTopADEdgeIndex)
           //console.log(topADEdgeIndex)
         }
       }
@@ -379,14 +578,19 @@ ContentSelector.prototype = {
     var classChecked = "withclass";//classAttr.checked ? "withclass" : "withoutclass";
     var nameChecked = "withname";//nameAttr.checked ? "withname" : "withoutname";
     var placeholderChecked = "withplaceholder";//placeholderAttr.checked ? "withplaceholder" : "withoutplaceholder";
-    var attributeChoicesForXpath = [userAttr, idChecked, classChecked, nameChecked, placeholderChecked]
+    var textChecked = "withouttext";//placeholderAttr.checked ? "withplaceholder" : "withoutplaceholder";
+    var attributeChoicesForXpath = [userAttr, idChecked, classChecked, nameChecked, placeholderChecked, textChecked]
     //attributeChoicesForXpath = attributeChoices.split(",");
     var userAttr = attributeChoicesForXpath[0];
     //var userAttr = attributeChoices[0];
+
     var innerText = [].reduce.call(element.childNodes, function(a, b) {
         return a + (b.nodeType === 3 ? b.textContent : '')
+        //return a + ''
     }, '').trim().slice(0, 50);
     innerText = this.removeLineBreak(innerText);
+
+   
     var tagName = element.tagName.toLowerCase();
     if (tagName.includes("style") || tagName.includes("script")) {
         return "This is " + tagName + " tag. For " + tagName + " tag, no need to write selector. :P"
@@ -394,16 +598,16 @@ ContentSelector.prototype = {
     if (tagName.includes('svg')) {
         tagName = "*"
     }
-    var innerText = false
-    //if (innerText.includes("'")) {
-    //    innerText = innerText.split('  ')[innerText.split('  ').length - 1];
-    //    containsText = '[contains(text(),"' + innerText + '")]';
-    //   equalsText = '[text()="' + innerText + '"]'
-    //} else {
-    //    innerText = innerText.split('  ')[innerText.split('  ').length - 1];
-    //    containsText = "[contains(text(),'" + innerText + "')]";
-    //    equalsText = "[text()='" + innerText + "']"
-    //}
+
+    if (innerText.includes("'")) {
+        innerText = innerText.split('  ')[innerText.split('  ').length - 1];
+        containsText = '[contains(text(),"' + innerText + '")]';
+        equalsText = '[text()="' + innerText + '"]'
+    } else {
+        innerText = innerText.split('  ')[innerText.split('  ').length - 1];
+        containsText = "[contains(text(),'" + innerText + "')]";
+        equalsText = "[text()='" + innerText + "']"
+    }
     if (tagName.includes('html')) {
         return '//html' + this.tempXpath
     }
@@ -448,6 +652,7 @@ ContentSelector.prototype = {
                 }
             }
         }
+
         if (userAttr in listOfAttr) {
             attr = userAttr;
             attrValue = listOfAttr[attr]
@@ -643,6 +848,10 @@ ContentSelector.prototype = {
                             }
                         }
                         console.log(this.tempXpath)
+                        if (this.tempXpath[0] == '['){
+                          this.tempXpath = this.tempXpath.slice(3)
+                        }
+                        console.log(this.tempXpath)
                         var totalMatch = _document.evaluate(this.tempXpath, _document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
                         if (totalMatch === 1) {
                             var regSlashContent = /([a-zA-Z])([^/]*)/g;
@@ -712,6 +921,41 @@ ContentSelector.prototype = {
 			$(element).removeClass("-sitemap-select-item-hover");
 		}.bind(this));
 	},
+
+
+	bindElementHighlightURL: function () {
+		$(this.$allElements).bind("mouseover.elementSelector", function(e) {
+			// allow event bubbling for other event listeners but not for web scraper.
+			if(e.target !== e.currentTarget) {
+				return;
+			}
+   
+
+			var element = e.currentTarget;
+      //console.log('-----------1---------')
+      //console.log($(element))
+      if ($(element).hasClass('-sitemap-select-item-selected')){
+        //console.log(e.currentTarget)
+        absXpath = this.generateAbsXpath(element);
+        console.log(absXpath)
+			  $("body #-selector-toolbar #element_abs_xpath").text(absXpath);
+      }
+      //console.log('-----------2---------')
+			//this.mouseOverElement = element;
+			//$(element).addClass("-sitemap-select-item-hover");
+		}.bind(this)).bind("mouseout.elementSelector", function(e) {
+			// allow event bubbling for other event listeners but not for web scraper.
+			if(e.target !== e.currentTarget) {
+				return;
+			}
+
+			//var element = e.currentTarget;
+			//this.mouseOverElement = null;
+			//$(element).removeClass("-sitemap-select-item-hover");
+		}.bind(this));
+	},
+
+
 
 	bindMoveImagesToTop: function() {
 
@@ -791,6 +1035,42 @@ ContentSelector.prototype = {
 
 	},
 
+
+	highlightSelectedElementsURL: function (optRelXpath) {
+		try {
+      var res = document.evaluate(optRelXpath, document);
+			$(".-sitemap-select-item-selected").removeClass('-sitemap-select-item-selected');
+
+
+      let listElements = [];
+      while(node = res.iterateNext()) {
+        listElements.push(node)
+      }
+      console.log(listElements)
+      for (var i = 0; i < listElements.length; i++) {
+        $(listElements[i]).addClass('-sitemap-select-item-selected');
+      }
+
+			$("body #-selector-toolbar .selector").text(optRelXpath);
+			//// highlight selected elements
+      //console.log(this.selectedElements)
+      //console.log(this.parent)
+			//$(ElementQuery(this.selectedElements, this.parent)).addClass('-sitemap-select-item-selected');
+		}
+		catch(err) {
+			if(err === "found multiple element groups, but allowMultipleSelectors disabled") {
+				console.log("multiple different element selection disabled");
+
+				this.showMultipleGroupPopup();
+				// remove last added element
+				this.selectedElements.pop();
+				this.highlightSelectedElements();
+			}
+		}
+	},
+
+
+
 	highlightSelectedElements: function (optRelXpath) {
 		try {
 			//var resultCssSelector = this.getCurrentCSSSelector();
@@ -831,9 +1111,7 @@ ContentSelector.prototype = {
       //  $(selectedElements[i]).addClass('-sitemap-select-item-selected');
       //}
 
-      console.log('--------------------------')
 			$("body #-selector-toolbar .selector").text(optRelXpath);
-      console.log('--------------------------')
 			//// highlight selected elements
       //console.log(this.selectedElements)
       //console.log(this.parent)
@@ -881,30 +1159,73 @@ ContentSelector.prototype = {
 		$("#-selector-toolbar .diferentElementSelection").unbind("change");
 	},
 
+
+
+	attachOperationTips: function () {
+		var $toolbar = '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">' +
+  '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>' +
+  '<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>' +
+      '<div class="panel-group" id="operation-tips">'+
+      '<div class="panel panel-default">' +
+        '<div class="panel-heading">' +
+          '<h4 class="panel-title">' +
+          '<a data-toggle="collapse" href="#collapse1" style="color:white !important"> operation tips</a>' +
+           '</h4>' +
+        '</div>' +
+        '<div id="collapse1" class="panel-collapse collapse">' +
+          '<ul class="list-group">' +
+            '<li class="list-group-item">One</li>' +
+            '<li class="list-group-item">Two</li>' +
+            '<li class="list-group-item">Three</li>' +
+          '</ul>' +
+          '<div class="panel-footer">Footer</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+
+		$("body").append($toolbar);
+
+	},
+
+
+
+
 	attachToolbar: function () {
 		var $toolbar = '<div id="-selector-toolbar">' +
-			'<div class="list-item"><div class="selector-container"><div class="selector"></div></div></div>' +
-			//'<div class="input-group-addon list-item">' +
-			//	//'<input type="checkbox" title="Enable different type element selection" name="diferentElementSelection">' +
-			//	'<div class="popover top">' +
-			//	'<div class="close">×</div>' +
-			//	'<div class="arrow"></div>' +
-			//	'<div class="popover-content">' +
-			//	'<div class="txt">' +
-			//	'Different type element selection is disabled. If the element ' +
-			//	'you clicked should also be included then enable this and ' +
-			//	'click on the element again. Usually this is not needed.' +
-			//	'</div>' +
-			//	'</div>' +
-			//	'</div>' +
-			//'</div>' +
-			//'<div class="list-item key-events"><div title="Click here to enable key press events for selection">Enable key events</div></div>' +
-			'<div class="list-item key-button key-button-select hide" title="Use S key to select element">S</div>' +
-			'<div class="list-item key-button key-button-parent hide" title="Use P key to select parent">P</div>' +
-			'<div class="list-item key-button key-button-child hide" title="Use C key to select child">C</div>' +
+			'<div class="list-item"><div class="selector-container"><textarea id = "element_xpath" class="selector" style = "width:100%; height:26px; text-align:right; overflow:hidden; resize: none "></textarea></div></div>' +
+			'<div class="list-item highlight-button">Highlight</div>' +
 			'<div class="list-item done-selecting-button">Close</div>' +
 			'</div>';
 		$("body").append($toolbar);
+
+
+		$("body #-selector-toolbar .highlight-button").click(function () {
+      console.log('click done');
+			this.highlightSelection();
+		}.bind(this));
+
+		$("body #-selector-toolbar .done-selecting-button").click(function () {
+      console.log('click done');
+			this.selectionFinished();
+		}.bind(this));
+	},
+
+
+
+	attachToolbarURL: function () {
+		var $toolbar = '<div id="-selector-toolbar">' +
+			'<div class="list-item"><div class="selector-container"><textarea id = "element_xpath" class="selector" style = "width:100%; height:26px; text-align:right;overflow:hidden; resize: none"></textarea></div></div>' +
+			'<div class="list-item highlight-button">Highlight</div>' +
+			'<div class="list-item done-selecting-button">Close</div>' +
+			'<div class="row" style="width:100%"></div><div class="list-item-abs"><div class="selector-container"><textarea id = "element_abs_xpath" class="selector" style = "width:100%; height:26px; text-align:right; overflow:hidden; resize: none" ></textarea></div></div> <div class="list-item disable-button">Abs XPath of mouseover element</div>' +
+			'</div>';
+		$("body").append($toolbar);
+
+
+		$("body #-selector-toolbar .highlight-button").click(function () {
+      console.log('click done');
+			this.highlightSelection();
+		}.bind(this));
 
 		$("body #-selector-toolbar .done-selecting-button").click(function () {
       console.log('click done');
@@ -938,6 +1259,7 @@ ContentSelector.prototype = {
 		clearInterval(this.keyPressFocusInterval);
 	},
 	removeToolbar: function () {
+    console.log('remove tool bar')
 		$("body #-selector-toolbar a").unbind("click");
 		$("#-selector-toolbar").remove();
 	},
@@ -949,15 +1271,45 @@ ContentSelector.prototype = {
 
 		this.unbindElementSelection();
 		this.unbindElementHighlight();
-		this.unbindKeyboardSelectionMaipulatios();
-		this.unbindMultipleGroupPopupHide();
-		this.unbindMultipleGroupCheckbox();
-		this.unbindMoveImagesToTop();
 		this.removeToolbar();
+		//this.unbindKeyboardSelectionMaipulatios();
+		//this.unbindMultipleGroupPopupHide();
+		//this.unbindMultipleGroupCheckbox();
+		//this.unbindMoveImagesToTop();
+	},
+
+	highlightSelection: function () {
+   	$(".-sitemap-select-item-selected").removeClass('-sitemap-select-item-selected');
+	  this.resultXpath = document.getElementById("element_xpath").value;
+		try {
+      var res = document.evaluate(this.resultXpath, document);
+
+
+      let listElements = [];
+      while(node = res.iterateNext()) {
+        listElements.push(node)
+      }
+      for (var i = 0; i < listElements.length; i++) {
+        $(listElements[i]).addClass('-sitemap-select-item-selected');
+      }
+
+		}
+		catch(err) {
+			if(err === "found multiple element groups, but allowMultipleSelectors disabled") {
+				console.log("multiple different element selection disabled");
+
+				this.showMultipleGroupPopup();
+				// remove last added element
+				this.selectedElements.pop();
+				this.highlightSelectedElements();
+			}
+		}
+
+		//var resultCssSelector = this.resultXpath;//this.getCurrentCSSSelector();
+
 	},
 
 	selectionFinished: function () {
-    console.log('selectionFinished');
     console.log(this.resultXpath)
 		//var resultCssSelector = this.resultXpath;//this.getCurrentCSSSelector();
 

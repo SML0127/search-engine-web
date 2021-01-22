@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import ReactTable from "react-table";
 import Calendar from "react-calendar"
 import TreeNode from "../config-category-tree-node";
 import AddButton from "../add-button";
@@ -45,6 +46,7 @@ class Tree extends Component {
       return {
         nodes:[],
         savedNodes: [],
+        mysiteKey: [],
         selected_category_id: "",
         selected_category_title: "",
         id: "",
@@ -81,34 +83,79 @@ class Tree extends Component {
       }
     }
 
-    getMySiteCategoryTree() {
-        let userId = this.props.userId
-        const obj = this;
-        axios.post(setting_server.DB_SERVER+'/api/db/mysitecategorytree', {
-            req_type: "get_category_tree",
-            user_id: userId
-        })
-        .then(function (resultData) {
-            let output = resultData['data']['output']
-            if(output){
-              let category_tree = JSON.parse(output[0])
-              obj.setState({
-                  nodes: obj.initializedСopy(category_tree)
-              })
-            }
-            else{
-              obj.setState({
-                  nodes: []
-              })
-            }
-            obj.setState({
-              selected_category_title: obj.props.mCategory   
-            })
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
 
+    getCompareKey(){
+      let userId = this.props.userId
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/mysitecategorytree', {
+          req_type: "get_compare_key",
+          user_id: userId
+      })
+      .then(function (resultData) {
+
+      })
+      .catch(function (error) {
+          console.log(error);
+      });
+    }
+
+    addCompareKey(){
+      let userId = this.props.userId
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/mysitecategorytree', {
+          req_type: "add_compare_key",
+          user_id: userId
+      })
+      .then(function (resultData) {
+
+      })
+      .catch(function (error) {
+          console.log(error);
+      });
+    }
+
+    deleteCompareKey(){
+      let userId = this.props.userId
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/mysitecategorytree', {
+          req_type: "delete_compare_key",
+          user_id: userId
+      })
+      .then(function (resultData) {
+
+      })
+      .catch(function (error) {
+          console.log(error);
+      });
+    }
+
+    getMySiteCategoryTree() {
+      let userId = this.props.userId
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/mysitecategorytree', {
+          req_type: "get_category_tree",
+          user_id: userId
+      })
+      .then(function (resultData) {
+          let output = resultData['data']['output']
+          if(output){
+            let category_tree = JSON.parse(output[0])
+            obj.setState({
+                nodes: obj.initializedСopy(category_tree)
+            })
+          }
+          else{
+            obj.setState({
+                nodes: []
+            })
+          }
+          obj.setState({
+            selected_category_title: obj.props.mCategory   
+          })
+      })
+      .catch(function (error) {
+          console.log(error);
+      });
     }
 
 
@@ -296,9 +343,9 @@ class Tree extends Component {
 
         return (
             <div className="Tree">
-                <div className="Tree-AllSide">
-                    <label for="name"  style={{display: "flex",justifyContent: "center",alignItems: "center", fontWeight: "bold", fontSize:'20px'}}> My Site Category</label>
-                <div>
+                <div className="Tree-LeftSide">
+                  <label for="name"  style={{display: "flex",justifyContent: "center",alignItems: "center", fontWeight: "bold", fontSize:'20px'}}> My Site Category</label>
+                  <div>
                     <Button 
                         class="btn btn-outline-dark"
                         type="button"
@@ -315,21 +362,105 @@ class Tree extends Component {
                     >
                         Update
                     </Button>
-                </div>
-                <ul className="Nodes" style={{marginTop:"5px",overflow:'auto',width:'100%',maxHeight:'165px',minHeight:'165px'}}>
-                  { nodes.map((nodeProps) => {
-                    const { id, ...others } = nodeProps;
-                    return (
-                      <TreeNode 
-                        key={id}
-                        {...others}
-                      />
-                    );}) }
-                </ul>
+                  </div>
+                  <ul className="Nodes" style={{marginTop:"5px",overflow:'auto',width:'100%',maxHeight:'165px',minHeight:'165px'}}>
+                    { nodes.map((nodeProps) => {
+                      const { id, ...others } = nodeProps;
+                      return (
+                        <TreeNode 
+                          key={id}
+                          {...others}
+                        />
+                      );}) }
+                  </ul>
                 <label style={{marginLeft:'30px', width:"120%", marginTop:'4px', fontWeight:'600', }} >
                   Category
-                  <input readonly='readonly' name="selected_Category" class="form-control"style={{width:"80%",marginTop:'1%'}} value= {this.state.selected_category_title } />
+                  <input readonly='readonly' name="selected_Category" class="form-control"style={{width:"81%",marginTop:'1%'}} value= {this.state.selected_category_title } />
                 </label>
+                </div>
+                
+                <div className="Tree-RightSide">
+                  <label for="name"  style={{display: "flex",justifyContent: "center",alignItems: "center", fontWeight: "bold", fontSize:'20px'}}> Compare Key</label>
+
+                  <ReactTable
+                    data = {this.state.mysiteKey}
+                    getTdProps={(state, rowInfo, column, instance) => {
+                      if (rowInfo) {
+                        if(this.state.selectedDeliveryCompanyIndex !== null){ // When you click a row not at first.
+                          return {
+                            onClick: (e) => {
+                              this.setState({
+                                selectedDeliveryCompanyIndex: rowInfo.index,
+                                selectedDeliveryCompanyId: rowInfo.original['id'],
+                                selectedDeliveryCompanyLabel: rowInfo.original['label'],
+                              });
+                            },
+                            style: {
+                              background: rowInfo.index === this.state.selectedDeliveryCompanyIndex ? '#00ACFF' : null
+                            }
+                          }
+                        }
+                        else { // When you click a row at first.
+                          return {
+                            onClick: (e) => {
+                              this.setState({
+                                selectedDeliveryCompanyIndex: rowInfo.index,
+                                selectedDeliveryCompanyId: rowInfo.original['id'],
+                                selectedDeliveryCompanyLabel: rowInfo.original['label'],
+                              }, () => {console.log('update!'); console.log(this.state.selectedDeliveryCompanyId)});
+                            }
+                          }
+                        }
+                      }
+                      return{}
+                    }}
+                    columns={[
+                      {
+                        Header: "Key",
+                        resizable: false,
+                        accessor: "0",
+                        Cell: ( row ) => {
+                          return (
+                            <div
+                              style={{
+                                textAlign:"center",
+                                paddingTop:"4px"
+                              }}
+                            > {row.value} </div>
+                          )
+                        }
+                      },
+                    ]}
+                    minRows={5}
+                    defaultPageSize={30}
+                    showPagination ={false}
+                    bordered = {false} 
+                    style={{
+                      height: "270px"
+                    }}
+                    className="-striped -highlight"
+                  />
+                  <div class='row' style={{marginLeft:'36%',width:'75%', marginTop:'20px',float:'right'}}>
+                    <label style={{marginTop:'8px', width:'20%'}}> Key :</label>
+                    <input name="input_key" class="form-control" style={{width:"32%"}} value={this.state.inputKey} onChange={e => this.onTodoChange('inputKey',e.target.value)} />
+                    <Button color="primary" style = {{marginLeft: '10px', width:'20%'}} 
+                      onClick={() => {
+                        this.addCompareKey()
+                      }}
+                    >
+                      Add
+                    </Button>
+                    <Button
+                      color="secondary" 
+                      style = {{marginLeft: '10px', width:'20%'}}
+                      onClick={() => {
+                        this.deleteCompareKey()
+                      }}
+                    >
+                      Delete
+                    </Button>
+                 </div>
+               </div>
                <Modal isOpen={this.state.confirm_modal} toggle={this.closeModal.bind(this, 'confirm_modal')}>
                 <ModalHeader toggle={this.closeModal.bind(this, 'confirm_modal')}>
                 Confirm to remove
@@ -346,7 +477,6 @@ class Tree extends Component {
                   
                 </ModalBody>
               </Modal>
-             </div>
 
 
             </div>

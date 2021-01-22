@@ -159,13 +159,13 @@ handleChange = idx => e => {
                         }
                       </tbody>
                     </table>
-                    <div id="edit-selector" style={{float:"right"}}>
-                    <button onClick={this.handleAddRow} className="btn btn-primary">
-                      Add Row
-                    </button>
-                    <Button color="primary" action='select-selector' type="button">
-                      Get Relative XPath
-                    </Button>
+                    <div id="edit-selector" style={{float:"right", width:'100%'}}>
+		                	  <Button color='secondary' onClick={this.handleAddRow}  style={{width:'90%'}}>
+                          +
+                        </Button>
+		                	  <Button color="secondary" action='select-selector' type="button"  style={{width:'10%'}}>
+                          Get XPath
+                        </Button>
 		                </div>
                         
                     </Modal.Body>

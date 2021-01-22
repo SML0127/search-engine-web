@@ -686,6 +686,24 @@
 	zoom: 1 !important;
 }
 
+
+#operation-tips {
+	position: fixed !important;
+	top: 20px !important;
+	left: 10px !important;
+	z-index: 99999 !important;
+	background-color: #00bfff !important;
+	border: 1px solid #00bfff !important;
+	color: white !important;
+  box-shadow: 1px 5px 10px 1px #AAAAAA; !important;
+  width: 250px;
+  height: 40px;
+  padding-left: 10px;
+  padding-top: 8px;
+}
+
+
+
 #-selector-toolbar {
 	position: fixed !important;
 	bottom: 20px !important;
@@ -693,6 +711,7 @@
 	z-index: 99999 !important;
 	background-color: #FFF !important;
 }
+
 
 #-selector-toolbar div.list-item {
 	font: 100%/1em Verdana, Helvetica, sans-serif !important;
@@ -709,6 +728,35 @@
 	text-align: center !important;
 }
 
+
+
+#-selector-toolbar div.list-item-abs {
+	font: 100%/1em Verdana, Helvetica, sans-serif !important;
+	padding: 0px 5px !important;
+	color: #333333 !important;
+	font-size: 14px !important;
+	border: 1px solid #285e8e !important;
+	border-right:none !important;
+	display: table-cell !important;
+	text-align: right !important;
+	height: 26px !important;
+	width:20px !important;
+	line-height:26px !important;
+	text-align: center !important;
+	padding-top: -2px !important;
+}
+
+
+#-selector-toolbar div.list-item-abs:first-child {
+	border-radius: 4px 0 0 4px !important;
+}
+
+#-selector-toolbar div.list-item-abs:last-child {
+	border-radius: 0 4px 4px 0 !important;
+}
+
+
+
 #-selector-toolbar div.list-item:first-child {
 	border-radius: 4px 0 0 4px !important;
 }
@@ -717,16 +765,35 @@
 	border-radius: 0 4px 4px 0 !important;
 }
 
-#-selector-toolbar div.done-selecting-button {
+
+#-selector-toolbar div.highlight-button {
 	color: #ffffff !important;
 	-webkit-text-fill-color: #FFF !important;
-	background-color: #3276b1 !important;
+	background-color: #F1A7A9 !important;
 	cursor: pointer !important;
 	width:130px !important;
 }
 
+
+#-selector-toolbar div.done-selecting-button {
+	color: #ffffff !important;
+	-webkit-text-fill-color: #FFF !important;
+	background-color: #00ACFF !important;
+	cursor: pointer !important;
+	width:119px !important;
+}
+
+
+#-selector-toolbar div.disable-button {
+	color: #ffffff !important;
+	-webkit-text-fill-color: #FFF !important;
+	background-color: #00ACFF !important;
+	cursor: pointer !important;
+	width:260px !important;
+}
+
 #-selector-toolbar div.selector-container {
-	width: 350px !important;
+	width: 1000px !important;
 	overflow: hidden !important;
 	margin-bottom:-100px !important;
 }
@@ -781,7 +848,7 @@
 #-selector-toolbar div.popover {
 	position: absolute !important;
 	display: none !important;
-	float: left !important;
+	float: right !important;
 	width: 260px !important;
 	margin: 20px !important;
 	top: -138px !important;

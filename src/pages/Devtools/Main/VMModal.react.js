@@ -37,7 +37,7 @@ class VMModal extends React.Component {
     componentWillReceiveProps(nextProps) {
       this.getProductList(this.props.userId);
       this.getJobWorking();
-      this.loadUserProgram(nextProps);
+      //this.loadUserProgram(nextProps);
     }
 
     getJobWorking() {
