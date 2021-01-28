@@ -6,11 +6,14 @@ $(function () {
 });
 
 var Controller = function (options) {
+  console.log(options)
 	for (var i in options) {
 		this[i] = options[i];
 	}
 	this.init();
 };
+
+
 
 Controller.prototype = {
 
@@ -68,20 +71,21 @@ Controller.prototype = {
 
 	init: function () {
 		this.loadTemplates(function () {
-			// currently viewed objects
-
-			// render main viewport
-			//ich.Viewport().appendTo("body");
-
 			// cancel all form submits
 			$("form").bind("submit", function () {
 				return false;
 			});
 
+		  //this.selectSelector()
+		  this.otips()
+
 			this.control({
 				//"#selector-tree tr button[action=data-preview-selector]": {
 				//	click: this.previewSelectorDataFromSelectorTree
 				//},
+				"#edit-selector Button[action=select-selector]": {
+					click: this.otips
+				},
 				"#edit-selector Button[action=select-selector]": {
 					click: this.selectSelector
 				},
@@ -1007,6 +1011,19 @@ Controller.prototype = {
 //
 //		return deferredResponse.promise();
 //	},
+
+
+	otips: function () {
+	  console.log('Show opeartion tips')
+		var deferredOtips = this.contentScript.showOperationTips({
+			allowedElements: "*"
+		});
+		deferredOtips.done(function(result) {
+      console.log(result)
+		}.bind(this));
+	},
+
+
 
 	selectSelector: function () {
 	//selectSelector: function () {

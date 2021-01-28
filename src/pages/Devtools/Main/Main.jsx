@@ -68,6 +68,7 @@ class CustomLink extends React.Component {
     this.addJobConfigModal = this.addJobConfigModal.bind(this);
     this.addVMModal = this.addVMModal.bind(this);
     this.addPIModal = this.addPIModal.bind(this);
+
   }
 
   addJobConfigModal(){
@@ -177,7 +178,7 @@ class CustomLink extends React.Component {
       if (response['data']['success'] == true) {
         obj.setState({country: response['data']['result'][0]});
       } else {
-        console.log('get_url Failed');
+        //console.log('get_url Failed');
       }
     })
     .catch(function (error) {

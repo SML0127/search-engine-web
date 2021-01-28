@@ -42,6 +42,33 @@ var ContentScript = {
 	 * @param request.allowedElements
 	 */
 
+
+
+
+
+	showOperationTips: function(request) {
+		var deferredResponse = $.Deferred();
+		var contentSelector = new ContentSelector({
+			allowedElements: "*"//request.allowedElements
+		});
+		window.cs = contentSelector;
+
+		var deferredCSSSelector = contentSelector.initOperationTipsGUI();
+		//deferredCSSSelector.done(function(response) {
+    //  console.log('response of initOperationTipsGUI')
+		//  console.log(response)	
+		//}.bind(this)).fail(function(message) {
+		//	deferredResponse.reject(message);
+		//	window.cs = undefined;
+		//}.bind(this));
+
+		return deferredResponse.promise();
+	},
+
+
+
+
+
 	selectSelectorURL: function(request) {
 		var deferredResponse = $.Deferred();
 			var contentSelector = new ContentSelector({
@@ -62,6 +89,20 @@ var ContentScript = {
 			}.bind(this));
 
 		//}.bind(this));
+
+		return deferredResponse.promise();
+	},
+
+
+
+	otips: function(request) {
+		var deferredResponse = $.Deferred();
+
+		//var contentSelector = new ContentSelector({
+		//	//parentCSSSelector: request.parentCSSSelector,
+		//	allowedElements: "*"//request.allowedElements
+		//});
+		//window.cs = contentSelector;
 
 		return deferredResponse.promise();
 	},
@@ -134,14 +175,48 @@ var ContentScript = {
  * @param backgroundScript	BackgroundScript client
  * @returns ContentScript
  */
+
+var tmp = new ContentSelector({
+	allowedElements: "*"//request.allowedElements
+});
+window.cs = tmp;
+
+
 var getContentScript = function(location) {
 
 	var contentScript;
-  console.log(location)
+  //chrome.extension.onMessage.addListener(function(request, sender, response) {
+  //  //chrome.tabs.update({url: 'http://www.naver.com'});
+  //  console.log('1111111111')
+  //  console.log(tmp)
+  //  tmp.initGUI();
+  //  //console.log(request)
+  //  //undefined
+  //  //sendResponse({farewell: "1111"});
+  //  return true;
+  //});
+
+  //chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  //  console.log(request)
+  //  if(request.fn != 'otips'){
+  //    console.log(chrome.tabs)
+  //    //chrome.tabs.getSelected(null, function(tab) {
+  //    //  console.log('ssssssssssssssssss');
+  //    //  chrome.tabs.sendMessage(tab.id, {url:request.url}, function(response) {
+  //    //      console.log('finish send msg to background');
+  //    //      tmp.initOperationTipsGUI();
+  //    //  });
+  //    //});
+  //    tmp.initOperationTipsGUI();
+  //    //chrome.tabs.update({url: request.url});
+  //  }
+  //  return true;
+  //});
 
 	// Handle calls from different places
 	if(location === "ContentScript") {
 		contentScript = ContentScript;
+
 		contentScript.backgroundScript = getBackgroundScript("ContentScript");
 		return contentScript;
 	}

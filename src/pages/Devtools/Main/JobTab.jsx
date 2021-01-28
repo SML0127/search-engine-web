@@ -67,6 +67,11 @@ class JobTab extends React.Component {
         this.getTreeNodes = this.getTreeNodes.bind(this)
         this.getSelectedCategory = this.getSelectedCategory.bind(this)
         this.drawWorkflow = this.drawWorkflow.bind(this)
+        chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+          console.log(request)
+          sendResponse({url: "received"});
+        }); 
+
     }
 
     addOneTimeUploadModal(){
@@ -129,12 +134,105 @@ class JobTab extends React.Component {
 
 
     updateChromeTab(url) {
-     
+      //console.log(url)
+      //chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
+      //  console.log(info)
+      //  if (info.status === 'complete') {
+      //      chrome.runtime.reload();
+      //  }
+      //});
       if (!url.match(/^https?:\/\//i)) {
-        chrome.tabs.update({url: 'http://'+ url});
+        //chrome.tabs.update(null, {
+        //  url: 'http://' +url
+        //  }, function (tab) {
+        //    console.log('waitaaaaaaaaaa')
+        //    chrome.tabs.onUpdated.addListener(function listener (tabId, info) {
+        //      console.log('waitbbbbbbbbbb')
+        //      console.log(tabId)
+        //      console.log(info)
+        //      if (info.status === 'complete') {
+        //        console.log('waitccccccccc')
+        //        //chrome.tabs.onUpdated.removeListener(listener);
+        //        chrome.runtime.sendMessage({greeting: url}, function(response) {
+        //          console.log('222222222sdf22');
+        //        });
+        //        //chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        //        //  console.log(tabs)
+        //        //  chrome.tabs.sendMessage(tabs[0].id, {greeting: "hello"}, function(response) {
+        //        //    console.log('11111111111111111');
+        //        //  });
+        //        //});
+        //        //chrome.tabs.getSelected(null, function(tab) {
+        //        //  chrome.tabs.sendMessage(tab.id, {one: 'one'}, function(response) {
+        //        //    console.log('111111111111');
+        //        //  });
+        //        //});
+        //      }
+        //    });
+        //});
+
+        //chrome.tabs.update({url: 'http://'+ url},function(tab) {
+        //  chrome.tabs.executeScript(tab.id, {
+        //    code: 'window.close();',
+        //    runAt: 'document_idle'
+        //  });
+        //);
+        //chrome.tabs.getSelected(null, function(tab) {
+        //  chrome.tabs.sendMessage(tab.id, {url: 'http://'+ url}, function(response) {
+        //      console.log('??adsf');
+        //  });
+        //});
       }
       else{
-        chrome.tabs.update({url: url});
+        //chrome.tabs.update(null, {
+        //  url: url
+        //  }, function (tab) {
+        //    console.log('waittttttttttt')
+        //    chrome.tabs.onUpdated.addListener(function listener (tabId, info) {
+        //      console.log('waittt222222222')
+        //      console.log(tabId)
+        //      console.log(info)
+        //      if (info.status === 'complete') {
+        //        console.log('waittt3333333333')
+        //        chrome.tabs.onUpdated.removeListener(listener);
+        //        chrome.runtime.sendMessage({greeting: url}, function(response) {
+        //          console.log('22222222222222222222');
+        //        });
+        //        //chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        //        //  console.log(tabs)
+        //        //  chrome.tabs.sendMessage(tabs[0].id, {greeting: "hello"}, function(response) {
+        //        //    console.log('22222222222222222222');
+        //        //  });
+        //        //});
+        //        //chrome.tabs.getSelected(null, function(tab) {
+        //        //  console.log(tab)
+        //        //  chrome.tabs.sendMessage(tab.id, {two: 'two'}, function(response) {
+        //        //    console.log('222222222222222');
+        //        //  });
+        //        //});
+        //      }
+        //    });
+        //});
+
+
+        //chrome.tabs.update({url: url});
+        //chrome.runtime.sendMessage({type: 'url'}, function (response) {
+        //  console.log('a?????????');
+        //  console.log(response);
+        //})
+        //chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        //  chrome.tabs.sendMessage(tabs[0].id, {greeting: "hello"}, function(response) {
+        //    console.log('b?????????');
+        //    console.log(response);
+        //  });
+        //});
+        //console.log('end-sendMessage2222')
+        //chrome.tabs.getSelected(null, function(tab) {
+        //  chrome.tabs.sendMessage(tab.id, {url: url}, function(response) {
+        //      console.log('c????????????');
+        //      console.log(response);
+        //  });
+        //});
       }
      
     }
@@ -229,10 +327,10 @@ class JobTab extends React.Component {
                  
                  if (url != null){
                    // only for chrome extension
-                   //obj.updateChromeTab(url)
+                   obj.updateChromeTab(url)
                  }
                  else{
-                   //obj.updateChromeTab(obj.props.url)
+                   obj.updateChromeTab(obj.props.url)
                  }
 
 
@@ -814,34 +912,34 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                   <div class = 'row' style = {{marginLeft:'75%'}}>
                     <Button 
                       color="secondary"
-                      style = {{float:'right',marginRight:"5%"}}
+                      style = {{float:'right', marginRight:'5%', textTransform: 'capitalize'}}
                       onClick={() => {
                             this.updateProgram()
                           }
                       }
                     >
-                    SAVE
+                    Save
                     </Button>
                     <Button 
                       color="secondary"
-                      style = {{float:'right',marginRight:"5%"}}
+                      style = {{float:'right',marginRight:"5%", textTransform: 'capitalize'}}
                       onClick={() => {
                             this.setState({savemodalShow: true})
                           }
                       }
                     >
-                    SAVE as
+                    Save as
                     </Button>
 
                     <Button 
                       color="secondary"
-                      style = {{float:'right'}}
+                      style = {{float:'right', textTransform: 'capitalize'}}
                       onClick={() => {
                             this.setState({loadmodalShow: true})
                           }
                       }
                     >
-                    LOAD
+                    Load
 		                </Button>
 		              </div>
 
@@ -850,7 +948,7 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                   <div class = 'row' style = {{marginLeft:'73%'}}>
                   <Button 
                     color="secondary"
-                    style = {{float:'right',marginRight:"5%"}}
+                    style = {{float:'right',marginRight:"5%", textTransform: 'capitalize'}}
                     onClick={() => {
                           this.runDriver()
                         }
@@ -860,7 +958,7 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                   </Button>
                   <Button 
                     color="secondary"
-                    style = {{float:'right',marginRight:"5%"}}
+                    style = {{float:'right',marginRight:"5%", textTransform: 'capitalize'}}
                     onClick={() => {
                           this.addOneTimeUploadModal()
                           //this.updateMysite()

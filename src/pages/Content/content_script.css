@@ -1,3 +1,18 @@
+.panel-collapse collapse{
+  visibility: visible !important;
+  overflow: visible !important;
+}
+.collapse:not{
+  visibility: visible !important;
+  overflow: visible !important;
+}
+
+
+
+.clickable:hover{
+  background: #F2FCFF !important;
+}
+
 .-sitemap-parent {
 	outline: 2px #FFCC33 solid !important;
     background-color: rgba(255, 204, 51, 0.20) !important;
@@ -692,10 +707,6 @@
 	top: 20px !important;
 	left: 10px !important;
 	z-index: 99999 !important;
-	background-color: #00bfff !important;
-	border: 1px solid #00bfff !important;
-	color: white !important;
-  box-shadow: 1px 5px 10px 1px #AAAAAA; !important;
   width: 250px;
   height: 40px;
   padding-left: 10px;

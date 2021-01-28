@@ -4,6 +4,7 @@ import { Form, Button } from "tabler-react";
 import Modal from 'react-bootstrap/Modal';
 import Tooltip from 'react-bootstrap/Tooltip'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import Checkbox from 'rc-checkbox';
 
 export class BranchNode extends Node {
     constructor(props){
@@ -11,14 +12,28 @@ export class BranchNode extends Node {
         this.state = {
             modalShow:false,
             condition:"",
+            is_xpath: false,
+            is_text: true,
         }
         this.updateState()
+        this.checkBox1 = this.checkBox1.bind(this);
+        this.checkBox2 = this.checkBox2.bind(this);
     }
-    
+ 
+    checkBox1(){
+      this.setState({is_xpath : false, is_text: true})
+    }
+    checkBox2(){
+      this.setState({is_xpath : true, is_text: false})
+    }
+
+   
     updateState(){
         if(Object.keys(this.props.node.data).length >= 1){
             console.log(this.props.node.data)
             this.state.condition = this.props.node.data['condition']
+            this.state.is_xpath = this.props.node.data['is_xpath']
+            this.state.is_text = this.props.node.data['is_text'];
         }
     }
 
@@ -84,16 +99,42 @@ export class BranchNode extends Node {
             <Modal.Body>
               <div class = 'row' style={{width:'100%'}}>
                 <label style={{width:'100%',  marginTop:'5px', paddingLeft:'2%'}}>
-                Check if input text is in current web page
+                Condition
                 </label>
                 <div style={{borderBottom: '1px solid rgba(0, 0, 0, 0.09)', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)', marginRight:'1%', marginLeft:'2%', marginTop:'1%', width:'97%', marginBottom:'1.5%'}}></div>
-                <label style={{width:'8%',  marginTop:'5px', paddingLeft:'2%'}}>
-                Input text
+                <label style={{width:'11%',  marginTop:'5px', paddingLeft:'2%'}}>
+                Contains Text
+                </label>
+                <div
+                  onClick = {()=> this.checkBox1()}
+                  style={{marginLeft:'1%', marginTop:'5px'}}
+                >
+                  <Checkbox
+                    checked={this.state.is_text}
+                  />
+                </div>
+                <label style={{width:'17%',  marginTop:'5px', marginLeft:'30%'}}>
+                Contains Element(XPath)
+                </label>
+                <div
+                  onClick = {()=> this.checkBox2()}
+                  style={{marginLeft:'1%', marginTop:'5px'}}
+                >
+                  <Checkbox
+                    checked={this.state.is_xpath}
+                  />
+                </div>
+
+
+                <div style={{borderBottom: '1px solid rgba(0, 0, 0, 0.09)', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)', marginRight:'1%', marginLeft:'2%', marginTop:'1%', width:'97%', marginBottom:'1.5%'}}></div>
+                <label style={{width:'12%',  marginTop:'5px', paddingLeft:'2%'}}>
+                Condition value
                 </label>
                 <Form.Textarea
                     row={2}
-                    style={{width:'90%', height:'30px', marginLeft:'1%', textAlign:'right', overflow:'hidden'}}
+                    style={{width:'86%', height:'30px', marginLeft:'1%', textAlign:'right', overflow:'hidden'}}
                     defaultValue={this.state.condition}
+                    placeholder="Enter text or xpath of element"
                 />
               </div>
 
@@ -101,9 +142,11 @@ export class BranchNode extends Node {
             <Modal.Footer>
                 <Button color="primary" 
                     onClick={(obj) => {
-                            var input_condition = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[0].childNodes[1]['value']
+                            var input_condition = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[0].childNodes[8]['value']
                             this.setState({condition: input_condition, modalShow:false})
                             this.props.node.data['condition'] = input_condition
+                            this.props.node.data['is_text'] = this.state.is_text
+                            this.props.node.data['is_xpath'] = this.state.is_xpath
                         }
                     }
                 >
@@ -111,7 +154,7 @@ export class BranchNode extends Node {
                 </Button>
                 <Button color="secondary" 
                     onClick={(obj) => {
-                            this.setState({modalShow:false})
+                            this.setState({modalShow:false, is_text: this.props.node.data['is_text'], is_xpath: this.props.node.data['is_xpath']})
                         }
                     }
                 >

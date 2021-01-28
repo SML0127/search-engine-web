@@ -1,7 +1,7 @@
 {
   "name": "PSE(197.35)",
   "devtools_page": "pse-extension.html",
-  "permissions": ["<all_urls>", "tabs", "notifications", "downloads"],
+  "permissions": ["<all_urls>", "tabs", "notifications", "downloads", "webNavigation"],
   "content_scripts": [{
     "matches": ["http://*/*", "https://*/*", "<all_urls>"],
     "js":[
@@ -20,7 +20,6 @@
     "scripts":[
       "jquery-2.0.3.js",
       "Config.js",
-      "ContentScript.js",
       "BackgroundScript.js",
       "background_script.js"
     ]

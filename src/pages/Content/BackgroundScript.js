@@ -61,6 +61,7 @@ var BackgroundScript = {
  * @param location	configure from where the content script is being accessed (ContentScript, BackgroundPage, DevTools)
  * @returns BackgroundScript
  */
+
 var getBackgroundScript = function(location) {
 
 	// Handle calls from different places

@@ -32,6 +32,8 @@ ContentSelector.prototype = {
   containsFlag: !1,
   indexes: [],
   matchIndex: [],
+  selectedElementOtips: "",
+  selectedElementOtipsList: [],
 	/**
 	 * get css selector selected by the user
 	 */
@@ -128,6 +130,53 @@ ContentSelector.prototype = {
 	},
 
 
+	initOperationTipsGUI: function () {
+    console.log('init OpeartionTips GUI')
+    this.selectedElementOtipsList = []
+
+		//this.highlightParent();
+
+		// all elements except toolbar
+		this.$allElements = $(this.allowedElements+":not(#-selector-toolbar):not(#-selector-toolbar *)", this.parent);
+		// allow selecting parent also
+		if(this.parent !== document.body) {
+			this.$allElements.push(this.parent);
+		}
+
+		this.unbindElementSelection();
+		this.unbindElementHighlight();
+		this.removeOperationTips();
+
+    this.bindElementHighlightOtips() // mouseover
+    this.bindElementOperationTips() // click
+	  this.attachOperationTips()
+
+	},
+
+
+
+	//initOperationTipsListGUI: function () {
+
+	//	this.$allElements = $(this.allowedElements+":not(#-selector-toolbar):not(#-selector-toolbar *)", this.parent);
+
+	//	if(this.parent !== document.body) {
+	//		this.$allElements.push(this.parent);
+	//	}
+
+	//	//this.unbindElementSelection();
+	//	//this.unbindElementHighlight();
+	//	//this.removeToolbar();
+
+
+	//	this.bindElementHighlight();
+	//	//this.bindElementHighlightURL();
+	//	//this.bindElementSelectionURL();
+	//
+	//	this.attachToolbarURL();
+	//},
+
+
+
 	initGUIURL: function () {
 
 		this.$allElements = $(this.allowedElements+":not(#-selector-toolbar):not(#-selector-toolbar *)", this.parent);
@@ -151,6 +200,7 @@ ContentSelector.prototype = {
 
 
 	initGUI: function () {
+    console.log('init GUI')
 
 		//this.highlightParent();
 
@@ -163,21 +213,11 @@ ContentSelector.prototype = {
 
 		this.unbindElementSelection();
 		this.unbindElementHighlight();
-		this.removeToolbar();
-
-    this.bindElementOperationTips()
+		this.removeOperationTips();
+    
+    this.bindElementHighlightOtips()
 	  this.attachOperationTips()
 
-    //tmp 
-		//this.bindElementHighlight();
-		//this.bindElementSelection();
-		//this.attachToolbar();
-
-
-		//this.bindKeyboardSelectionManipulations();
-		//this.bindMultipleGroupCheckbox();
-		//this.bindMultipleGroupPopupHide();
-		//this.bindMoveImagesToTop();
 	},
 
   getListXpath: function(x1, x2){
@@ -185,12 +225,17 @@ ContentSelector.prototype = {
      let output1 = x1.split('//')
      let output2 = x2.split('//')
 
-     let output1_len = output1.length
+     console.log(output1)
+     console.log(output2)
+
+     let output1_len = output1.length - 1
      let output_idx
 
      for(let idx in output1){
        if(output1[output1_len - idx] != output2[output1_len - idx]){
          output = output1[output1_len - idx]
+         console.log(output1_len)
+         console.log(output)
          output = output.split('[')[0]
          output_idx = output1_len - idx
        }
@@ -210,6 +255,326 @@ ContentSelector.prototype = {
      }
      return fin
   },
+
+
+
+	bindElementSelectionOtipsList: function () {
+
+    console.log('bindElementSelectionOtipsList')
+		this.$allElements.bind("click.elementSelector", function (e) {
+			var element = e.currentTarget;
+
+      let num_selected = this.selectedElementOtipsList.length
+      console.log(num_selected) 
+      console.log(this.selectedElementOtipsList) 
+      if(num_selected >= 1){
+        if(this.selectedElementOtipsList[0] == e.currentTarget){
+
+        }
+        else{
+          this.selectedElementOtipsList.push(element)
+        }
+      }
+      else if(num_selected == 0){
+        this.selectedElementOtipsList.push(element)
+      }
+      num_selected = this.selectedElementOtipsList.length
+      console.log(num_selected) 
+      console.log(this.selectedElementOtipsList) 
+     
+      if(num_selected >= 2){
+        let elem1 = this.selectedElementOtipsList[num_selected - 1]
+        let elem2 = this.selectedElementOtipsList[num_selected - 2]
+			  $(elem1).removeClass("-sitemap-select-item-hover");
+			  $(elem1).removeClass('-sitemap-select-item-selected');
+			  $(elem2).removeClass("-sitemap-select-item-hover");
+			  $(elem2).removeClass('-sitemap-select-item-selected');
+        var optRelXpath1 = this.generateRelXpath(elem1);
+        console.log("optRelXPath = ", optRelXpath1)
+        var absXpath1 = this.generateAbsXpath(elem1);
+        console.log("absXPath = ", absXpath1)
+        var listXpath1 = this.generateListXpath(absXpath1)
+        console.log("listXPath = ", listXpath1)
+
+        var optRelXpath2 = this.generateRelXpath(elem2);
+        console.log("optRelXPath = ", optRelXpath2)
+        var absXpath2 = this.generateAbsXpath(elem2);
+        console.log("absXPath = ", absXpath2)
+        var listXpath2 = this.generateListXpath(absXpath2)
+        console.log("listXPath = ", listXpath2)
+
+        this.resultXpath = optRelXpath1;
+
+
+        let suffixListXpath = this.getListXpath(listXpath1, listXpath2)
+        //console.log(suffixListXpath)
+        let x1 = absXpath1
+        let x2 = absXpath2
+
+        let output1 = x1.split('/')
+        let output2 = x2.split('/')
+
+        let output1_len = output1.length
+        let output_idx
+
+        for(let idx in output1){
+          if(output1[idx] != output2[idx]){
+            output_idx = idx
+            break;
+          }
+        }
+
+        let fin = ''
+        for(let idx in output1){
+          if(idx == 0){
+            continue;
+          }
+          if(parseInt(idx) < parseInt(output_idx)){
+            fin = fin + '/' + output1[idx]
+          }
+          else{
+            break;
+            //fin = fin + '/' + output1[idx]
+          }
+        }
+        let finalXpath = fin + suffixListXpath
+
+
+
+        let res = document.evaluate(finalXpath, document);
+        let tmpElements = [];
+        let node
+        while(node = res.iterateNext()) {
+          tmpElements.push(node)
+        }
+        let limit_num = tmpElements.length
+
+        let idx1 = finalXpath.lastIndexOf('//')
+        let idx2 = finalXpath.lastIndexOf('[')
+        let last_tag = finalXpath.slice(idx1+2, idx2)
+        if(last_tag == 'a'){
+          //console.log(finalXpath)
+			    this.highlightSelectedElementsOtipsURL(finalXpath);
+          this.openCollapse5()
+			    return false;
+        }
+        else{
+          let candidate1 = finalXpath.slice(0, idx1+2) + 'a'
+
+          //console.log(candidate1)
+          let res1 = document.evaluate(candidate1, document);
+          let tmpElements1 = [];
+          let node1
+          while(node1 = res1.iterateNext()) {
+            tmpElements1.push(node)
+          }
+          let candidate_limit_num = tmpElements1.length
+          //console.log(candidate_limit_num, limit_num)
+          if(parseInt(candidate_limit_num) <= parseInt(limit_num) && parseInt(candidate_limit_num) != 0 ){
+            finalXpath = candidate1
+            //console.log(finalXpath)
+			      this.highlightSelectedElementsOtipsURL(finalXpath);
+            this.selectedElementOtipsList = []
+            this.openCollapse5()
+			      return false;
+          }
+          else{
+            let candidate2 = finalXpath + '//a'
+            //console.log(candidate2)
+
+            let res2 = document.evaluate(candidate2, document);
+            let tmpElements2 = [];
+            let node2
+            while(node2 = res2.iterateNext()) {
+              tmpElements2.push(node)
+            }
+            let candidate_limit_num2 = tmpElements2.length
+            //console.log(candidate_limit_num2)
+            if(parseInt(candidate_limit_num2) <= parseInt(limit_num) && parseInt(candidate_limit_num2) != 0 ){
+              finalXpath = candidate2
+              console.log(finalXpath)
+			        this.highlightSelectedElementsOtipsURL(finalXpath);
+              this.selectedElementOtipsList = []
+              this.openCollapse5()
+			        return false;
+            }
+          }
+
+			    this.highlightSelectedElementsOtipsURL(finalXpath);
+          this.selectedElementOtipsList = []
+          this.openCollapse5()
+		      
+			    return false;
+        }
+      }
+
+
+			// Cancel all other events
+			return false;
+		}.bind(this));
+	},
+
+  bindElementSelectionOtipsListClickTwo: function () {
+
+    console.log('bindElementSelectionOtipsListClickTwo')
+		this.$allElements.bind("click.elementSelector", function (e) {
+			var element = e.currentTarget;
+     
+      $(".-sitemap-select-item-selected").removeClass("-sitemap-select-item-selected");
+      $(element).addClass('-sitemap-select-item-selected');
+
+      let num_selected = this.selectedElementOtipsList.length
+      console.log(num_selected) 
+      console.log(this.selectedElementOtipsList) 
+
+      if(num_selected >= 1){
+        if(this.selectedElementOtipsList[0] == e.currentTarget){
+
+        }
+        else{
+          this.selectedElementOtipsList.push(element)
+        }
+      }
+      else if(num_selected == 0){
+        this.selectedElementOtipsList.push(element)
+      }
+      num_selected = this.selectedElementOtipsList.length
+      console.log(num_selected) 
+      console.log(this.selectedElementOtipsList) 
+     
+      if(num_selected >= 2){
+        let elem1 = this.selectedElementOtipsList[num_selected - 1]
+        let elem2 = this.selectedElementOtipsList[num_selected - 2]
+			  $(elem1).removeClass("-sitemap-select-item-hover");
+			  $(elem1).removeClass('-sitemap-select-item-selected');
+			  $(elem2).removeClass("-sitemap-select-item-hover");
+			  $(elem2).removeClass('-sitemap-select-item-selected');
+        var optRelXpath1 = this.generateRelXpath(elem1);
+        //console.log("optRelXPath = ", optRelXpath1)
+        var absXpath1 = this.generateAbsXpath(elem1);
+        //console.log("absXPath = ", absXpath1)
+        var listXpath1 = this.generateListXpath(absXpath1)
+        //console.log("listXPath = ", listXpath1)
+
+        var optRelXpath2 = this.generateRelXpath(elem2);
+        //console.log("optRelXPath = ", optRelXpath2)
+        var absXpath2 = this.generateAbsXpath(elem2);
+        //console.log("absXPath = ", absXpath2)
+        var listXpath2 = this.generateListXpath(absXpath2)
+        //console.log("listXPath = ", listXpath2)
+
+        this.resultXpath = optRelXpath1;
+
+
+        let suffixListXpath = this.getListXpath(listXpath1, listXpath2)
+        //console.log(suffixListXpath)
+        let x1 = absXpath1
+        let x2 = absXpath2
+
+        let output1 = x1.split('/')
+        let output2 = x2.split('/')
+
+        let output1_len = output1.length
+        let output_idx
+
+        for(let idx in output1){
+          if(output1[idx] != output2[idx]){
+            output_idx = idx
+            break;
+          }
+        }
+
+        let fin = ''
+        for(let idx in output1){
+          if(idx == 0){
+            continue;
+          }
+          if(parseInt(idx) < parseInt(output_idx)){
+            fin = fin + '/' + output1[idx]
+          }
+          else{
+            break;
+            //fin = fin + '/' + output1[idx]
+          }
+        }
+        let finalXpath = fin + suffixListXpath
+
+
+
+        let res = document.evaluate(finalXpath, document);
+        let tmpElements = [];
+        let node
+        while(node = res.iterateNext()) {
+          tmpElements.push(node)
+        }
+        let limit_num = tmpElements.length
+
+        let idx1 = finalXpath.lastIndexOf('//')
+        let idx2 = finalXpath.lastIndexOf('[')
+        let last_tag = finalXpath.slice(idx1+2, idx2)
+        if(last_tag == 'a'){
+          //console.log(finalXpath)
+			    this.highlightSelectedElementsOtipsURL(finalXpath);
+          this.openCollapse5()
+			    return false;
+        }
+        else{
+          let candidate1 = finalXpath.slice(0, idx1+2) + 'a'
+
+          //console.log(candidate1)
+          let res1 = document.evaluate(candidate1, document);
+          let tmpElements1 = [];
+          let node1
+          while(node1 = res1.iterateNext()) {
+            tmpElements1.push(node)
+          }
+          let candidate_limit_num = tmpElements1.length
+          //console.log(candidate_limit_num, limit_num)
+          if(parseInt(candidate_limit_num) <= parseInt(limit_num) && parseInt(candidate_limit_num) != 0 ){
+            finalXpath = candidate1
+            //console.log(finalXpath)
+			      this.highlightSelectedElementsOtipsURL(finalXpath);
+            this.selectedElementOtipsList = []
+            this.openCollapse5()
+			      return false;
+          }
+          else{
+            let candidate2 = finalXpath + '//a'
+            //console.log(candidate2)
+
+            let res2 = document.evaluate(candidate2, document);
+            let tmpElements2 = [];
+            let node2
+            while(node2 = res2.iterateNext()) {
+              tmpElements2.push(node)
+            }
+            let candidate_limit_num2 = tmpElements2.length
+            //console.log(candidate_limit_num2)
+            if(parseInt(candidate_limit_num2) <= parseInt(limit_num) && parseInt(candidate_limit_num2) != 0 ){
+              finalXpath = candidate2
+              console.log(finalXpath)
+			        this.highlightSelectedElementsOtipsURL(finalXpath);
+              this.selectedElementOtipsList = []
+              this.openCollapse5()
+			        return false;
+            }
+          }
+
+			    this.highlightSelectedElementsOtipsURL(finalXpath);
+          this.selectedElementOtipsList = []
+          this.openCollapse5()
+		      
+			    return false;
+        }
+      }
+
+
+			// Cancel all other events
+			return false;
+		}.bind(this));
+	},
+
+
 
 	bindElementSelectionURL: function () {
 
@@ -355,10 +720,59 @@ ContentSelector.prototype = {
 
 		this.$allElements.bind("click.elementSelector", function (e) {
 
+			var element = e.currentTarget;
+      this.selectedElementOtips = element
+
+      $(".-sitemap-select-item-selected").removeClass("-sitemap-select-item-selected");
+      $(element).addClass('-sitemap-select-item-selected');
+      console.log(e)
+      console.log(element)
+      console.log(e.currentTarget)
+      var tag_name = e.currentTarget.nodeName
+      var txt = e.currentTarget.innerText
+     
+      if(tag_name == 'INPUT' || tag_name == 'TEXTAREA'){
+
+		    $("#collapse1").removeClass('in')
+		    $("#collapse2").removeClass('in')
+		    $("#collapse3").addClass('in')
+		    $("#collapse4").removeClass('in')
+		    $("#collapse5").removeClass('in')
+		    $("#collapse6").removeClass('in')
+      }
+      else if(tag_name != 'DIV' && txt != 'Cancel'){
+        console.log('????????/')
+		    $("#collapse1").removeClass('in')
+		    $("#collapse2").addClass('in')
+		    $("#collapse3").removeClass('in')
+		    $("#collapse4").removeClass('in')
+		    $("#collapse5").removeClass('in')
+		    $("#collapse6").removeClass('in')
+      }
+      //console.log(e.currentTarget.nodeName) -> INPUT
+      //console.log(e.currentTarget.localName) -> input
+      //console.log(e.currentTarget.defaultValue) -> 
+      //console.log(e.currentTarget.innerText) -> 
+      //console.log(e.currentTarget.innerHTML) -> 
+      //console.log(e.currentTarget.outerHTML) -> 
+      //console.log(e.currentTarget.outerText) -> 
+      //console.log(e.currentTarget.currentSrc) ->  or src
+
+
 			// Cancel all other events
 			return false;
 		}.bind(this));
 	},
+
+
+
+
+	unbindElementOperationTips: function () {
+    console.log('unbindElementOperationTips')
+		$(this.$allElements).unbind("click.elementSelector")
+	},
+
+
 
 
 
@@ -823,35 +1237,35 @@ ContentSelector.prototype = {
                             var lastTag = this.tempXpath.slice(this.matchIndex[this.matchIndex.length - 1]);
                             if ((match = regBarces.exec(lastTag)) != null) {
                                 lastTag = lastTag.replace(regBarces, this.indexes[j]).split("]")[0] + "]";
-                                console.log(this.tempXpath)
+                                //console.log(this.tempXpath)
                                 this.tempXpath = this.tempXpath.slice(0, this.matchIndex[this.matchIndex.length - 1]) + lastTag
-                                console.log(this.tempXpath)
+                                //console.log(this.tempXpath)
                             } else {
-                                console.log(this.tempXpath)
+                                //console.log(this.tempXpath)
                                 this.tempXpath = this.tempXpath + "[" + this.indexes[j] + "]"
-                                console.log(this.tempXpath)
+                                //console.log(this.tempXpath)
                             }
                         } else {
                             var lastTag = this.tempXpath.slice(this.matchIndex[this.matchIndex.length - (j + 1)], this.matchIndex[this.matchIndex.length - (j)]);
                             if ((match = regBarces.exec(lastTag)) != null) {
                                 lastTag = lastTag.replace(regBarces, this.indexes[j]);
-                                console.log(this.tempXpath)
+                                //console.log(this.tempXpath)
                                 this.tempXpath = this.tempXpath.slice(0, this.matchIndex[this.matchIndex.length - (j + 1)]) + lastTag + this.tempXpath.slice(this.matchIndex[this.matchIndex.length - j])
-                                console.log(this.tempXpath)
+                                //console.log(this.tempXpath)
                             } else {
-                                console.log(this.tempXpath)
-                                console.log(this.matchIndex[this.matchIndex.length - j])
+                                //console.log(this.tempXpath)
+                                //console.log(this.matchIndex[this.matchIndex.length - j])
                                
                                 this.tempXpath = this.tempXpath.slice(0, this.matchIndex[this.matchIndex.length - j]) + "[" + this.indexes[j] + "]" + this.tempXpath.slice(this.matchIndex[this.matchIndex.length - j])
                               
-                                console.log(this.tempXpath)
+                                //console.log(this.tempXpath)
                             }
                         }
-                        console.log(this.tempXpath)
+                        //console.log(this.tempXpath)
                         if (this.tempXpath[0] == '['){
                           this.tempXpath = this.tempXpath.slice(3)
                         }
-                        console.log(this.tempXpath)
+                        //console.log(this.tempXpath)
                         var totalMatch = _document.evaluate(this.tempXpath, _document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
                         if (totalMatch === 1) {
                             var regSlashContent = /([a-zA-Z])([^/]*)/g;
@@ -900,6 +1314,31 @@ ContentSelector.prototype = {
 		}
 	},
 
+
+	bindElementHighlightOtips: function () {
+		$(this.$allElements).bind("mouseover.elementSelector", function(e) {
+			// allow event bubbling for other event listeners but not for web scraper.
+			if(e.target !== e.currentTarget) {
+				return;
+			}
+
+			var element = e.currentTarget;
+			this.mouseOverElement = element;
+			$(element).addClass("-sitemap-select-item-hover");
+		}.bind(this)).bind("mouseout.elementSelector", function(e) {
+			// allow event bubbling for other event listeners but not for web scraper.
+			if(e.target !== e.currentTarget) {
+				return;
+			}
+
+			var element = e.currentTarget;
+			this.mouseOverElement = null;
+			$(element).removeClass("-sitemap-select-item-hover");
+		}.bind(this));
+	},
+
+
+
 	bindElementHighlight: function () {
 		$(this.$allElements).bind("mouseover.elementSelector", function(e) {
 			// allow event bubbling for other event listeners but not for web scraper.
@@ -921,6 +1360,31 @@ ContentSelector.prototype = {
 			$(element).removeClass("-sitemap-select-item-hover");
 		}.bind(this));
 	},
+
+
+	bindElementHighlightOtipsList: function () {
+		$(this.$allElements).bind("mouseover.elementSelector", function(e) {
+			if(e.target !== e.currentTarget) {
+				return;
+			}
+			var element = e.currentTarget;
+
+      if ($(element).hasClass('-sitemap-select-item-selected')){
+        absXpath = this.generateAbsXpath(element);
+        console.log(absXpath)
+			  //$("body #-selector-toolbar #element_abs_xpath").text(absXpath);
+      }
+      //
+		}.bind(this)).bind("mouseout.elementSelector", function(e) {
+
+			if(e.target !== e.currentTarget) {
+				return;
+			}
+
+		}.bind(this));
+	},
+
+
 
 
 	bindElementHighlightURL: function () {
@@ -1071,6 +1535,36 @@ ContentSelector.prototype = {
 
 
 
+	highlightSelectedElementsOtipsURL: function (optRelXpath) {
+		try {
+      var res = document.evaluate(optRelXpath, document);
+			$(".-sitemap-select-item-selected").removeClass('-sitemap-select-item-selected');
+
+
+      let listElements = [];
+      while(node = res.iterateNext()) {
+        listElements.push(node)
+      }
+      //console.log(listElements)
+      for (var i = 0; i < listElements.length; i++) {
+        $(listElements[i]).addClass('-sitemap-select-item-selected');
+      }
+
+		}
+		catch(err) {
+			if(err === "found multiple element groups, but allowMultipleSelectors disabled") {
+				console.log("multiple different element selection disabled");
+
+				this.showMultipleGroupPopup();
+				// remove last added element
+				this.selectedElements.pop();
+				this.highlightSelectedElements();
+			}
+		}
+	},
+
+
+
 	highlightSelectedElements: function (optRelXpath) {
 		try {
 			//var resultCssSelector = this.getCurrentCSSSelector();
@@ -1161,33 +1655,6 @@ ContentSelector.prototype = {
 
 
 
-	attachOperationTips: function () {
-		var $toolbar = '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">' +
-  '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>' +
-  '<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>' +
-      '<div class="panel-group" id="operation-tips">'+
-      '<div class="panel panel-default">' +
-        '<div class="panel-heading">' +
-          '<h4 class="panel-title">' +
-          '<a data-toggle="collapse" href="#collapse1" style="color:white !important"> operation tips</a>' +
-           '</h4>' +
-        '</div>' +
-        '<div id="collapse1" class="panel-collapse collapse">' +
-          '<ul class="list-group">' +
-            '<li class="list-group-item">One</li>' +
-            '<li class="list-group-item">Two</li>' +
-            '<li class="list-group-item">Three</li>' +
-          '</ul>' +
-          '<div class="panel-footer">Footer</div>' +
-          '</div>' +
-        '</div>' +
-      '</div>'
-
-		$("body").append($toolbar);
-
-	},
-
-
 
 
 	attachToolbar: function () {
@@ -1264,6 +1731,17 @@ ContentSelector.prototype = {
 		$("#-selector-toolbar").remove();
 	},
 
+	removeOperationTips: function () {
+    console.log('remove Operation tips')
+		//$("body #operation-tips a").unbind("click");
+		$("#operation-tips").remove();
+    //console.log(document)
+    //document.getElementById("operation-tips").remove();
+	},
+
+
+
+
 	/**
 	 * Remove toolbar and unbind events
 	 */
@@ -1316,5 +1794,203 @@ ContentSelector.prototype = {
 		this.deferredCSSSelectorResponse.resolve({
 			CSSSelector: this.resultXpath
 		});
-	}
+	},
+
+
+	bindElementNoClick: function () {
+
+		this.$allElements.bind("click.elementSelector", function (e) {
+
+			// Cancel all other events
+			return false;
+		}.bind(this));
+	},
+
+
+
+  openCollapse5: function(){
+		$("#collapse1").removeClass('in')
+		$("#collapse2").removeClass('in')
+		$("#collapse3").removeClass('in')
+		$("#collapse4").removeClass('in')
+		$("#collapse5").addClass('in')
+		$("#collapse6").removeClass('in')
+  	this.bindElementNoClick()
+    this.unbindElementHighlight()
+  },
+
+	attachOperationTips: function () {
+		var $toolbar = '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">' +
+  '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>' +
+  '<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>' +
+      '<div class="panel-group opeartion-tips" id="operation-tips">'+
+        '<div class="panel panel-info">' +
+          '<div class="panel-heading">' +
+            '<h4 class="panel-title">' +
+            'operation tips' +
+             '</h4>' +
+          '</div>' +
+          '<div id="collapse1" class="panel-collapse collapse in" style="visibility: visible !important; overflow:visible !important">' +
+            '<ul class="list-group">' +
+              '<li class="list-group-item">Please click the element in the web page or drag operators from the workflow</li>' +
+            '</ul>' +
+          '</div>' +
+          '<div id="collapse2" class="panel-collapse collapse" style="visibility: visible !important; overflow:visible !important">' +
+            '<ul class="list-group">' +
+              '<li class="list-group-item">You can choose from the following options</li>' +
+              '<li class="list-group-item clickable" style="background:#f3f3f3" id ="click-list">Modify the list of the elements</li>' +
+              '<li class="list-group-item clickable" style="background:#f3f3f3" id ="extract-element">Extract the element</li>' +
+              '<li class="list-group-item clickable" style="background:#f3f3f3" id ="click-element">Click the element</li>' +
+              '<li class="list-group-item clickable" style="background:#f3f3f3">Hover over the element</li>' +
+              '<li class="list-group-item"><div class="row justify-content-center"><button type="button" id="cancel-otips2" class="btn btn-light" style="width:40%; float:center;text-transform: unset !important; background-color:#CCCCCC; min-width:40%">Cancel</button></div></li>' +
+            '</ul>' +
+          '</div>' +
+          '<div id="collapse3" class="panel-collapse collapse" style="visibility: visible !important; overflow:visible !important">' +
+            '<ul class="list-group">' +
+              '<li class="list-group-item">You can choose from the following options</li>' +
+              '<li class="list-group-item" style="background:#f3f3f3"><input class="form-control" placeholder="input text" style="width:70%;float:left"><button type="button" class="btn btn-light" style="width:21%; float:right; height:31px; background-color:#CCCCCC; min-width:21%">OK</button></li>' +
+              '<li class="list-group-item clickable" style="background:#f3f3f3">Extract the text of the input box</li>' +
+              '<li class="list-group-item"><div class="row justify-content-center"><button type="button" id="cancel-otips3" class="btn btn-light" style="width:40%; float:center;text-transform: unset !important; background-color:#CCCCCC; min-width:40%">Cancel</button></div></li>' +
+            '</ul>' +
+          '</div>' +
+          '<div id="collapse4" class="panel-collapse collapse" style="visibility: visible !important; overflow:visible !important">' +
+            '<ul class="list-group">' +
+              '<li class="list-group-item">Please follow the steps below</li>' +
+              '<li class="list-group-item" style="background:#f3f3f3" id ="extract-element">Click the list of the elements</li>' +
+              '<li class="list-group-item" style="background:#f3f3f3; color:#999999" >(Done) Step 1: Click an element </li>' +
+              '<li class="list-group-item" style="background:#f3f3f3" > Step 2: Click another slimilar element </li>' +
+              '<li class="list-group-item"><div class="row justify-content-center"><button type="button" id="cancel-otips4" class="btn btn-light" style="width:40%; float:center;text-transform: unset !important; background-color:#CCCCCC; min-width:40%">Cancel</button></div></li>' +
+            '</ul>' +
+          '</div>' +
+          '<div id="collapse5" class="panel-collapse collapse" style="visibility: visible !important; overflow:visible !important">' +
+            '<ul class="list-group">' +
+              '<li class="list-group-item">You can choose from the following options</li>' +
+              '<li class="list-group-item clickable" style="background:#f3f3f3" id ="click-list2">Modify the list of elements</li>' +
+              '<li class="list-group-item clickable" style="background:#f3f3f3" > Extract all element in the list </li>' +
+              '<li class="list-group-item clickable" style="background:#f3f3f3" > Pagination </li>' +
+              '<li class="list-group-item"><div class="row justify-content-center"><button type="button" id="cancel-otips5" class="btn btn-light" style="width:40%; float:center;text-transform: unset !important; background-color:#CCCCCC; min-width:40%">Cancel</button></div></li>' +
+            '</ul>' +
+          '</div>' +
+          '<div id="collapse6" class="panel-collapse collapse" style="visibility: visible !important; overflow:visible !important">' +
+            '<ul class="list-group">' +
+              '<li class="list-group-item">You can choose from the following options</li>' +
+              '<li class="list-group-item" style="background:#f3f3f3" id ="extract-element">Click the list of the elements</li>' +
+              '<li class="list-group-item" style="background:#f3f3f3" > Step 1: Click an element </li>' +
+              '<li class="list-group-item" style="background:#f3f3f3" > Step 2: Click another slimilar element </li>' +
+              '<li class="list-group-item"><div class="row justify-content-center"><button type="button" id="cancel-otips6" class="btn btn-light" style="width:40%; float:center;text-transform: unset !important; background-color:#CCCCCC; min-width:40%">Cancel</button></div></li>' +
+            '</ul>' +
+          '</div>' +
+
+        '</div>' +
+      '</div>'
+		$("body").append($toolbar);
+    $("#cancel-otips2").click(function () {
+		  $("#collapse1").addClass('in')
+		  $("#collapse2").removeClass('in')
+		  $("#collapse3").removeClass('in')
+		  $("#collapse4").removeClass('in')
+		  $("#collapse5").removeClass('in')
+		  $("#collapse6").removeClass('in')
+      $(".-sitemap-select-item-selected").removeClass("-sitemap-select-item-selected");
+      this.initOperationTipsGUI()
+		}.bind(this));
+    $("#cancel-otips3").click(function () {
+		  $("#collapse1").addClass('in')
+		  $("#collapse2").removeClass('in')
+		  $("#collapse3").removeClass('in')
+		  $("#collapse4").removeClass('in')
+		  $("#collapse5").removeClass('in')
+		  $("#collapse6").removeClass('in')
+      $(".-sitemap-select-item-selected").removeClass("-sitemap-select-item-selected");
+      this.initOperationTipsGUI()
+		}.bind(this));
+    $("#cancel-otips4").click(function () {
+		  $("#collapse1").addClass('in')
+		  $("#collapse2").removeClass('in')
+		  $("#collapse3").removeClass('in')
+		  $("#collapse4").removeClass('in')
+		  $("#collapse5").removeClass('in')
+		  $("#collapse6").removeClass('in')
+      $(".-sitemap-select-item-selected").removeClass("-sitemap-select-item-selected");
+      this.initOperationTipsGUI()
+		}.bind(this));
+    $("#cancel-otips5").click(function () {
+		  $("#collapse1").addClass('in')
+		  $("#collapse2").removeClass('in')
+		  $("#collapse3").removeClass('in')
+		  $("#collapse4").removeClass('in')
+		  $("#collapse5").removeClass('in')
+		  $("#collapse6").removeClass('in')
+      $(".-sitemap-select-item-selected").removeClass("-sitemap-select-item-selected");
+      this.initOperationTipsGUI()
+		}.bind(this));
+    $("#cancel-otips6").click(function () {
+		  $("#collapse1").addClass('in')
+		  $("#collapse2").removeClass('in')
+		  $("#collapse3").removeClass('in')
+		  $("#collapse4").removeClass('in')
+		  $("#collapse5").removeClass('in')
+		  $("#collapse6").removeClass('in')
+      $(".-sitemap-select-item-selected").removeClass("-sitemap-select-item-selected");
+      this.initOperationTipsGUI()
+		}.bind(this));
+
+    $("#extract-element").click(function (e) {
+		  chrome.runtime.sendMessage({action:'extract', element:this.selectedElementOtips}, function (response) {
+		  	console.log(response)
+		  }.bind(this));
+		}.bind(this));
+
+    $("#click-element").click(function (e) {
+		  chrome.runtime.sendMessage({action:'click', element:this.selectedElementOtips}, function (response) {
+		  	console.log(response)
+		  }.bind(this));
+		}.bind(this));
+
+
+    $("#click-list").click(function (e) {
+		  $("#collapse1").removeClass('in')
+		  $("#collapse2").removeClass('in')
+		  $("#collapse3").removeClass('in')
+		  $("#collapse4").addClass('in')
+		  $("#collapse5").removeClass('in')
+		  $("#collapse6").removeClass('in')
+		  //this.unbindElementSelection();
+      this.selectedElementOtipsList = []
+      this.selectedElementOtipsList.push(this.selectedElementOtips)
+      console.log(this.selectedElementOtipsList)
+      this.unbindElementOperationTips()
+      $(this.selectedElementOtips).addClass('-sitemap-select-item-selected');
+
+      this.bindElementSelectionOtipsList()
+		  //this.unbindElementHighlight();
+
+		}.bind(this));
+
+
+    $("#click-list2").click(function (e) {
+		  $("#collapse1").removeClass('in')
+		  $("#collapse2").removeClass('in')
+		  $("#collapse3").removeClass('in')
+		  $("#collapse4").removeClass('in')
+		  $("#collapse5").removeClass('in')
+		  $("#collapse6").addClass('in')
+		  this.unbindElementSelection();
+		  $(".-sitemap-select-item-selected").removeClass('-sitemap-select-item-selected');
+      console.log('1111111111111')
+      this.selectedElementOtipsList = []
+      //console.log(this.selectedElementOtipsList)
+      //this.unbindElementOperationTips()
+      this.bindElementHighlightOtips()
+      //this.unbindElementSelection() // click
+      this.bindElementSelectionOtipsListClickTwo()
+		  //this.unbindElementHighlight();
+
+		}.bind(this));
+
+	},
+
+
+
+
 };
