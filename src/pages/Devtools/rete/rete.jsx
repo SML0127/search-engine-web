@@ -22,12 +22,14 @@ import { WaitNode } from "./WaitNode";
 import { ScrollNode } from "./ScrollNode";
 import { BranchNode } from "./BranchNode";
 import { HoverNode } from "./HoverNode";
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 import DockPlugin from 'rete-dock-plugin';
 import AutoArrangePlugin from 'rete-auto-arrange-plugin';
 import ConnectionPathPlugin from 'rete-connection-path-plugin';
 import ConnectionRerouterPlugin from 'rete-connection-reroute-plugin';
 
 var numSocket = new Rete.Socket("Number value");
+
 
 
 class NothingControl extends Rete.Control {
@@ -52,7 +54,7 @@ class OpenURLComponent extends Rete.Component {
     }
     
     builder(node) {
-        var out1 = new Rete.Output("output", "URL", numSocket);
+        var out1 = new Rete.Output("toRight", "URL", numSocket);
         return node.addOutput(out1);
     }
     worker(node, inputs, outputs) {
@@ -95,7 +97,7 @@ class BFSIteratorComponent extends Rete.Component {
     
     builder(node) {
         var out = new Rete.Output("toRight", "", numSocket);
-        var input = new Rete.Input('url', "URL", numSocket);
+        var input = new Rete.Input('fromLeft', "URL", numSocket);
 
         return node
                 .addInput(input)
@@ -107,18 +109,22 @@ class BFSIteratorComponent extends Rete.Component {
 }
 
 class ClickOperatorComponent extends Rete.Component {
-    constructor() {
+    constructor(props) {
         super("ClickOperator");
         this.data.component = ClickOperatorNode;
     }
     
     builder(node) {
         var out = new Rete.Output("toRight", "", numSocket);
-        var input = new Rete.Input('input', "INPUT", numSocket);
+        var input = new Rete.Input('fromLeft', "INPUT", numSocket);
         return node.addInput(input).addOutput(out);
     }
 
-    worker(node, inputs, outputs) {}
+    worker(node, inputs, outputs) {
+       console.log(this.data.componnt)
+       console.log(node)
+       console.log(node.data)
+    }
 }
 
 
@@ -132,7 +138,7 @@ class ScrollOperatorComponent extends Rete.Component {
     
     builder(node) {
         var out = new Rete.Output("toRight", "", numSocket);
-        var input = new Rete.Input('input', "INPUT", numSocket);
+        var input = new Rete.Input('fromLeft', "INPUT", numSocket);
         return node.addInput(input).addOutput(out);
     }
 
@@ -150,7 +156,7 @@ class HoverOperatorComponent extends Rete.Component {
     
     builder(node) {
         var out = new Rete.Output("toRight", "", numSocket);
-        var input = new Rete.Input('input', "INPUT", numSocket);
+        var input = new Rete.Input('fromLeft', "INPUT", numSocket);
         return node.addInput(input).addOutput(out);
     }
 
@@ -168,7 +174,7 @@ class InputOperatorComponent extends Rete.Component {
     
     builder(node) {
         var out = new Rete.Output("toRight", "", numSocket);
-        var input = new Rete.Input('input', "INPUT", numSocket);
+        var input = new Rete.Input('fromLeft', "INPUT", numSocket);
         return node.addInput(input).addOutput(out);
     }
 
@@ -187,7 +193,7 @@ class WaitOperatorComponent extends Rete.Component {
     
     builder(node) {
         var out = new Rete.Output("toRight", "", numSocket);
-        var input = new Rete.Input('input', "INPUT", numSocket);
+        var input = new Rete.Input('fromLeft', "INPUT", numSocket);
         return node.addInput(input).addOutput(out);
     }
 
@@ -208,7 +214,7 @@ class DictionariesScrapperComponent extends Rete.Component {
     
     builder(node) {
         var out = new Rete.Output("toRight", "", numSocket);
-        var input = new Rete.Input('input', "INPUT", numSocket);
+        var input = new Rete.Input('fromLeft', "INPUT", numSocket);
         return node.addInput(input).addOutput(out);
     }
 
@@ -223,7 +229,7 @@ class ListsScrapperComponent extends Rete.Component {
     
     builder(node) {
         var out = new Rete.Output("toRight", "", numSocket);
-        var input = new Rete.Input('input', "INPUT", numSocket);
+        var input = new Rete.Input('fromLeft', "INPUT", numSocket);
         return node.addInput(input).addOutput(out);
     }
 
@@ -238,7 +244,7 @@ class ValuesScrapperComponent extends Rete.Component {
     
     builder(node) {
         var out = new Rete.Output("toRight", "", numSocket);
-        var input = new Rete.Input('input', "INPUT", numSocket);
+        var input = new Rete.Input('fromLeft', "INPUT", numSocket);
         return node.addInput(input).addOutput(out);
     }
 
@@ -257,7 +263,7 @@ class ClickOptionComponent extends Rete.Component {
     
     builder(node) {
         var out = new Rete.Output("toRight", "", numSocket);
-        var input = new Rete.Input('input', "INPUT", numSocket);
+        var input = new Rete.Input('fromLeft', "INPUT", numSocket);
         return node.addInput(input).addOutput(out);
     }
 
@@ -298,6 +304,7 @@ class BranchOperatorComponent extends Rete.Component {
     worker(node, inputs, outputs) {}
 }
 
+const components = [new OpenURLComponent(), new ExpanderComponent(), new BFSIteratorComponent(), new ValuesScrapperComponent(), new ListsScrapperComponent(), new DictionariesScrapperComponent(), new ClickOperatorComponent(), new InputOperatorComponent(), new WaitOperatorComponent(), new ScrollOperatorComponent(), new BranchOperatorComponent(), new HoverOperatorComponent() ];
 
 export async function createEditor(container, editor, saveGraphData, GraphData, job_id) {
     //var editor = new Rete.NodeEditor("work-flow@1.0.0", container);
@@ -343,7 +350,7 @@ export async function createEditor(container, editor, saveGraphData, GraphData, 
             itemClass: 'dock-item',
             plugins: [ReactRenderPlugin]
     });
-    var components = [new OpenURLComponent(), new ExpanderComponent(), new BFSIteratorComponent(), new ValuesScrapperComponent(), new ListsScrapperComponent(), new DictionariesScrapperComponent(), new ClickOperatorComponent(), new InputOperatorComponent(), new WaitOperatorComponent(), new ScrollOperatorComponent(), new BranchOperatorComponent(), new HoverOperatorComponent() ];
+    //var components = [new OpenURLComponent(), new ExpanderComponent(), new BFSIteratorComponent(), new ValuesScrapperComponent(), new ListsScrapperComponent(), new DictionariesScrapperComponent(), new ClickOperatorComponent(), new InputOperatorComponent(), new WaitOperatorComponent(), new ScrollOperatorComponent(), new BranchOperatorComponent(), new HoverOperatorComponent() ];
     components.map(c => {
         editor.register(c);
         engine.register(c);
@@ -371,13 +378,13 @@ export async function createEditor(container, editor, saveGraphData, GraphData, 
     if(Object.keys(GraphData).length != 0 && typeof GraphData != 'undefined' ){
         editor.fromJSON(GraphData);
     }
+    //console.log(editor.plugins)
     //console.log(editor)
 }
 
 export async function updateEditor(editor, saveGraphData, GraphData, job_id) {
     var engine = new Rete.Engine("work-flow@1.0.0");
-
-    //if (editor.plugins.size == 6){
+    //if (editor.plugins.size != 7){
     //    editor.use(DockPlugin, {
     //            container: document.querySelector('#dock_'+job_id),
     //            itemClass: 'dock-item',
@@ -385,7 +392,6 @@ export async function updateEditor(editor, saveGraphData, GraphData, job_id) {
     //    });
     //}
 
-    var components = [new OpenURLComponent(), new ExpanderComponent(), new BFSIteratorComponent(), new ValuesScrapperComponent(), new ListsScrapperComponent(), new DictionariesScrapperComponent(), new ClickOperatorComponent(), new InputOperatorComponent(), new WaitOperatorComponent(), new ScrollOperatorComponent(), new BranchOperatorComponent(), new HoverOperatorComponent()];
     components.map(c => {
         engine.register(c);
     });
@@ -415,5 +421,148 @@ export async function updateEditor(editor, saveGraphData, GraphData, job_id) {
     //console.log(editor)
 }
 
+function createNotification(type){
+  switch (type) {
+    case 'warning':
+        NotificationManager.warning('Please fill in the pagination query in the first BFSIterator operator. (e.g. &page=%d)','WARNING',  7000);
+        break;
+    case 'error':
+        NotificationManager.error('Error message', 'Click me!', 5000, () => {
+            alert('callback');
+        });
+        break;
+    default:
+        console.log("Not defined notification")
+        break;
+  }
+};
 
 
+
+export async function addOperator(editor, req) {
+  console.log('Starrt addOperator')
+  console.log(editor)
+  console.log(editor.nodes)
+  let ops = editor.nodes
+  let len = Object.keys(editor.nodes).length
+  //console.log(len)
+  let last_node
+  for (var idx = 0; idx < len; idx++) {
+    editor.nodes[idx].outputs.forEach((value, key, mapObject) => {
+      if(editor.nodes[idx].name == "Expander"){
+        if(key == 'toDown'){
+          //console.log(value.connections.length)
+          if(value.connections.length == 0){
+            last_node = editor.nodes[idx];
+            //console.log(last_node);
+          }
+        }
+      }
+      else{
+        //console.log(value.connections.length)
+        if(value.connections.length == 0){
+          last_node = editor.nodes[idx];
+          //console.log(last_node);
+        }
+      }
+      //console.log('---------------')
+    });
+  }
+  console.log(last_node)
+  if(req.action == 'click'){
+    const node = await components[6].createNode()
+    node.data = {'rows':[{'col_query': req.xpath, 'col_delay': 5, 'col_repeat':false}]}
+    let x1 = last_node.position[0]
+    let y1 = last_node.position[1]
+    node.position = [x1 + 200, y1] 
+    editor.addNode(node)
+    editor.connect(last_node.outputs.get('toRight'), node.inputs.get('fromLeft'));
+  }  
+  else if(req.action == 'hover'){
+    const node = await components[11].createNode()
+    node.data = {'hover':req.xpath}
+    let x1 = last_node.position[0]
+    let y1 = last_node.position[1]
+    node.position = [x1 + 200, y1] 
+    editor.addNode(node)
+    editor.connect(last_node.outputs.get('toRight'), node.inputs.get('fromLeft'));
+  }
+  else if(req.action == 'extract'){
+    const node = await components[3].createNode()
+    node.data = {'rows':[{'col_key':'value1','col_attr':'alltext', 'col_essential':'False', 'col_query':req.xpath}]}
+    let x1 = last_node.position[0]
+    let y1 = last_node.position[1]
+    node.position = [x1 + 200, y1] 
+    editor.addNode(node)
+    editor.connect(last_node.outputs.get('toRight'), node.inputs.get('fromLeft'));
+  }
+  else if(req.action == 'extract-list'){
+    const node = await components[4].createNode()
+    node.data = {'rows':[{'col_key':'list1','col_attr':'alltext', 'col_essential':'False', 'col_query':req.xpath}]}
+    let x1 = last_node.position[0]
+    let y1 = last_node.position[1]
+    node.position = [x1 + 200, y1] 
+    editor.addNode(node)
+    editor.connect(last_node.outputs.get('toRight'), node.inputs.get('fromLeft'));
+  }
+  else if(req.action == 'input'){
+    const node = await components[7].createNode()
+    node.data = {'rows':[{'col_query':req.xpath,'col_value':req.text}]}
+    let x1 = last_node.position[0]
+    let y1 = last_node.position[1]
+    node.position = [x1 + 200, y1] 
+    editor.addNode(node)
+    editor.connect(last_node.outputs.get('toRight'), node.inputs.get('fromLeft'));
+  }
+  else if(req.action == 'detail-pagination'){
+    createNotification('warning')
+    const expander_node = await components[1].createNode()
+    const bfsiter_node = await components[2].createNode()
+    expander_node.data ={'query':req.xpath, 'attribute':'href' } 
+    bfsiter_node.data ={'max_num_tasks':-1} 
+    let x1 = last_node.position[0]
+    let y1 = last_node.position[1]
+    expander_node.position = [x1 + 200, y1] 
+    bfsiter_node.position = [x1, y1 + 150] 
+
+    editor.addNode(expander_node)
+    editor.addNode(bfsiter_node)
+    editor.connect(last_node.outputs.get('toRight'), expander_node.inputs.get('fromLeft'));
+    editor.connect(expander_node.outputs.get('toDown'), bfsiter_node.inputs.get('fromLeft'));
+  }
+  else if(req.action == 'summary-pagination'){
+    createNotification('warning')
+    
+
+    const expander_node1 = await components[1].createNode()
+    const bfsiter_node1 = await components[2].createNode()
+    const expander_node2 = await components[1].createNode()
+    const bfsiter_node2 = await components[2].createNode()
+    bfsiter_node1.data ={'max_num_tasks':-1} 
+    expander_node2.data ={'query':req.xpath, 'attribute':'href' } 
+    bfsiter_node2.data ={'max_num_tasks':-1} 
+
+
+    let x1 = last_node.position[0]
+    let y1 = last_node.position[1]
+    expander_node1.position = [x1 + 200, y1] 
+    bfsiter_node1.position = [x1, y1 + 170] 
+    expander_node2.position = [x1 + 200, y1 + 170] 
+    bfsiter_node2.position = [x1, y1 + 340] 
+
+
+    editor.addNode(expander_node1)
+    editor.connect(last_node.outputs.get('toRight'), expander_node1.inputs.get('fromLeft'));
+    editor.addNode(bfsiter_node1)
+    editor.connect(expander_node1.outputs.get('toDown'), bfsiter_node1.inputs.get('fromLeft'));
+    editor.addNode(expander_node2)
+    editor.connect(bfsiter_node1.outputs.get('toRight'), expander_node2.inputs.get('fromLeft'));
+    editor.addNode(bfsiter_node2)
+    editor.connect(expander_node2.outputs.get('toDown'), bfsiter_node2.inputs.get('fromLeft'));
+  }
+  console.log('------------------')
+}
+
+//const components = [new OpenURLComponent(), new ExpanderComponent(), new BFSIteratorComponent(), new ValuesScrapperComponent(), new ListsScrapperComponent(), new DictionariesScrapperComponent(), new ClickOperatorComponent(), new InputOperatorComponent(), new WaitOperatorComponent(), new ScrollOperatorComponent(), new BranchOperatorComponent(), new HoverOperatorComponent() ];
+
+export default components;

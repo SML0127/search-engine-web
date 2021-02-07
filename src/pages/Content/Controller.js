@@ -77,14 +77,17 @@ Controller.prototype = {
 			});
 
 		  //this.selectSelector()
-		  this.otips()
+		  //this.otips()
 
 			this.control({
 				//"#selector-tree tr button[action=data-preview-selector]": {
 				//	click: this.previewSelectorDataFromSelectorTree
 				//},
-				"#edit-selector Button[action=select-selector]": {
+				"#edit-selector Button[action=otips]": {
 					click: this.otips
+				},
+				"#edit-selector Button[action=unbind-otips]": {
+					click: this.unbind_otips
 				},
 				"#edit-selector Button[action=select-selector]": {
 					click: this.selectSelector
@@ -1022,6 +1025,17 @@ Controller.prototype = {
       console.log(result)
 		}.bind(this));
 	},
+
+	unbind_otips: function () {
+		var deferredOtips = this.contentScript.unshowOperationTips({
+			allowedElements: "*"
+		});
+		deferredOtips.done(function(result) {
+      console.log(result)
+		}.bind(this));
+	},
+
+
 
 
 

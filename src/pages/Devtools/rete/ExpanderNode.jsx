@@ -80,6 +80,10 @@ export class ExpanderNode extends Node {
                     </div>
                 ))}
                 </div>
+
+		            <Button color="secondary" type="button"  style={{width:'80%'}}>
+                   TEST
+                </Button>
                 <div>
                 {/* Inputs */}
                 {inputs.map(input => (

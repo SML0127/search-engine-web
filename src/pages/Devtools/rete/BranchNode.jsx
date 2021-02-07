@@ -132,10 +132,15 @@ export class BranchNode extends Node {
                 </label>
                 <Form.Textarea
                     row={2}
-                    style={{width:'86%', height:'30px', marginLeft:'1%', textAlign:'right', overflow:'hidden'}}
+                    style={{width:'75%', height:'30px', marginLeft:'1%', textAlign:'right', overflow:'hidden'}}
                     defaultValue={this.state.condition}
                     placeholder="Enter text or xpath of element"
                 />
+                <div id="edit-selector" style={{float:"right", width:'100%'}}>
+		            <Button color="secondary" action='select-selector' type="button"  style={{marginLeft:'1%',width:'10%', height:'30px'}}>
+                  Get XPath
+                </Button>
+		            </div>
               </div>
 
             </Modal.Body>

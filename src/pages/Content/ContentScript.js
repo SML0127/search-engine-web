@@ -46,6 +46,24 @@ var ContentScript = {
 
 
 
+
+	unshowOperationTips: function(request) {
+		var deferredResponse = $.Deferred();
+		var contentSelector = new ContentSelector({
+			allowedElements: "*"//request.allowedElements
+		});
+		window.cs = contentSelector;
+
+		var deferredCSSSelector = contentSelector.unbindOperationTipsGUI();
+
+		return deferredResponse.promise();
+	},
+
+
+
+
+
+
 	showOperationTips: function(request) {
 		var deferredResponse = $.Deferred();
 		var contentSelector = new ContentSelector({

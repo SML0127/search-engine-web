@@ -119,12 +119,6 @@ class LoginForm extends React.Component {
               </div>
           </div>
         </div>
-         <div id="edit-selector" style={{float:"left", width:'100%'}}>
-		     	  <Button color="secondary" action='select-selector' type="button"  style={{width:'10%'}}>
-               Get Opeartion tips
-             </Button>
-		     </div>
-
         </div>
       );
     } else {

@@ -5,6 +5,8 @@ import * as React from "react";
 
 import Collapsible from 'react-collapsible';
 import ReteGraph from "../rete/ReteGraph.react";
+//import rete from "../rete/ClickOperatorNode";
+import rete from "../rete/rete"
 import {
   Form,
   Page,
@@ -30,6 +32,7 @@ window.React = React;
 
 let g_user_program = {};
 let g_label = 1;
+let g_document = document;
 class JobTab extends React.Component {
 
     constructor(props) {
@@ -67,11 +70,8 @@ class JobTab extends React.Component {
         this.getTreeNodes = this.getTreeNodes.bind(this)
         this.getSelectedCategory = this.getSelectedCategory.bind(this)
         this.drawWorkflow = this.drawWorkflow.bind(this)
-        chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-          console.log(request)
-          sendResponse({url: "received"});
-        }); 
-
+        
+        
     }
 
     addOneTimeUploadModal(){
@@ -134,110 +134,24 @@ class JobTab extends React.Component {
 
 
     updateChromeTab(url) {
-      //console.log(url)
-      //chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
-      //  console.log(info)
-      //  if (info.status === 'complete') {
-      //      chrome.runtime.reload();
-      //  }
-      //});
       if (!url.match(/^https?:\/\//i)) {
-        //chrome.tabs.update(null, {
-        //  url: 'http://' +url
-        //  }, function (tab) {
-        //    console.log('waitaaaaaaaaaa')
-        //    chrome.tabs.onUpdated.addListener(function listener (tabId, info) {
-        //      console.log('waitbbbbbbbbbb')
-        //      console.log(tabId)
-        //      console.log(info)
-        //      if (info.status === 'complete') {
-        //        console.log('waitccccccccc')
-        //        //chrome.tabs.onUpdated.removeListener(listener);
-        //        chrome.runtime.sendMessage({greeting: url}, function(response) {
-        //          console.log('222222222sdf22');
-        //        });
-        //        //chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        //        //  console.log(tabs)
-        //        //  chrome.tabs.sendMessage(tabs[0].id, {greeting: "hello"}, function(response) {
-        //        //    console.log('11111111111111111');
-        //        //  });
-        //        //});
-        //        //chrome.tabs.getSelected(null, function(tab) {
-        //        //  chrome.tabs.sendMessage(tab.id, {one: 'one'}, function(response) {
-        //        //    console.log('111111111111');
-        //        //  });
-        //        //});
-        //      }
-        //    });
-        //});
-
-        //chrome.tabs.update({url: 'http://'+ url},function(tab) {
-        //  chrome.tabs.executeScript(tab.id, {
-        //    code: 'window.close();',
-        //    runAt: 'document_idle'
-        //  });
-        //);
-        //chrome.tabs.getSelected(null, function(tab) {
-        //  chrome.tabs.sendMessage(tab.id, {url: 'http://'+ url}, function(response) {
-        //      console.log('??adsf');
-        //  });
-        //});
+        //chrome.tabs.update({url: 'http://'+ url})
+        chrome.tabs.update({url: 'http://'+ url}, function(tab1) {
+          console.log('click-------')
+          //g_document.getElementById("otips").click();
+          //setTimeout(() =>{ console.log("after");  console.log(g_document);g_document.getElementById("otips").click();console.log("?????");g_document.getElementById("otips").click();} , 10000)
+          console.log('--------click')
+        });
       }
       else{
-        //chrome.tabs.update(null, {
-        //  url: url
-        //  }, function (tab) {
-        //    console.log('waittttttttttt')
-        //    chrome.tabs.onUpdated.addListener(function listener (tabId, info) {
-        //      console.log('waittt222222222')
-        //      console.log(tabId)
-        //      console.log(info)
-        //      if (info.status === 'complete') {
-        //        console.log('waittt3333333333')
-        //        chrome.tabs.onUpdated.removeListener(listener);
-        //        chrome.runtime.sendMessage({greeting: url}, function(response) {
-        //          console.log('22222222222222222222');
-        //        });
-        //        //chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        //        //  console.log(tabs)
-        //        //  chrome.tabs.sendMessage(tabs[0].id, {greeting: "hello"}, function(response) {
-        //        //    console.log('22222222222222222222');
-        //        //  });
-        //        //});
-        //        //chrome.tabs.getSelected(null, function(tab) {
-        //        //  console.log(tab)
-        //        //  chrome.tabs.sendMessage(tab.id, {two: 'two'}, function(response) {
-        //        //    console.log('222222222222222');
-        //        //  });
-        //        //});
-        //      }
-        //    });
-        //});
-
-
         //chrome.tabs.update({url: url});
-        //chrome.runtime.sendMessage({type: 'url'}, function (response) {
-        //  console.log('a?????????');
-        //  console.log(response);
-        //})
-        //chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        //  chrome.tabs.sendMessage(tabs[0].id, {greeting: "hello"}, function(response) {
-        //    console.log('b?????????');
-        //    console.log(response);
-        //  });
-        //});
-        //console.log('end-sendMessage2222')
-        //chrome.tabs.getSelected(null, function(tab) {
-        //  chrome.tabs.sendMessage(tab.id, {url: url}, function(response) {
-        //      console.log('c????????????');
-        //      console.log(response);
-        //  });
-        //});
+        chrome.tabs.update({url: url}, function(tab1) {
+          console.log('click-------')
+          //setTimeout(() =>{ console.log("after");  console.log(g_document);g_document.getElementById("otips").click();console.log("?????");g_document.getElementById("otips").click();} , 10000)
+          console.log('--------click')
+        });
       }
-     
     }
-
-
 
     runDriver(){
       const obj = this;
@@ -327,12 +241,11 @@ class JobTab extends React.Component {
                  
                  if (url != null){
                    // only for chrome extension
-                   obj.updateChromeTab(url)
+                   //obj.updateChromeTab(url)
                  }
                  else{
-                   obj.updateChromeTab(obj.props.url)
+                   //obj.updateChromeTab(obj.props.url)
                  }
-
 
                  obj.setState({
                    refresh:++tmp, 
@@ -341,7 +254,8 @@ class JobTab extends React.Component {
                    upid: upid,
                    nodes: user_program['object_tree']
                  })
-                 
+                 //setTimeout(() =>{ console.log("after"), obj.handleClick()} , 10000)
+                 //document.getElementById("otips").click();
 
                }
             }
@@ -392,7 +306,7 @@ class JobTab extends React.Component {
         id++
         var operators = []
         var ops = {}
-        //console.log(zipcode_url)
+        
         if(operator[cur_nodeId] == "OpenURL"){
             ops = {
               'id': open_url_id,
@@ -407,11 +321,20 @@ class JobTab extends React.Component {
             }
             g_label += 1
             this.removeEmpty(ops)
-            cur_nodeId = edges[cur_nodeId][0]
+            console.log(edges[cur_nodeId])
+            console.log(typeof edges[cur_nodeId] == 'undefined')
+            if( typeof edges[cur_nodeId] != 'undefined'){
+               cur_nodeId = edges[cur_nodeId][0]
+            }
+            else{
+               user_program['ops'].push(ops)
+               g_user_program = user_program
+               return;
+            }
         }
-        //console.log(cur_nodeId)
-        //console.log(operator[cur_nodeId])
-        //console.log(ops)
+       
+      
+     
         let is_right_exist = true;
         do{
             var op
@@ -508,7 +431,12 @@ class JobTab extends React.Component {
       this.setState({ GraphData : data})
     }
 
-    
+
+    //drawOperator(editor){
+    //  editor.addNode(this.state.)
+    //}
+
+
     saveProgram(site, category, projectId){
 
         var obj = this;
@@ -593,6 +521,7 @@ class JobTab extends React.Component {
       //obj.createNotification('History');
     }
 
+
     componentWillReceiveProps(nextProps) {
       //this.refreshList();
       //this.getUrl();
@@ -602,7 +531,11 @@ class JobTab extends React.Component {
       this.refreshList();
       //console.log(g_user_program)
       this.loadRecentProgram()
-      //this.getUrl();
+      
+    }
+
+    componentDidMount(){
+
     }
 
     handleTabSelect(e, key, currentTabs) {
@@ -798,6 +731,7 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                 for(var idxDictsSp in options['rows']){
                   var rowDictsSp = {
                       "key": options['rows'][idxDictsSp]['col_key'],
+                      "title_query": options['rows'][idxDictsSp]['col_title'],
                       "rows_query": options['rows'][idxDictsSp]['col_rows_query'],
                       "rows_indices": options['rows'][idxDictsSp]['col_rows_indices'],
                       "key_query": options['rows'][idxDictsSp]['col_key_query'],
@@ -894,7 +828,17 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                     }}
                     title="Your workflow"
                 >
-                <ReteGraph saveGraphData={this.saveGraphData} editor = {this.convertToWorkflow(g_user_program)} refresh={this.state.refresh} style={{marginBottom:'10%'}} job_id = {this.props.jobId}/>
+                <div id="edit-selector" style={{float:"left", width:'100%'}}>
+		            	  <Button id="otips" color="secondary" action='otips' type="button"  style={{width:'10%'}}>
+                      Show Opeartion tips
+                    </Button>
+		            </div>
+                <div id="edit-selector" style={{float:"left", width:'100%'}}>
+		            	  <Button color="secondary" action='unbind-otips' type="button"  style={{width:'10%'}}>
+                      Hide Opeartion tips
+                    </Button>
+		            </div>
+                <ReteGraph saveGraphData={this.saveGraphData} editor = {this.convertToWorkflow(g_user_program)} refresh={this.state.refresh} style={{marginBottom:'10%'}} job_id = {this.props.jobId} />
 
                 </Card>
               </Grid.Col> 
@@ -936,6 +880,17 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                       style = {{float:'right', textTransform: 'capitalize'}}
                       onClick={() => {
                             this.setState({loadmodalShow: true})
+                            //console.log('Start add node')
+                            //console.log(rete)
+                            //console.log(rete[6])
+                            //console.log(rete.ClickOperatorComponent())//is not a func
+                            //console.log(new rete.ClickOperatorComponent())//is not a constructor
+                            //const tmp = new rete[6]()
+                            //console.log(this.convertToWorkflow(g_user_program))
+                            //console.log(this.state.editor) 
+                            //this.convertToWorkflow(g_user_program).view.update();
+                            //console.log(this.convertToWorkflow(g_user_program))
+                            //console.log('End add node')
                           }
                       }
                     >

@@ -386,17 +386,17 @@ class Tree extends Component {
                     data = {this.state.mysiteKey}
                     getTdProps={(state, rowInfo, column, instance) => {
                       if (rowInfo) {
-                        if(this.state.selectedDeliveryCompanyIndex !== null){ // When you click a row not at first.
+                        if(this.state.selectedMySiteKeyIndex !== null){ // When you click a row not at first.
                           return {
                             onClick: (e) => {
                               this.setState({
-                                selectedDeliveryCompanyIndex: rowInfo.index,
-                                selectedDeliveryCompanyId: rowInfo.original['id'],
-                                selectedDeliveryCompanyLabel: rowInfo.original['label'],
+                                selectedMySiteKeyIndex: rowInfo.index,
+                                selectedMySiteKeyId: rowInfo.original['id'],
+                                selectedMySiteKeyLabel: rowInfo.original['label'],
                               });
                             },
                             style: {
-                              background: rowInfo.index === this.state.selectedDeliveryCompanyIndex ? '#00ACFF' : null
+                              background: rowInfo.index === this.state.selectedMySiteKeyIndex ? '#00ACFF' : null
                             }
                           }
                         }
@@ -404,10 +404,10 @@ class Tree extends Component {
                           return {
                             onClick: (e) => {
                               this.setState({
-                                selectedDeliveryCompanyIndex: rowInfo.index,
-                                selectedDeliveryCompanyId: rowInfo.original['id'],
-                                selectedDeliveryCompanyLabel: rowInfo.original['label'],
-                              }, () => {console.log('update!'); console.log(this.state.selectedDeliveryCompanyId)});
+                                selectedMySiteKeyIndex: rowInfo.index,
+                                selectedMySiteKeyId: rowInfo.original['id'],
+                                selectedMySiteKeyLabel: rowInfo.original['label'],
+                              }, () => {console.log('update!'); console.log(this.state.selectedMySiteKeyId)});
                             }
                           }
                         }

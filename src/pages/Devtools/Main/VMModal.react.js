@@ -15,6 +15,7 @@ import {
   Button,
 } from "tabler-react";
 import setting_server from '../setting_server';
+import refreshIcon from './refresh.png';
 
 class VMModal extends React.Component {
 
@@ -40,6 +41,10 @@ class VMModal extends React.Component {
       //this.loadUserProgram(nextProps);
     }
 
+    reload(){
+      this.getProductList(this.props.userId);
+      this.getJobWorking();
+    }
     getJobWorking() {
         var obj = this;
         axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
@@ -178,6 +183,17 @@ class VMModal extends React.Component {
                     <label style={{marginLeft:'1%'}}>
                     View Maintenance
                     </label>
+                  <img
+                    src={refreshIcon}
+                    width="30"
+                    height="30"
+                    onClick={() =>
+                      this.reload()
+                    }
+                    style = {{marginLeft:'1%'}}
+
+                  />
+
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>

@@ -54,7 +54,7 @@ export class DictionariesScrapperNode extends Node {
     };
   
     handleAddRow = () => {
-        const item = {'col_key':'', 'col_rows_query':'', 'col_key_query':'','col_key_attribute':'', 'col_value_query':'','col_value_attribute':''};
+        const item = {'col_key':'', 'col_title':'', 'col_rows_query':'', 'col_key_query':'','col_key_attribute':'', 'col_value_query':'','col_value_attribute':''};
         this.setState({
             rows: [...this.state.rows, item]
         });
@@ -143,13 +143,25 @@ export class DictionariesScrapperNode extends Node {
                                 <tr id="addr0" key={idx}>
                                     <td>
                                       <label style={{width:"13%"}}> 
-                                        KEY : 
+                                        Dictionary name : 
                                       </label>
                                       <input
                                           type="text"
                                           name="col_key"
                                           style={{width:"80%", display:"inline"}}
                                           value={this.state.rows[idx]['col_key']}
+                                          onChange={this.handleChange(idx)}
+                                          className="form-control"
+                                      />
+                                      <p/>
+                                      <label style={{width:"13%"}}> 
+                                        Title XPath : 
+                                      </label>
+                                      <input
+                                          type="text"
+                                          name="col_title"
+                                          style={{width:"80%", display:"inline"}}
+                                          value={this.state.rows[idx]['col_title']}
                                           onChange={this.handleChange(idx)}
                                           className="form-control"
                                       />

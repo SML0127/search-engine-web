@@ -122,8 +122,11 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
               .map((code) => <option value={code['1']}>{code['1']}</option>);
           obj.setState({
             deliveryCompanyOptions: deliveryCompanyOptions,
-            deliveryCompany: response['data']['result'][0][1]
+            deliveryCompany: '-1',
           });
+          console.log(deliveryCompanyOptions)
+          console.log(response['data']['result'][0])
+          console.log(response['data']['result'][0][1])
         } else {
           console.log('getDeliveryCompanies Failed');
         }
@@ -134,6 +137,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
     }
 
    updateDC(event) {
+     console.log(event.target.value)
      this.setState({deliveryCompany: event.target.value});
    }
 
@@ -154,6 +158,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
 
    registerTargetSite(){
      const obj = this;
+     console.log(obj.state)
      axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
        req_type: "register_target_site",
        job_id: obj.props.JobId,
@@ -192,7 +197,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
    }
 
    initPricingInformation(){
-     this.setState({tariffRate: '', vatRate: '', tariffThreshold: '', marginRate: '', minMargin: '', deliveryCompany: '', shippingCost: ''})
+     this.setState({tariffRate: '', vatRate: '', tariffThreshold: '', marginRate: '', minMargin: '', shippingCost: ''})
      this.setState({
        t_category: '',
        transformation_program_id: '',
@@ -364,7 +369,6 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
         console.log(response)
         if (response['data']['success'] == true) {
 //exchange_rate float, tariff_rate float, vat_rate float, tariff_threshold float, margin_rate float, min_margin float, delivery_company varchar(2048), shipping_cost float
-          console.log(response['data']['result'].length)
           if (response['data']['result'].length == 0){
             obj.setState({exchangeRate: '', tariffRate: '', vatRate: '', tariffThreshold: '', marginRate: '', minMargin: '', shippingCost: '', selected_category_num: '', selected_transformation_program_id: '', selected_configuration_id: ''})
             obj.getExchangeRate()
@@ -973,6 +977,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
                             onChange={this.updateDC}
                             ref={ref => this.deliveryCompany = ref}
                           >
+                            <option value="-1" disabled selected>Select delivery company</option>
                             {this.state.deliveryCompanyOptions}
                           </select>
 

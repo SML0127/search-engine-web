@@ -187,6 +187,7 @@ class HomeTab extends React.Component {
               onChange={this.updateSite}
             >
               <option value="" disabled selected>Select Site</option>
+              <option value="1000">Blank</option>);
               <option value="0">Amazon US</option>);
               <option value="1">Jomashop</option>);
               <option value="2">Zalando</option>);

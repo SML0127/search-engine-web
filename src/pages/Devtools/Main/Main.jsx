@@ -249,16 +249,16 @@ class CustomLink extends React.Component {
         </>
       );
     } else if (this.state.url != '' && this.props.label.match('New!')) {
-      let country =  this.state.country
-      if(country != undefined){
-         country = country[0].slice(0,2)
-      }
+      //let country =  this.state.country
+      //if(country != undefined){
+      //   country = country[0].slice(0,2)
+      //}
       return (
         <>
         <button className="metismenu-link" onClick={this.onClick}>
           <label style={{fontSize:'17px', color:'black'}}>
             <label class="showupAfter8seconds" style = {{color:'red'}}>
-              New! <b>[</b>{country}<b>]</b> {this.props.label.split('New!')[1]}
+              New! {this.props.label.split('New!')[1]}
             </label>
           </label>
           <div style={{float:'right'}}>
@@ -380,15 +380,15 @@ class CustomLink extends React.Component {
         </>
       );
     } else if (this.state.url != '') {
-      let country =  this.state.country
-      if(country != undefined){
-         country = country[0].slice(0,2)
-      }
+      //let country =  this.state.country
+      //if(country != undefined){
+      //   country = country[0].slice(0,2)
+      //}
       return (
         <>
         <button className="metismenu-link" onClick={this.onClick}>
-          <label style={{fontSize:'13px', color:'black', display:'inline'}}>
-             <b>[</b>{country}<b>]</b> {this.props.label}
+          <label style={{fontSize:'16px', color:'black', display:'inline'}}>
+             <b></b> {this.props.label}
           </label>
           <OverlayTrigger
             placement="left"
