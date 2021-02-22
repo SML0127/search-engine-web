@@ -167,7 +167,7 @@ class SelectTransformationProgramModal extends React.Component {
         return (
             <Modal
                 {...this.props}
-                size="lg"
+                size="xl"
                 backdrop="static"
                 aria-labelledby="contained-modal-title-vcenter"
                 centered
@@ -251,12 +251,12 @@ class SelectTransformationProgramModal extends React.Component {
                       }
                     },
                   ]}
-                  minRows={5}
-                  defaultPageSize={1000}
+                  minRows={3}
+                  defaultPageSize={100}
                   showPagination ={false}
                   bordered = {false} 
                   style={{
-                    height: "250px"
+                    height: "170px"
                   }}
                   className="-striped -highlight"
                 />
@@ -265,7 +265,7 @@ class SelectTransformationProgramModal extends React.Component {
                 mode="python"
                 theme="github"
                 width='300px'
-                height='300px'
+                height='700px'
                 style={{width:"100%", marginLeft:'1%', marginRight:'1%', marginLeft:'2%'}}
                 name="UNIQUE_ID_OF_DIV"
                 value = {this.state.selectedTransformationProgram}

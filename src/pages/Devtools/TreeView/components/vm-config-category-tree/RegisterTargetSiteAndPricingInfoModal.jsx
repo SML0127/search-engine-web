@@ -176,6 +176,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
        tariff_rate: this.checkIsNull(obj.state.tariffRate) == ''? -999 : this.checkIsNull(obj.state.tariffRate),
        vat_rate: this.checkIsNull(obj.state.vatRate) == ''? -999 : this.checkIsNull(obj.state.vatRate),
        shipping_cost: this.checkIsNull(obj.state.shippingCost) == ''? -999 : this.checkIsNull(obj.state.shippingCost),
+       max_items: this.checkIsNull(obj.state.maxItems) == ''? -999 : this.checkIsNull(obj.state.maxItems),
        delivery_company: this.checkIsNull(obj.state.deliveryCompany),
      })
      .then(function (response) {
@@ -211,6 +212,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
        vat_rate: '',
        shipping_cost: '',
        delivery_company: '',
+       maxItems: ''
      })
    }
 
@@ -278,6 +280,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
         exchangeRate: '',
         deliveryCompany: '',
         deliveryCompanyOptions: '',
+        maxItems: -1
       }
     }
     getExchangeRate(){
@@ -344,7 +347,8 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
           let min_margin = response['data']['result'][0][5] == -999 ? '' : response['data']['result'][0][5]
           let delivery_company = response['data']['result'][0][6]
           let shipping_cost  = response['data']['result'][0][7] == -999 ? '' : response['data']['result'][0][7]
-          obj.setState({exchangeRate: exchange_rate, tariffRate: tariff_rate, vatRate: vat_rate, tariffThreshold: tariff_threshold, marginRate: margin_rate, minMargin: min_margin, deliveryCompany: delivery_company, shippingCost: shipping_cost})
+          let max_items  = response['data']['result'][0][11] == -999 ? '' : response['data']['result'][0][11]
+          obj.setState({exchangeRate: exchange_rate, tariffRate: tariff_rate, vatRate: vat_rate, tariffThreshold: tariff_threshold, marginRate: margin_rate, minMargin: min_margin, deliveryCompany: delivery_company, shippingCost: shipping_cost, maxItems: max_items})
         }
         else{
           obj.initPricingInformation()
@@ -385,8 +389,8 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
             let cnum  = response['data']['result'][0][8] == -999 ? '' : response['data']['result'][0][8]
             let transformation_program_id  = response['data']['result'][0][9] == -999 ? '' : response['data']['result'][0][9]
             let cid  = response['data']['result'][0][10] == -999 ? '' : response['data']['result'][0][10]
-
-            obj.setState({exchangeRate: exchange_rate, tariffRate: tariff_rate, vatRate: vat_rate, tariffThreshold: tariff_threshold, marginRate: margin_rate, minMargin: min_margin, deliveryCompany: delivery_company, shippingCost: shipping_cost, selected_category_num: cnum,selected_transformation_program_id: transformation_program_id, selected_configuration_id: cid})
+            let max_items  = response['data']['result'][0][11] == -999 ? '' : response['data']['result'][0][11]
+            obj.setState({exchangeRate: exchange_rate, tariffRate: tariff_rate, vatRate: vat_rate, tariffThreshold: tariff_threshold, marginRate: margin_rate, minMargin: min_margin, deliveryCompany: delivery_company, shippingCost: shipping_cost, selected_category_num: cnum,selected_transformation_program_id: transformation_program_id, selected_configuration_id: cid, maxItems: max_items})
           }
         }
       })
@@ -549,70 +553,6 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
       });
     }
 
-
-
-
-
-   getPricingInformation(){
-      let tid = this.state.selectedTargetSiteId;
-      let category = this.state.selected_category_title
-      let userId = this.props.userId
-      let jobId = this.props.JobId
-      const obj = this;
-      axios.post(setting_server.DB_SERVER+'/api/db/pricinginformation', {
-        req_type: "get_pricing_information",
-        user_id: userId,
-        targetsite_id: tid,
-        job_id: jobId,
-        category: category 
-      })
-      .then(function (response) {
-        console.log(response)
-        if (response['data']['success'] == true) {
-          if (Object.keys(response['data']['result']).length == 0){
-             return;
-          }
-          let result = response['data']['result'];
-          obj.setState({
-            exchangeRate: result[0][0],
-            tariffThreshold: result[0][3],
-            marginRate: result[0][4],
-            minMargin: result[0][5],
-          });
-        } else {
-          console.log('Failed to get pricing information ');
-        }
-      })
-      .catch(function (error){
-        console.log(error);
-      });
-    }
-
-    addPricingInformation(category){
-      let tid = this.state.selectedTargetSiteId;
-      let userId = this.props.userId
-      const obj = this;
-      axios.post(setting_server.DB_SERVER+'/api/db/pricinginformation', {
-        req_type: "add_pricing_information",
-        user_id: userId,
-        targetsite_id: tid,
-        category: category,
-        exchangeRate: 1200,
-        tariffThreshold: 10000,
-        marginRate: 0.2, 
-        minMargin: 15000,
-      })
-      .then(function (response) {
-        if (response['data']['success'] == true) {
-        } else {
-          console.log(response)
-          console.log('Failed to get pricing information ');
-        }
-      })
-      .catch(function (error){
-        console.log(error);
-      });
-    }
 
     doubleClickCategoryNode(id) {
         var obj = this;
@@ -993,7 +933,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
                 </div>
                 <div style={{borderBottom: '1px solid rgba(0, 0, 0, 0.09)', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)', marginRight:'-20px', marginLeft:'-20px', marginTop:'30px'}}>
                 </div>
-                <div class='row' style={{marginTop:'20px', float:'right' }}>
+                <div class='row' style={{marginTop:'20px'}}>
                   <Button 
                     class="btn btn-outline-dark"
                     type="button"
@@ -1011,7 +951,8 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
                   >
                   Select Trasformation program
                   </Button>
-
+                  <label style={{marginLeft:'1%',width:'20%',marginTop:'0.9%', float: 'right'}}> Max # of upload items :</label>
+                  <input type="number" min="-1" class="form-control" style={{width:"12%", float: 'right'}}  value= {this.state.maxItems} onChange={e => this.onTodoChange('maxItems',e.target.value)}/>
                 </div>
 
               </Modal.Body>

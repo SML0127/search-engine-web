@@ -273,7 +273,6 @@ class PIModal extends React.Component {
            obj.setState({productLists: [], productOptionValues: [], productDescriptions: []});
            return;
         }
-        console.log("update product list")
         if (response['data']['success'] == true) {
           let productLists = response['data']['result'];
           productLists = productLists.map(function(row, index){

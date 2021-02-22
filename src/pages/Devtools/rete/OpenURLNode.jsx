@@ -78,8 +78,9 @@ export class OpenURLNode extends Node {
                 </label>
                 <Form.Textarea
                     row={2}
-                    style={{width:'80%', height:'30px', marginLeft:'3%', textAlign:'right', overflow:'hidden'}}
+                    style={{width:'80%', height:'30px', marginLeft:'3%', textAlign:'left', overflow:'hidden'}}
                     defaultValue={this.state.url}
+                    wrap="off"
                 />
               </div>
               <div class = 'row' style={{width:'100%'}}>

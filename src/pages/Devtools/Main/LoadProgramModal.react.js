@@ -2,6 +2,7 @@
 
 import ReactTable from "react-table"
 import * as React from "react";
+import { Button } from "tabler-react";
 import Modal from 'react-bootstrap/Modal';
 import axios from 'axios'
 import setting_server from '../setting_server';
@@ -16,17 +17,31 @@ class LoadProgramModal extends React.Component {
 
     
     componentDidMount(){
+      if(this.props.upid != null){
+        this.setState({selectedProgramId :this.props.upid})
+      }
     }
     
     componentWillReceiveProps(nextProps) {
-      //console.log(nextProps.selectedProjectId);
       this.loadUserProgram(nextProps);
+      if(this.props.upid != null){
+        this.setState({selectedProgramId :this.props.upid})
+      }
+    }
+
+
+    closeModal(){
+        this.props.setModalShow(false)
     }
 
     initState() {
       let curUrl = window.location.href;
         return {
-            programs_info: []
+            programs_info: [],
+            selectedProgramIndex: '-1',
+            selectedProgramId: '-1',
+            selectedProgramLabel: null,
+            selectedProgram: '',
         }
     }
 
@@ -71,32 +86,35 @@ class LoadProgramModal extends React.Component {
                 <ReactTable
                     data = {this.state.programs_info}
                     getTdProps={(state, rowInfo, column, instance) => {
+                      if(rowInfo){
                         return {
-                            onDoubleClick: (e) => {
-                                if(typeof rowInfo != 'undefined'){
-                                    if(typeof rowInfo['row'][1] != 'undefined'){
-                                        this.props.drawWorkflow(this.state.programs_info[rowInfo['index']][3], this.state.programs_info[rowInfo['index']][0])
-                                        this.closeModal()
-                                    }
-                                }
-                            }
+                          onClick: (e) => {
+                            this.setState({
+                              selectedProgramIndex: rowInfo.index,
+                              selectedProgramId: this.state.programs_info[rowInfo.index][0],
+                              selectedProgramLabel: this.state.programs_info[rowInfo.index][1],
+                              selectedProgram: this.state.programs_info[rowInfo.index][3],
+                            }, () => {console.log('Click'); console.log(this.state.selectedProgramId)});
+                          },
+                          style: {
+                            background: rowInfo.original[0] == this.state.selectedProgramId ? '#00ACFF' : null
+                          }
                         }
+                      }
+                      else{
+                        return {
+                          onClick: (e) => {
+                            this.setState({
+                              selectedProgramIndex: rowInfo.index,
+                              selectedProgramId: this.state.programs_info[rowInfo.index][0],
+                              selectedProgramLabel: this.state.programs_info[rowInfo.index][1],
+                              selectedProgram: this.state.programs_info[rowInfo.index][3],
+                            }, () => {console.log('Click'); console.log(this.state.selectedProgramId)});
+                          }
+                        }
+                      }
                     }}
                     columns={[
-                        /*{
-                            Header: "Id",
-                            resizable: false,
-                            accessor: "0",
-                            Cell: ( row ) => {
-                                return (
-                                    <div
-                                        style={{
-                                            textAlign:"center",
-                                        }}
-                                    > {row.value} </div>
-                                )
-                            }
-                        },*/
                         {
                             Header: "Name",
                             resizable: false,
@@ -136,6 +154,24 @@ class LoadProgramModal extends React.Component {
                     className="-striped -highlight"
                 />
             </Modal.Body>
+            <Modal.Footer>
+              <Button color="primary" 
+                onClick={(obj) => {
+
+                    this.props.drawWorkflow(this.state.programs_info[this.state.selectedProgramIndex][3], this.state.programs_info[this.state.selectedProgramIndex][0], this.state.programs_info[this.state.selectedProgramIndex][1])
+                    this.closeModal();
+                }}
+              >
+                Select
+              </Button>
+              <Button color="secondary" 
+                onClick={(obj) => {
+                  this.closeModal()
+                }}
+              >
+                Close
+              </Button>
+            </Modal.Footer>
             </Modal>
         );
     }

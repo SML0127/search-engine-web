@@ -22,6 +22,7 @@ import $ from "min-jquery";
 
 import EditableTree from '../TreeView/components/tree';
 import LoadProgramModal from "./LoadProgramModal.react";
+import ErrorModal from "./ErrorModal.react";
 import SaveProgramModal from "./SaveProgramModal.react";
 import UploadModal from "./OneTimeUploadModal.react";
 import axios from 'axios'
@@ -46,8 +47,10 @@ class JobTab extends React.Component {
           dataDB: "{}",
           modalShow: false,
           loadmodalShow: false,
+          errmodalShow: false,
           savemodalShow: false,
           GraphData: {},
+          upid_title: '',
           url:this.props.url,
           active: "Program",
           refresh: 1,
@@ -70,7 +73,6 @@ class JobTab extends React.Component {
         this.getTreeNodes = this.getTreeNodes.bind(this)
         this.getSelectedCategory = this.getSelectedCategory.bind(this)
         this.drawWorkflow = this.drawWorkflow.bind(this)
-        
         
     }
 
@@ -155,6 +157,8 @@ class JobTab extends React.Component {
 
     runDriver(){
       const obj = this;
+      console.log(obj.state.upid)
+      console.log(obj.state.upid_title)
       axios.post(setting_server.DRIVER_UTIL_SERVER+'/api/driver/', {
         req_type: "run_driver",
         wf: obj.state.upid,
@@ -226,6 +230,7 @@ class JobTab extends React.Component {
                else{
                  let result = response['data']['result'][1];
                  let upid = response['data']['result'][0];
+                 let upid_title = response['data']['result'][2];
                  let user_program = result
                  let tmp = obj.state.refresh
                  let url_node_id 
@@ -252,8 +257,10 @@ class JobTab extends React.Component {
                    dataDB: JSON.stringify(user_program['dataDb'], null, 2), 
                    program:user_program,
                    upid: upid,
+                   upid_title: upid_title,
                    nodes: user_program['object_tree']
                  })
+                 console.log(upid)
                  //setTimeout(() =>{ console.log("after"), obj.handleClick()} , 10000)
                  //document.getElementById("otips").click();
 
@@ -408,7 +415,7 @@ class JobTab extends React.Component {
     }
 
 
-    drawWorkflow(user_program, upid){
+    drawWorkflow(user_program, upid, upid_title){
         var tmp = this.state.refresh
         g_user_program = user_program
         this.setState({
@@ -416,6 +423,7 @@ class JobTab extends React.Component {
           dataDB: JSON.stringify(user_program['dataDb'], null, 2), 
           program:user_program,
           upid: upid,
+          upid_title: upid_title,
           nodes: user_program['object_tree']
        })
     }
@@ -450,7 +458,11 @@ class JobTab extends React.Component {
                 job_id: obj.props.jobId
             })
             .then(function (response) {
-                console.log(response);
+                console.log(response['data']);
+                obj.setState({
+                  upid : response['data']['id'],
+                  upid_title: response['data']['title']
+                })
             })
             .catch(function (error) {
                 console.log(error);
@@ -853,10 +865,20 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                         height:'80px'
                     }}
                 >
-                  <div class = 'row' style = {{marginLeft:'75%'}}>
+                  <div class = 'row' style = {{marginLeft:'35%'}}>
+                    <label style={{width:'23%', marginTop:'7px'}}>
+                     Current Workflow Name: 
+                    </label>
+                    <input
+                      class='form-control'
+                      readonly='readonly'
+                      style={{width:'40%', marginRight:'5%'}}
+                      value = {this.state.upid_title}
+                      type="text"
+                    />
                     <Button 
                       color="secondary"
-                      style = {{float:'right', marginRight:'5%', textTransform: 'capitalize'}}
+                      style = {{float:'right', marginRight:'1%', textTransform: 'capitalize'}}
                       onClick={() => {
                             this.updateProgram()
                           }
@@ -866,7 +888,7 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                     </Button>
                     <Button 
                       color="secondary"
-                      style = {{float:'right',marginRight:"5%", textTransform: 'capitalize'}}
+                      style = {{float:'right',marginRight:"1%", textTransform: 'capitalize'}}
                       onClick={() => {
                             this.setState({savemodalShow: true})
                           }
@@ -900,7 +922,7 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
 
                   <div class = 'row' style = {{width:'100%', height:'5px'}}>
                   </div>
-                  <div class = 'row' style = {{marginLeft:'73%'}}>
+                  <div class = 'row' style = {{marginLeft:'78%'}}>
                   <Button 
                     color="secondary"
                     style = {{float:'right',marginRight:"5%", textTransform: 'capitalize'}}
@@ -1067,6 +1089,48 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                                       )
                                   }
                               }
+                          },
+                          {
+                              Header: "Error Message",
+                              resizable: false,
+                              accessor: "0",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > 
+                                           <Button 
+                                             color="secondary"
+                                             style = {{float:'center',  textTransform: 'capitalize'}}
+                                             onClick={() => {
+                                                   console.log(row.value)
+                                                   this.setState({execId: row.value, errmodalShow: true})
+                                                   console.log(this.state)
+                                                 }
+                                             }
+                                           >
+                                           Show
+                                           </Button>
+                                          </div>
+                                      )
+                                  }
+                              }
                           }
                       ]}
                       minRows={10}
@@ -1082,6 +1146,7 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                       show={this.state.loadmodalShow}
                       drawWorkflow= {this.drawWorkflow}
                       jobId= {this.props.jobId}
+                      upid={this.state.upid}
                       setModalShow={(s) => this.setState({loadmodalShow: s})}
                       selectedProjectId={this.state.selectedProjectId}
                   />
@@ -1096,6 +1161,11 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                       JobId = {this.props.jobId}
                       userId = {this.props.userId}
                       setModalShow={(s) => this.setState({addOneTimeUploadModalShow: s})}
+                  />
+                  <ErrorModal
+                      show={this.state.errmodalShow}
+                      execId= {this.state.execId}
+                      setModalShow={(s) => this.setState({errmodalShow: s})}
                   />
                   </Card>
                 </Grid.Col> 
@@ -1246,6 +1316,7 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                   <LoadProgramModal
                       show={this.state.loadmodalShow}
                       drawWorkflow= {this.drawWorkflow}
+                      upid = {this.state.upid}
                       jobId= {this.props.jobId}
                       setModalShow={(s) => this.setState({loadmodalShow: s})}
                       selectedProjectId={this.state.selectedProjectId}
@@ -1261,6 +1332,11 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                       JobId = {this.props.jobId}
                       userId = {this.props.userId}
                       setModalShow={(s) => this.setState({addOneTimeUploadModalShow: s})}
+                  />
+                  <ErrorModal
+                      show={this.state.errmodalShow}
+                      execId= {this.state.execId}
+                      setModalShow={(s) => this.setState({errmodalShow: s})}
                   />
                   </Card>
                 </Grid.Col> 

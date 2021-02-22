@@ -30,23 +30,6 @@ class SaveProgramModal extends React.Component {
         }
     }
 
-    loadUserProgram() {
-        var obj = this;
-        console.log('get_user_program in SaveP ')
-        axios.post(setting_server.DB_SERVER+'/api/db/userprogram', {
-            req_type: "get_user_program",
-            job_id: obj.props.jobId
-        })
-        .then(function (resultData){
-            obj.setState({
-                programs_info: resultData["data"]['output']
-            })
-        })
-        .catch(function (error){
-            console.log(error)
-        });
-    }
-
     closeModal(){
         this.props.setModalShow(false)
     }

@@ -42,7 +42,8 @@ class Tree extends Component {
            const url = row[2];
            const category = row[3];
            const c_num = row[4] == -999 ? '' : row[4]
-           return {num: index+1, id: id, label: label, url: url, category: category, c_num: c_num};
+           const max_items = row[5] == -999 ? '' : row[5]
+           return {num: index+1, id: id, label: label, url: url, category: category, c_num: c_num, max_items: max_items};
          });
          obj.setState({registeredTargetSites: registeredTargetSites, selectedRegisteredTargetSiteIndex: null});
        } else {
@@ -196,6 +197,21 @@ class Tree extends Component {
                     Header: "Category Num",
                     resizable: false,
                     accessor: "c_num",
+                    Cell: ( row ) => {
+                      return (
+                        <div
+                          style={{
+                            textAlign:"center",
+                            paddingTop:"4px"
+                          }}
+                        > {row.value} </div>
+                      )
+                    }
+                  },
+                  {
+                    Header: "Max # of uploads",
+                    resizable: false,
+                    accessor: "max_items",
                     Cell: ( row ) => {
                       return (
                         <div

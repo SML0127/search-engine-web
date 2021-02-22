@@ -50,6 +50,8 @@ class Tree extends Component {
         selected_category_id: "",
         selected_category_title: "",
         id: "",
+        inputKey: "",
+        selectedMySiteKeyId: ""
       }
     }
 
@@ -62,7 +64,7 @@ class Tree extends Component {
     componentDidMount(){
       let curUrl = window.location.href;
       this.getMySiteCategoryTree()
-
+      this.getCompareKey()
     }
 
     closeModal(modal) {
@@ -85,14 +87,24 @@ class Tree extends Component {
 
 
     getCompareKey(){
-      let userId = this.props.userId
+      let jobId = this.props.jobId
       const obj = this;
-      axios.post(setting_server.DB_SERVER+'/api/db/mysitecategorytree', {
+      axios.post(setting_server.DB_SERVER+'/api/db/mysite', {
           req_type: "get_compare_key",
-          user_id: userId
+          job_id: jobId
       })
-      .then(function (resultData) {
-
+      .then(function (response) {
+         if (response['data']['success'] == true) {
+           let compare_keys = response['data']['result'];
+           compare_keys = compare_keys.map(function(row, index){
+             const id = row[0];
+             const key_name = row[1];
+             return {num: index+1, id: id, key_name: key_name};
+           });
+           obj.setState({compare_keys: compare_keys, selectedMySiteKeyIndex: null});
+         } else {
+           console.log('getRegisteredTargetSites Failed');
+         }
       })
       .catch(function (error) {
           console.log(error);
@@ -100,14 +112,16 @@ class Tree extends Component {
     }
 
     addCompareKey(){
-      let userId = this.props.userId
+      let jobId = this.props.jobId
       const obj = this;
-      axios.post(setting_server.DB_SERVER+'/api/db/mysitecategorytree', {
+      axios.post(setting_server.DB_SERVER+'/api/db/mysite', {
           req_type: "add_compare_key",
-          user_id: userId
+          job_id: jobId,
+          key_name: obj.state.inputKey
       })
       .then(function (resultData) {
-
+          console.log(resultData);
+          obj.getCompareKey()
       })
       .catch(function (error) {
           console.log(error);
@@ -115,14 +129,15 @@ class Tree extends Component {
     }
 
     deleteCompareKey(){
-      let userId = this.props.userId
       const obj = this;
-      axios.post(setting_server.DB_SERVER+'/api/db/mysitecategorytree', {
+      axios.post(setting_server.DB_SERVER+'/api/db/mysite', {
           req_type: "delete_compare_key",
-          user_id: userId
+          key_id: obj.state.selectedMySiteKeyId
       })
       .then(function (resultData) {
-
+          console.log(resultData);
+          obj.getCompareKey()
+          obj.setState({selectedMySiteKeyIndex : '', selectedMySiteKeyId: '', selectedMySiteKeylabel: ''})
       })
       .catch(function (error) {
           console.log(error);
@@ -383,7 +398,7 @@ class Tree extends Component {
                   <label for="name"  style={{display: "flex",justifyContent: "center",alignItems: "center", fontWeight: "bold", fontSize:'20px'}}> Compare Key</label>
 
                   <ReactTable
-                    data = {this.state.mysiteKey}
+                    data = {this.state.compare_keys}
                     getTdProps={(state, rowInfo, column, instance) => {
                       if (rowInfo) {
                         if(this.state.selectedMySiteKeyIndex !== null){ // When you click a row not at first.
@@ -392,7 +407,7 @@ class Tree extends Component {
                               this.setState({
                                 selectedMySiteKeyIndex: rowInfo.index,
                                 selectedMySiteKeyId: rowInfo.original['id'],
-                                selectedMySiteKeyLabel: rowInfo.original['label'],
+                                selectedMySiteKeyLabel: rowInfo.original['key_name'],
                               });
                             },
                             style: {
@@ -406,7 +421,7 @@ class Tree extends Component {
                               this.setState({
                                 selectedMySiteKeyIndex: rowInfo.index,
                                 selectedMySiteKeyId: rowInfo.original['id'],
-                                selectedMySiteKeyLabel: rowInfo.original['label'],
+                                selectedMySiteKeyLabel: rowInfo.original['key_name'],
                               }, () => {console.log('update!'); console.log(this.state.selectedMySiteKeyId)});
                             }
                           }
@@ -418,7 +433,7 @@ class Tree extends Component {
                       {
                         Header: "Key",
                         resizable: false,
-                        accessor: "0",
+                        accessor: "key_name",
                         Cell: ( row ) => {
                           return (
                             <div
@@ -442,7 +457,7 @@ class Tree extends Component {
                   />
                   <div class='row' style={{marginLeft:'36%',width:'75%', marginTop:'20px',float:'right'}}>
                     <label style={{marginTop:'8px', width:'20%'}}> Key :</label>
-                    <input name="input_key" class="form-control" style={{width:"32%"}} value={this.state.inputKey} onChange={e => this.onTodoChange('inputKey',e.target.value)} />
+                    <input class="form-control" style={{width:"32%"}} value={this.state.inputKey} onChange={e => this.onTodoChange('inputKey',e.target.value)} />
                     <Button color="primary" style = {{marginLeft: '10px', width:'20%'}} 
                       onClick={() => {
                         this.addCompareKey()

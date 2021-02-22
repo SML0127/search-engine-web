@@ -18,7 +18,6 @@ import {
 } from "tabler-react";
 import axios from 'axios';
 import NewTargetSiteModal from './NewTargetSiteModal';
-import EditTargetSiteModal from './EditTargetSiteModal';
 import UpdateExchangeRateModal from './UpdateExchangeRateModal';
 import Tooltip from 'react-bootstrap/Tooltip'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'

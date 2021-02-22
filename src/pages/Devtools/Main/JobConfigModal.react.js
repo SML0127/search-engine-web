@@ -129,8 +129,8 @@ class JobConfigModal extends React.Component {
           let end_date = response['data']['result'][0][1]
           let period = response['data']['result'][0][2]
           let m_category = response['data']['result'][0][3]
-          let num_worker = response['data']['result'][0][7]
-          let num_thread = response['data']['result'][0][8]
+          let num_worker = response['data']['result'][0][4]
+          let num_thread = response['data']['result'][0][5]
           obj.setState({start_date: start_date, end_date: end_date, period:period, m_category: m_category,  numWorker: num_worker, numThread: num_thread})
         }
       })

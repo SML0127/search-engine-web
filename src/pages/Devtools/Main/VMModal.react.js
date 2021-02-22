@@ -41,6 +41,11 @@ class VMModal extends React.Component {
       //this.loadUserProgram(nextProps);
     }
 
+    //componentDidMount() {
+    //  this.getProductList(this.props.userId);
+    //  this.getJobWorking();
+    //  //this.loadUserProgram(nextProps);
+    //}
     reload(){
       this.getProductList(this.props.userId);
       this.getJobWorking();
