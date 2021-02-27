@@ -6,7 +6,6 @@ $(function () {
 });
 
 var Controller = function (options) {
-  console.log(options)
 	for (var i in options) {
 		this[i] = options[i];
 	}

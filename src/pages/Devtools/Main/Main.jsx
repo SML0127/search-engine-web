@@ -1155,8 +1155,8 @@ export default class Main extends React.Component {
                   tabsStyles={tabsStyles}
                   selectedTab={this.state.selectedTab}
                   onTabSelect={this.handleTabSelect.bind(this)}
+                  tabAddButton={false}
                   onTabClose={this.handleTabClose.bind(this)}
-                  tabAddButton = {false}
                   onTabPositionChange={this.handleTabPositionChange.bind(this)}
                   tabs={this.state.tabs}
                 />
@@ -1324,8 +1324,8 @@ export default class Main extends React.Component {
                   tabsStyles={tabsStyles}
                   selectedTab={this.state.selectedTab}
                   onTabSelect={this.handleTabSelect.bind(this)}
+                  tabAddButton={false}
                   onTabClose={this.handleTabClose.bind(this)}
-                  tabAddButton = {false}
                   onTabPositionChange={this.handleTabPositionChange.bind(this)}
                   tabs={this.state.tabs}
                 />

@@ -4,7 +4,10 @@ import axios from 'axios';
 import 'react-notifications/lib/notifications.css';
 import { Button } from "tabler-react";
 import setting_server from '../setting_server';
+import schedule from 'node-schedule'
+//import socketio from 'socket.io-client'
 
+let g_user_id 
 class HomeTab extends React.Component {
   constructor(props) {
     super(props);
@@ -25,8 +28,55 @@ class HomeTab extends React.Component {
 
   componentDidMount() {
     this.getCountryOptions()
+    g_user_id = this.props.userId
+    //schedule.scheduleJob('*/10 * * * * *', function(){
+    //  console.log(g_user_id);
+    //  console.log('log for each 10s');
+    //  axios.post(setting_server.DB_SERVER+'/api/db/executions', {
+    //    req_type: "check_error",
+    //    user_id: g_user_id 
+    //  })
+    //  .then(function (response) {
+    //    console.log(response)
+    //    if (response['data']['success'] == true) {
+    //      response['data']['result'].forEach(function (item, index, array) {
+    //          console.log('An error occurred while crawling ' + item[0])
+    //          NotificationManager.warning('An error occurred while crawling ' + item[0],'WARNING',  6000000);
+    //      });
+
+    //    } else {
+    //      console.log('Failed to check is error');
+    //    }
+    //  })
+    //  .catch(function (error){
+    //    console.log(error);
+    //  });
+    //});
 
   }
+
+
+  checkErrorInExecution(){
+    const obj = this;
+    axios.post(setting_server.DB_SERVER+'/api/db/executions', {
+      req_type: "check_error",
+      user_id: this.props.userId
+    })
+    .then(function (response) {
+      console.log(response)
+      if (response['data']['success'] == true) {
+        //obj.setState({ curExchangeRate:response['data']['result'][0][0], updateTime:response['data']['result'][0][1]});
+        obj.createNotification('job_fail')
+      } else {
+        console.log('Failed to check is error');
+      }
+    })
+    .catch(function (error){
+      console.log(error);
+    });
+  }
+
+
 
 
   getCountryOptions(){
@@ -105,6 +155,9 @@ class HomeTab extends React.Component {
             break;
         case 'warning_country':
             NotificationManager.warning('Select e-commerce site','WARNING',  3000);
+            break;
+        case 'job_fail':
+            NotificationManager.warning('Fail to crawing','WARNING',  6000000);
             break;
         case 'error':
             NotificationManager.error('Error message', 'Click me!', 5000, () => {
