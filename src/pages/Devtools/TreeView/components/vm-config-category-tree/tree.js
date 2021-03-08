@@ -7,6 +7,7 @@ import {Button} from "tabler-react"
 import axios from 'axios'
 import jobConfigIcon from './job_config.png';
 import RegisterTargetSiteAndPricingInfoModal from "./RegisterTargetSiteAndPricingInfoModal";
+import UpdateTargetSiteAndPricingInfoModal from "./UpdateTargetSiteAndPricingInfoModal";
 import { 
   Modal,
   ModalHeader,
@@ -14,7 +15,7 @@ import {
 }  from 'reactstrap';
 import setting_server from '../../../setting_server';
 
-
+let gvar_selectedRegisteredTargetSiteId = null
 class Tree extends Component {
 
    constructor(props) {
@@ -26,6 +27,11 @@ class Tree extends Component {
    clickRegisterModal(){
     this.setState({showRegisterModal: true})
    }
+
+   clickUpdateModal(){
+    this.setState({showUpdateModal: true})
+   }
+
 
    getRegisteredTargetSites(){
      const obj = this;
@@ -46,6 +52,7 @@ class Tree extends Component {
            return {num: index+1, id: id, label: label, url: url, category: category, c_num: c_num, max_items: max_items};
          });
          obj.setState({registeredTargetSites: registeredTargetSites, selectedRegisteredTargetSiteIndex: null});
+         gvar_selectedRegisteredTargetSiteId = null
        } else {
          console.log('getRegisteredTargetSites Failed');
        }
@@ -62,7 +69,7 @@ class Tree extends Component {
      const obj = this;
      axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
        req_type: "deregister_target_site",
-       tjcid: obj.state.selectedRegisteredTargetSiteId
+       tjcid: gvar_selectedRegisteredTargetSiteId
 
      })
      .then(function (response) {
@@ -113,6 +120,7 @@ class Tree extends Component {
                             selectedRegisteredTargetSiteIndex: rowInfo.index,
                             selectedRegisteredTargetSiteId: rowInfo.original['id'],
                           });
+                          gvar_selectedRegisteredTargetSiteId = rowInfo.original['id']
                         },
                         style: {
                           background: rowInfo.index == this.state.selectedRegisteredTargetSiteIndex ? '#00ACFF' : null
@@ -126,6 +134,7 @@ class Tree extends Component {
                             selectedRegisteredTargetSiteIndex: rowInfo.index,
                             selectedRegisteredTargetSiteId: rowInfo.original['id'],
                           });
+                          gvar_selectedRegisteredTargetSiteId = rowInfo.original['id']
                         },
                         style: {
                           background: rowInfo.index == this.state.selectedRegisteredTargetSiteIndex ? '#00ACFF' : null
@@ -247,8 +256,9 @@ class Tree extends Component {
                 style={{marginTop:'10px',marginRight:'1%', float:'right'}}
                 onClick = {()=> this.clickRegisterModal() }
               >
-              Register
+              Register / Update
               </Button>
+
 
               <RegisterTargetSiteAndPricingInfoModal
                   show={this.state.showRegisterModal}
@@ -256,8 +266,10 @@ class Tree extends Component {
                   userId={this.props.userId}
                   country={this.props.country}
                   getRegisteredTargetSites = {this.getRegisteredTargetSites}
+                  selectedRegisteredTargetSiteId = {gvar_selectedRegisteredTargetSiteId}
                   setModalShow = {(s) => this.setState({showRegisterModal: s})}
               />
+
             </div>
         );
     }

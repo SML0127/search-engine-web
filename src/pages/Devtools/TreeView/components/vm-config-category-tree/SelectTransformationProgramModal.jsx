@@ -126,7 +126,7 @@ class SelectTransformationProgramModal extends React.Component {
           });
           for(var idx in transformationPrograms){
              if(transformationPrograms[idx]['id'] == obj.props.selectedPid){
-               obj.setState({selectedTransformationProgram: transformationPrograms[idx]['program']})
+               obj.setState({selectedTransformationProgram: transformationPrograms[idx]['program'], selectedTransformationProgramLabel: transformationPrograms[idx]['label'] })
              }
           }
           obj.setState({transformationPrograms: transformationPrograms});
@@ -141,9 +141,10 @@ class SelectTransformationProgramModal extends React.Component {
     
     componentWillReceiveProps(nextProps) {
       if(this.props.selectedPid != null){
+        this.setState({selectedTransformationProgram: '', selectedTransformationProgramLabel: ''})
         for(var idx in this.state.transformationPrograms){
            if(this.state.transformationPrograms[idx]['id'] == this.props.selectedPid){
-             this.setState({selectedTransformationProgram: this.state.transformationPrograms[idx]['program']})
+             this.setState({selectedTransformationProgram: this.state.transformationPrograms[idx]['program'], selectedTransformationProgramLabel: this.state.transformationPrograms[idx]['label']})
            }
         }
         this.setState({selectedTransformationProgramId :this.props.selectedPid})

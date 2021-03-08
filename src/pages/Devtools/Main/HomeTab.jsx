@@ -29,29 +29,29 @@ class HomeTab extends React.Component {
   componentDidMount() {
     this.getCountryOptions()
     g_user_id = this.props.userId
-    //schedule.scheduleJob('*/10 * * * * *', function(){
-    //  console.log(g_user_id);
-    //  console.log('log for each 10s');
-    //  axios.post(setting_server.DB_SERVER+'/api/db/executions', {
-    //    req_type: "check_error",
-    //    user_id: g_user_id 
-    //  })
-    //  .then(function (response) {
-    //    console.log(response)
-    //    if (response['data']['success'] == true) {
-    //      response['data']['result'].forEach(function (item, index, array) {
-    //          console.log('An error occurred while crawling ' + item[0])
-    //          NotificationManager.warning('An error occurred while crawling ' + item[0],'WARNING',  6000000);
-    //      });
+    schedule.scheduleJob('*/10 * * * * *', function(){
+      console.log(g_user_id);
+      console.log('log for each 10s');
+      axios.post(setting_server.DB_SERVER+'/api/db/executions', {
+        req_type: "check_error",
+        user_id: g_user_id 
+      })
+      .then(function (response) {
+        console.log(response)
+        if (response['data']['success'] == true) {
+          response['data']['result'].forEach(function (item, index, array) {
+              console.log('An error occurred while crawling ' + item[0])
+              NotificationManager.error('An error occurred while crawling ' + item[0],'ERROR',  6000000);
+          });
 
-    //    } else {
-    //      console.log('Failed to check is error');
-    //    }
-    //  })
-    //  .catch(function (error){
-    //    console.log(error);
-    //  });
-    //});
+        } else {
+          console.log('Failed to check is error');
+        }
+      })
+      .catch(function (error){
+        console.log(error);
+      });
+    });
 
   }
 

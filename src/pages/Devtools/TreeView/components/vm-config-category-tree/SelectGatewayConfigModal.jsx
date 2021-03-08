@@ -126,7 +126,7 @@ class SelectGatewayConfigModal extends React.Component {
           });
           for(var idx in configurations){
              if(configurations[idx]['id'] == obj.props.selectedCid){
-               obj.setState({selectedConfiguration: configurations[idx]['program']})
+               obj.setState({selectedConfiguration: configurations[idx]['program'], selectedConfigurationLabel: configurations[idx]['label']})
              }
           }
           obj.setState({configurations: configurations});
@@ -141,9 +141,10 @@ class SelectGatewayConfigModal extends React.Component {
     
     componentWillReceiveProps(nextProps) {
       if(this.props.selectedCid != null){
+        this.setState({selectedConfiguration: '',selectedConfigurationLabel: ''})
         for(var idx in this.state.configurations){
            if(this.state.configurations[idx]['id'] == this.props.selectedCid){
-             this.setState({selectedConfiguration: this.state.configurations[idx]['program']})
+             this.setState({selectedConfiguration: this.state.configurations[idx]['program'],selectedConfigurationLabel: this.state.configurations[idx]['label']})
            }
         }
         this.setState({selectedConfigurationId :this.props.selectedCid})

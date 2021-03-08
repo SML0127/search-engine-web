@@ -3,7 +3,7 @@ import "./editable-item.css";
 
 
 const EditableItem = (props) => {
-    const { title, changeTitle, selectCategoryNode, doubleClickCategoryNode, checkRemove, removeNode, addChild } = props;
+    const { title, changeTitle, selectCategoryNode, doubleClickCategoryNode, checkRemove2, removeNode2, addChild } = props;
 
     return (
         <div className="EditableItem">
@@ -16,7 +16,7 @@ const EditableItem = (props) => {
 
             <button
               className="EditableItem-Button EditableItem-Button_remove" 
-              onClick={checkRemove}>
+              onClick={checkRemove2}>
                 x
             </button>
             

@@ -23,6 +23,8 @@ import $ from "min-jquery";
 import EditableTree from '../TreeView/components/tree';
 import LoadProgramModal from "./LoadProgramModal.react";
 import ErrorModal from "./ErrorModal.react";
+import ErrorMysiteModal from "./ErrorMysiteModal.react";
+import ErrorTargetsiteModal from "./ErrorTargetsiteModal.react";
 import SaveProgramModal from "./SaveProgramModal.react";
 import UploadModal from "./OneTimeUploadModal.react";
 import axios from 'axios'
@@ -235,12 +237,13 @@ class JobTab extends React.Component {
                  let user_program = result
                  let tmp = obj.state.refresh
                  let url_node_id 
-                 for(let node in user_program['workflow']['nodes']){
-                   if(user_program['workflow']['nodes'][node]['name'] == "OpenURL"){
-                     user_program['workflow']['nodes'][node]['data']['url'] = obj.props.url 
+                 if(response['data']['is_template']){
+                   for(let node in user_program['workflow']['nodes']){
+                     if(user_program['workflow']['nodes'][node]['name'] == "OpenURL"){
+                       user_program['workflow']['nodes'][node]['data']['url'] = obj.props.url 
+                     }
                    }
                  }
-
                  g_user_program = user_program
                  //console.log(g_user_program) 
                  let url = user_program['ops'][0]['url']
@@ -510,7 +513,6 @@ class JobTab extends React.Component {
       
     }
 
-
     refreshList() {
       console.log('refresh list')
       const obj = this;
@@ -525,7 +527,6 @@ class JobTab extends React.Component {
               items: executions
           });
         } else {
-          console.log('getExecutions Failed');
         }
       })
       .catch(function (error) {
@@ -535,6 +536,51 @@ class JobTab extends React.Component {
     }
 
 
+    refreshMsiteList() {
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/mysite', {
+        req_type: "get_history",
+        job_id: obj.props.jobId
+      })
+      .then(function (resultData) {
+        if(resultData['data']['success'] == true) {
+          let history = resultData['data']['result'];
+          // id, execution_id, TO_CHAR(start_time, 'YYYY-MM-DD HH24:MI:SS'), TO_CHAR(end_time, 'YYYY-MM-DD HH24:MI:SS')
+          obj.setState({
+              mysite_items: history
+          });
+        } else {
+        }
+      })
+      .catch(function (error) {
+          console.log(error);
+      });
+      //obj.createNotification('History');
+    }
+
+
+
+    refreshTsiteList() {
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/targetsite', {
+        req_type: "get_history",
+        job_id: obj.props.jobId
+      })
+      .then(function (resultData) {
+        if(resultData['data']['success'] == true) {
+          let history = resultData['data']['result'];
+          // id, execution_id, TO_CHAR(start_time, 'YYYY-MM-DD HH24:MI:SS'), TO_CHAR(end_time, 'YYYY-MM-DD HH24:MI:SS')
+          obj.setState({
+              targetsite_items: history
+          });
+        } else {
+        }
+      })
+      .catch(function (error) {
+          console.log(error);
+      });
+      //obj.createNotification('History');
+    }
     componentWillReceiveProps(nextProps) {
       //this.refreshList();
       //this.getUrl();
@@ -542,6 +588,8 @@ class JobTab extends React.Component {
     }
     componentWillMount() {
       this.refreshList();
+      this.refreshMsiteList();
+      this.refreshTsiteList()
       //console.log(g_user_program)
       this.loadRecentProgram()
       
@@ -828,6 +876,8 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
 
     render() {
         const {items} = this.state;
+        const {mysite_items} = this.state;
+        const {targetsite_items} = this.state;
 
         if(this.props.is_dev == true){
           return (
@@ -958,33 +1008,23 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                         marginLeft:'1px',
                         borderTop:'2px solid black'
                     }}
-                    title="Executions"
+                    title=""
                 >
 
-                  <img
-                    src={refreshIcon}
-                    width="20"
-                    height="20"
-                    onClick={() =>
-                      this.refreshList()
-                    }
-                    style = {{float:'right', cursor:'pointer', marginTop:'-3.35%', marginLeft:'9.5%', marginBottom:'1.5%' }}
 
-                  />
-
-
+                  <label style={{paddingTop:'1%', paddingLeft:'1%', fontWeight:'bold'}}> Crawling history
+                    <img
+                      src={refreshIcon}
+                      width="20"
+                      height="20"
+                      onClick={() =>
+                        this.refreshList()
+                      }
+                      style = {{cursor:'pointer', marginLeft:'0.5%', marginBottom:'0.2%' }}
+                    />
+                  </label> 
                   <ReactTable
                       data = {items}
-                      getTdProps={(state, rowInfo, column, instance) => {
-                          return {
-                              onDoubleClick: (e) => {
-                                  if(typeof rowInfo != 'undefined'){
-                                    // gSelectedExeuctionId = rowInfo['original'][0]
-                                    this.setState({modalShow: true })
-                                  }
-                              }
-                          }
-                      }}
                       columns={[
                           {
                               Header: "Execution ID",
@@ -1134,12 +1174,383 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                               }
                           }
                       ]}
-                      minRows={10}
+                      minRows={5}
                       defaultPageSize={1000}
                       showPagination ={false}
                       bordered = {false} 
                       style={{
-                          height: "500px"
+                          height: "250px"
+                      }}
+                      className="-striped -highlight"
+                  />
+                  <label style={{paddingTop:'1%', paddingLeft:'1%', fontWeight:'bold'}}> My site view maintenance history 
+                    <img
+                      src={refreshIcon}
+                      width="20"
+                      height="20"
+                      onClick={() =>
+                        this.refreshMsiteList()
+                      }
+                      style = {{cursor:'pointer', marginLeft:'0.5%', marginBottom:'0.2%' }}
+                    />
+                  </label> 
+                  <ReactTable
+                      data = {mysite_items}
+                      columns={[
+                          {
+                              Header: "Msite vm ID",
+                              width: 150,
+                              resizable: false,
+                              accessor: "0",
+                              Cell: ( row ) => {
+                                  return (
+                                      <div
+                                        style={{
+                                            textAlign:"center",
+                                            paddingTop:"4px"
+                                        }}
+                                      > {row.value} </div>
+                                  )
+                              }
+
+
+                          },
+                          {
+                              Header: "Start Time",
+                              resizable: false,
+                              accessor: "2",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "Finish Time",
+                              resizable: false,
+                              accessor: "3",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "Crawling ID",
+                              resizable: false,
+                              accessor: "1",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "Error Message",
+                              resizable: false,
+                              accessor: "0",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > 
+                                           <Button 
+                                             color="secondary"
+                                             style = {{float:'center',  textTransform: 'capitalize'}}
+                                             onClick={() => {
+                                                   console.log(row.value)
+                                                   this.setState({smhistoryId: row.value, errmysitemodalShow: true})
+                                                   console.log(this.state)
+                                                 }
+                                             }
+                                           >
+                                           Show
+                                           </Button>
+                                          </div>
+                                      )
+                                  }
+                              }
+                          }
+                      ]}
+                      minRows={5}
+                      defaultPageSize={1000}
+                      showPagination ={false}
+                      bordered = {false} 
+                      style={{
+                          height: "250px"
+                      }}
+                      className="-striped -highlight"
+                  />
+                  <label style={{paddingTop:'1%', paddingLeft:'1%', fontWeight:'bold'}}> Target site view maintenance history 
+                    <img
+                      src={refreshIcon}
+                      width="20"
+                      height="20"
+                      onClick={() =>
+                        this.refreshTsiteList()
+                      }
+                      style = {{cursor:'pointer', marginLeft:'0.5%', marginBottom:'0.2%' }}
+                    />
+                  </label> 
+                  <ReactTable
+                      data = {targetsite_items}
+                      columns={[
+                          {
+                              Header: "Tsite vm ID",
+                              width: 150,
+                              resizable: false,
+                              accessor: "0",
+                              Cell: ( row ) => {
+                                  return (
+                                      <div
+                                        style={{
+                                            textAlign:"center",
+                                            paddingTop:"4px"
+                                        }}
+                                      > {row.value} </div>
+                                  )
+                              }
+
+
+                          },
+                          {
+                              Header: "Start Time",
+                              resizable: false,
+                              accessor: "1",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "Finish Time",
+                              resizable: false,
+                              accessor: "2",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "Msite vm ID",
+                              resizable: false,
+                              accessor: "4",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "Target Site",
+                              resizable: false,
+                              accessor: "3",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "Error Message",
+                              resizable: false,
+                              accessor: "0",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > 
+                                           <Button 
+                                             color="secondary"
+                                             style = {{float:'center',  textTransform: 'capitalize'}}
+                                             onClick={() => {
+                                                   console.log(row.value)
+                                                   this.setState({mthistoryId: row.value, errtargetsitemodalShow: true})
+                                                   console.log(this.state)
+                                                 }
+                                             }
+                                           >
+                                           Show
+                                           </Button>
+                                          </div>
+                                      )
+                                  }
+                              }
+                          }
+                      ]}
+                      minRows={5}
+                      defaultPageSize={1000}
+                      showPagination ={false}
+                      bordered = {false} 
+                      style={{
+                          height: "250px"
                       }}
                       className="-striped -highlight"
                   />
@@ -1168,6 +1579,16 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                       execId= {this.state.execId}
                       setModalShow={(s) => this.setState({errmodalShow: s})}
                   />
+                  <ErrorMysiteModal
+                      show={this.state.errmysitemodalShow}
+                      smhistoryId= {this.state.smhistoryId}
+                      setModalShow={(s) => this.setState({errmysitemodalShow: s})}
+                  />
+                  <ErrorTargetsiteModal
+                      show={this.state.errtargetsitemodalShow}
+                      mthistoryId= {this.state.mthistoryId}
+                      setModalShow={(s) => this.setState({errtargetsitemodalShow: s})}
+                  />
                   </Card>
                 </Grid.Col> 
               </Grid.Row>
@@ -1184,20 +1605,21 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                         marginLeft:'1px',
                         borderTop:'2px solid black'
                     }}
-                    title="Executions"
+                    title=""
                 >
+                  <label style={{paddingTop:'1%', paddingLeft:'1%', fontWeight:'bold'}}> Crawling history 
+                    <img
+                      src={refreshIcon}
+                      width="20"
+                      height="20"
+                      onClick={() =>
+                        this.refreshList()
+                      }
+                      style = {{cursor:'pointer', marginLeft:'0.5%', marginBottom:'0.2%' }}
+                    />
+                  </label> 
                   <ReactTable
                       data = {items}
-                      getTdProps={(state, rowInfo, column, instance) => {
-                          return {
-                              onDoubleClick: (e) => {
-                                  if(typeof rowInfo != 'undefined'){
-                                    // gSelectedExeuctionId = rowInfo['original'][0]
-                                    this.setState({modalShow: true })
-                                  }
-                              }
-                          }
-                      }}
                       columns={[
                           {
                               Header: "Execution ID",
@@ -1303,14 +1725,427 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                                       )
                                   }
                               }
+                          },
+                          {
+                              Header: "Error Message",
+                              resizable: false,
+                              accessor: "0",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > 
+                                           <Button 
+                                             color="secondary"
+                                             style = {{float:'center',  textTransform: 'capitalize'}}
+                                             onClick={() => {
+                                                   console.log(row.value)
+                                                   this.setState({execId: row.value, errmodalShow: true})
+                                                   console.log(this.state)
+                                                 }
+                                             }
+                                           >
+                                           Show
+                                           </Button>
+                                          </div>
+                                      )
+                                  }
+                              }
                           }
                       ]}
-                      minRows={10}
+                      minRows={5}
                       defaultPageSize={1000}
                       showPagination ={false}
                       bordered = {false} 
                       style={{
-                          height: "500px"
+                          height: "250px"
+                      }}
+                      className="-striped -highlight"
+                  />
+                  <label style={{paddingTop:'1%', paddingLeft:'1%', fontWeight:'bold'}}> My site view maintenance history 
+                    <img
+                      src={refreshIcon}
+                      width="20"
+                      height="20"
+                      onClick={() =>
+                        this.refreshMsiteList()
+                      }
+                      style = {{cursor:'pointer', marginLeft:'0.5%', marginBottom:'0.2%' }}
+                    />
+                  </label> 
+                  <ReactTable
+                      data = {mysite_items}
+                      columns={[
+                          {
+                              Header: "Msite vm ID",
+                              width: 150,
+                              resizable: false,
+                              accessor: "0",
+                              Cell: ( row ) => {
+                                  return (
+                                      <div
+                                        style={{
+                                            textAlign:"center",
+                                            paddingTop:"4px"
+                                        }}
+                                      > {row.value} </div>
+                                  )
+                              }
+
+
+                          },
+                          {
+                              Header: "Start Time",
+                              resizable: false,
+                              accessor: "2",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "Finish Time",
+                              resizable: false,
+                              accessor: "3",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "Crawling ID",
+                              resizable: false,
+                              accessor: "1",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "Error Message",
+                              resizable: false,
+                              accessor: "0",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > 
+                                           <Button 
+                                             color="secondary"
+                                             style = {{float:'center',  textTransform: 'capitalize'}}
+                                             onClick={() => {
+                                                   console.log(row.value)
+                                                   this.setState({smhistoryId: row.value, errmysitemodalShow: true})
+                                                   console.log(this.state)
+                                                 }
+                                             }
+                                           >
+                                           Show
+                                           </Button>
+                                          </div>
+                                      )
+                                  }
+                              }
+                          }
+                      ]}
+                      minRows={5}
+                      defaultPageSize={1000}
+                      showPagination ={false}
+                      bordered = {false} 
+                      style={{
+                          height: "250px"
+                      }}
+                      className="-striped -highlight"
+                  />
+                  <label style={{paddingTop:'1%', paddingLeft:'1%', fontWeight:'bold'}}> Target site view maintenance history 
+                    <img
+                      src={refreshIcon}
+                      width="20"
+                      height="20"
+                      onClick={() =>
+                        this.refreshTsiteList()
+                      }
+                      style = {{cursor:'pointer', marginLeft:'0.5%', marginBottom:'0.2%' }}
+                    />
+                  </label> 
+                  <ReactTable
+                      data = {targetsite_items}
+                      columns={[
+                          {
+                              Header: "Tsite vm ID",
+                              width: 150,
+                              resizable: false,
+                              accessor: "0",
+                              Cell: ( row ) => {
+                                  return (
+                                      <div
+                                        style={{
+                                            textAlign:"center",
+                                            paddingTop:"4px"
+                                        }}
+                                      > {row.value} </div>
+                                  )
+                              }
+
+
+                          },
+                          {
+                              Header: "Start Time",
+                              resizable: false,
+                              accessor: "1",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "Finish Time",
+                              resizable: false,
+                              accessor: "2",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "Msite vm ID",
+                              resizable: false,
+                              accessor: "4",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "Target Site",
+                              resizable: false,
+                              accessor: "3",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > {row.value} </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "Error Message",
+                              resizable: false,
+                              accessor: "0",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > 
+                                           <Button 
+                                             color="secondary"
+                                             style = {{float:'center',  textTransform: 'capitalize'}}
+                                             onClick={() => {
+                                                   console.log(row.value)
+                                                   this.setState({mthistoryId: row.value, errtargetsitemodalShow: true})
+                                                   console.log(this.state)
+                                                 }
+                                             }
+                                           >
+                                           Show
+                                           </Button>
+                                          </div>
+                                      )
+                                  }
+                              }
+                          }
+                      ]}
+                      minRows={5}
+                      defaultPageSize={1000}
+                      showPagination ={false}
+                      bordered = {false} 
+                      style={{
+                          height: "250px"
                       }}
                       className="-striped -highlight"
                   />
@@ -1338,6 +2173,16 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                       show={this.state.errmodalShow}
                       execId= {this.state.execId}
                       setModalShow={(s) => this.setState({errmodalShow: s})}
+                  />
+                  <ErrorMysiteModal
+                      show={this.state.errmysitemodalShow}
+                      smhistoryId= {this.state.smhistoryId}
+                      setModalShow={(s) => this.setState({errmysitemodalShow: s})}
+                  />
+                  <ErrorTargetsiteModal
+                      show={this.state.errtargetsitemodalShow}
+                      mthistoryId= {this.state.mthistoryId}
+                      setModalShow={(s) => this.setState({errtargetsitemodalShow: s})}
                   />
                   </Card>
                 </Grid.Col> 

@@ -5,7 +5,7 @@ import { Button, Form } from "tabler-react";
 import Modal from 'react-bootstrap/Modal';
 import ReactTable from "react-table";
 import 'react-table/react-table.css'
-import TreeNode from "../vm-config-category-tree-node";
+import TreeNode from "../config-category-tree-node";
 import ControlPanel from "../control-panel";
 import TextView from "../text-view";
 import "./tree.css";
@@ -19,7 +19,7 @@ import {
   ModalHeader,
   ModalBody,
 }  from 'reactstrap';
-
+import {Modal as SModal} from 'reactstrap';
 
 class RegisterTargetSiteAndPricingInfoModal extends React.Component {
     constructor(props) {
@@ -52,7 +52,13 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
    createNotification = (type) => {
       switch (type) {
         case 'warning':
-            NotificationManager.warning('Target site & category are already registered','WARNING',  3000);
+            NotificationManager.warning('Target site & category are already registered','WARNING',  8000);
+            break;
+        case 'warning2':
+            NotificationManager.info('Select registered target site in previous popup','INFO',  8000);
+            break;
+        case 'warning3':
+            NotificationManager.info("Only targetsite selected in the previous popup can be updated. ",'INFO',  8000);
             break;
         case 'error':
             NotificationManager.error('Error message', 'Click me!', 5000, () => {
@@ -124,9 +130,9 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
             deliveryCompanyOptions: deliveryCompanyOptions,
             deliveryCompany: '-1',
           });
-          console.log(deliveryCompanyOptions)
-          console.log(response['data']['result'][0])
-          console.log(response['data']['result'][0][1])
+          //console.log(deliveryCompanyOptions)
+          //console.log(response['data']['result'][0])
+          //console.log(response['data']['result'][0][1])
         } else {
           console.log('getDeliveryCompanies Failed');
         }
@@ -155,10 +161,56 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
    }
 
 
+   updateTargetSite(){
+     const obj = this;
+     //console.log(obj.state)
+     if(obj.props.selectedRegisteredTargetSiteId == null){
+       obj.createNotification('warning2')
+       return
+     }
+     axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
+       req_type: "update_target_site",
+       rtid: obj.props.selectedRegisteredTargetSiteId,
+       targetsite_id: this.checkIsNull(obj.state.selectedTargetSiteId),
+       targetsite_label: this.checkIsNull(obj.state.selectedTargetSiteLabel),
+       targetsite_url: this.checkIsNull(obj.state.selectedTargetSiteUrl),
+       t_category: this.checkIsNull(obj.state.selected_category_title),
+       transformation_program_id: this.checkIsNull(obj.state.selected_transformation_program_id),
+       cid: this.checkIsNull(obj.state.selected_configuration_id) == '' ? -999 : this.checkIsNull(obj.state.selected_configuration_id),
+       cnum: this.checkIsNull(obj.state.selected_category_num) == '' ? -999 : this.checkIsNull(obj.state.selected_category_num),
+       exchange_rate: this.checkIsNull(obj.state.exchangeRate) == ''? -999 : this.checkIsNull(obj.state.exchangeRate),
+       margin_rate: this.checkIsNull(obj.state.marginRate) == ''? -999 : this.checkIsNull(obj.state.marginRate),
+       tariff_threshold: this.checkIsNull(obj.state.tariffThreshold) == ''? -999 : this.checkIsNull(obj.state.tariffThreshold),
+       minimum_margin: this.checkIsNull(obj.state.minMargin) == ''? -999 : this.checkIsNull(obj.state.minMargin),
+       tariff_rate: this.checkIsNull(obj.state.tariffRate) == ''? -999 : this.checkIsNull(obj.state.tariffRate),
+       vat_rate: this.checkIsNull(obj.state.vatRate) == ''? -999 : this.checkIsNull(obj.state.vatRate),
+       default_weight: this.checkIsNull(obj.state.defaultWeight) == ''? -999 : this.checkIsNull(obj.state.defaultWeight),
+       max_items: this.checkIsNull(obj.state.maxItems) == ''? -999 : this.checkIsNull(obj.state.maxItems),
+       delivery_company: this.checkIsNull(obj.state.deliveryCompany),
+     })
+     .then(function (response) {
+       if (response['data']['success'] == true) {
+         if (response['data']['result'] == false) {
+           obj.createNotification('warning3')
+         }
+         else{
+           obj.props.getRegisteredTargetSites()
+           obj.closeCurrentModal() 
+         }
+       } else {
+         console.log('getRegisteredTargetSites Failed');
+       }
+     })
+     .catch(function (error){
+       console.log(error);
+     });
+   }
+
+
 
    registerTargetSite(){
      const obj = this;
-     console.log(obj.state)
+     //console.log(obj.state)
      axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
        req_type: "register_target_site",
        job_id: obj.props.JobId,
@@ -175,7 +227,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
        minimum_margin: this.checkIsNull(obj.state.minMargin) == ''? -999 : this.checkIsNull(obj.state.minMargin),
        tariff_rate: this.checkIsNull(obj.state.tariffRate) == ''? -999 : this.checkIsNull(obj.state.tariffRate),
        vat_rate: this.checkIsNull(obj.state.vatRate) == ''? -999 : this.checkIsNull(obj.state.vatRate),
-       shipping_cost: this.checkIsNull(obj.state.shippingCost) == ''? -999 : this.checkIsNull(obj.state.shippingCost),
+       default_weight: this.checkIsNull(obj.state.defaultWeight) == ''? -999 : this.checkIsNull(obj.state.defaultWeight),
        max_items: this.checkIsNull(obj.state.maxItems) == ''? -999 : this.checkIsNull(obj.state.maxItems),
        delivery_company: this.checkIsNull(obj.state.deliveryCompany),
      })
@@ -198,7 +250,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
    }
 
    initPricingInformation(){
-     this.setState({tariffRate: '', vatRate: '', tariffThreshold: '', marginRate: '', minMargin: '', shippingCost: ''})
+     this.setState({tariffRate: '', vatRate: '', tariffThreshold: '', marginRate: '', minMargin: '', defaultWeight: ''})
      this.setState({
        t_category: '',
        transformation_program_id: '',
@@ -210,7 +262,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
        minimum_margin: '', 
        tariff_rate: '',
        vat_rate: '',
-       shipping_cost: '',
+       default_weight: '',
        delivery_company: '',
        maxItems: ''
      })
@@ -338,7 +390,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
       .then(function (response) {
         console.log(response)
         if (response['data']['success'] == true) {
-//exchange_rate float, tariff_rate float, vat_rate float, tariff_threshold float, margin_rate float, min_margin float, delivery_company varchar(2048), shipping_cost float
+//exchange_rate float, tariff_rate float, vat_rate float, tariff_threshold float, margin_rate float, min_margin float, delivery_company varchar(2048), default_weight float
           let exchange_rate = response['data']['result'][0][0] == -999 ? '' : response['data']['result'][0][0]
           let tariff_rate  = response['data']['result'][0][1] == -999 ? '' : response['data']['result'][0][1]
           let vat_rate = response['data']['result'][0][2] == -999 ? '' : response['data']['result'][0][2]
@@ -346,9 +398,9 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
           let margin_rate = response['data']['result'][0][4] == -999 ? '' : response['data']['result'][0][4]
           let min_margin = response['data']['result'][0][5] == -999 ? '' : response['data']['result'][0][5]
           let delivery_company = response['data']['result'][0][6]
-          let shipping_cost  = response['data']['result'][0][7] == -999 ? '' : response['data']['result'][0][7]
+          let default_weight  = response['data']['result'][0][7] == -999 ? '' : response['data']['result'][0][7]
           let max_items  = response['data']['result'][0][11] == -999 ? '' : response['data']['result'][0][11]
-          obj.setState({exchangeRate: exchange_rate, tariffRate: tariff_rate, vatRate: vat_rate, tariffThreshold: tariff_threshold, marginRate: margin_rate, minMargin: min_margin, deliveryCompany: delivery_company, shippingCost: shipping_cost, maxItems: max_items})
+          obj.setState({exchangeRate: exchange_rate, tariffRate: tariff_rate, vatRate: vat_rate, tariffThreshold: tariff_threshold, marginRate: margin_rate, minMargin: min_margin, deliveryCompany: delivery_company, defaultWeight: default_weight, maxItems: max_items})
         }
         else{
           obj.initPricingInformation()
@@ -362,7 +414,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
 
     selectPricingInformation(){
       const obj = this;
-      console.log(obj)
+      //console.log(obj)
       axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
         req_type: "load_pricing_information",
         job_id: obj.props.JobId,
@@ -372,9 +424,9 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
       .then(function (response) {
         console.log(response)
         if (response['data']['success'] == true) {
-//exchange_rate float, tariff_rate float, vat_rate float, tariff_threshold float, margin_rate float, min_margin float, delivery_company varchar(2048), shipping_cost float
+//exchange_rate float, tariff_rate float, vat_rate float, tariff_threshold float, margin_rate float, min_margin float, delivery_company varchar(2048), default_weight float
           if (response['data']['result'].length == 0){
-            obj.setState({exchangeRate: '', tariffRate: '', vatRate: '', tariffThreshold: '', marginRate: '', minMargin: '', shippingCost: '', selected_category_num: '', selected_transformation_program_id: '', selected_configuration_id: ''})
+            obj.setState({exchangeRate: '', tariffRate: '', vatRate: '', tariffThreshold: '', marginRate: '', minMargin: '', defaultWeight: '', selected_category_num: '', selected_transformation_program_id: '', selected_configuration_id: ''})
             obj.getExchangeRate()
           }
           else{
@@ -385,12 +437,12 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
             let margin_rate = response['data']['result'][0][4] == -999 ? '' : response['data']['result'][0][4]
             let min_margin = response['data']['result'][0][5] == -999 ? '' : response['data']['result'][0][5]
             let delivery_company = response['data']['result'][0][6]
-            let shipping_cost  = response['data']['result'][0][7] == -999 ? '' : response['data']['result'][0][7]
+            let default_weight  = response['data']['result'][0][7] == -999 ? '' : response['data']['result'][0][7]
             let cnum  = response['data']['result'][0][8] == -999 ? '' : response['data']['result'][0][8]
             let transformation_program_id  = response['data']['result'][0][9] == -999 ? '' : response['data']['result'][0][9]
             let cid  = response['data']['result'][0][10] == -999 ? '' : response['data']['result'][0][10]
             let max_items  = response['data']['result'][0][11] == -999 ? '' : response['data']['result'][0][11]
-            obj.setState({exchangeRate: exchange_rate, tariffRate: tariff_rate, vatRate: vat_rate, tariffThreshold: tariff_threshold, marginRate: margin_rate, minMargin: min_margin, deliveryCompany: delivery_company, shippingCost: shipping_cost, selected_category_num: cnum,selected_transformation_program_id: transformation_program_id, selected_configuration_id: cid, maxItems: max_items})
+            obj.setState({exchangeRate: exchange_rate, tariffRate: tariff_rate, vatRate: vat_rate, tariffThreshold: tariff_threshold, marginRate: margin_rate, minMargin: min_margin, deliveryCompany: delivery_company, defaultWeight: default_weight, selected_category_num: cnum,selected_transformation_program_id: transformation_program_id, selected_configuration_id: cid, maxItems: max_items})
           }
         }
       })
@@ -408,7 +460,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
         }
         let tid = this.state.selectedTargetSiteId
         let userId = this.props.userId
-        console.log(this.props)
+        //console.log(this.props)
         const obj = this;
         axios.post(setting_server.DB_SERVER+'/api/db/categorytree', {
             req_type: "get_category_tree",
@@ -421,6 +473,8 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
               let category_tree = JSON.parse(output[0])
               obj.setState({
                   nodes: obj.initializedСopy(category_tree),
+                  selected_category_title: '',
+                  selected_category_num: '',
               })
             }
             else{
@@ -441,7 +495,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
         if (this.state.selectedTargetSiteId == null){
           return;
         }
-        console.log(this.props)
+        //console.log(this.props)
         let tid = this.state.selectedTargetSiteId
         let userId = this.props.userId
         const obj = this;
@@ -537,7 +591,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
         category: obj.state.selected_category_title
       })
       .then(function (response) {
-        console.log(response)
+        //console.log(response)
         if (response['data']['success'] === true) {
           let result = response['data']['result'];
           obj.setState({
@@ -923,8 +977,8 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
 
                         </div>
                         <div class='row' style={{marginLeft: '3%', width:'46%'}}>
-                          <label style={{marginTop:'8px', marginLeft: '2%', width:'54%'}}> Shipping cost :</label>
-                          <input class="form-control"  style={{width:"40%", float: 'right'}} value= {this.state.shippingCost} onChange={e => this.onTodoChange('shippingCost',e.target.value)}/>
+                          <label style={{marginTop:'8px', marginLeft: '2%', width:'54%'}}> Default weight :</label>
+                          <input class="form-control"  style={{width:"40%", float: 'right'}} value= {this.state.defaultWeight} onChange={e => this.onTodoChange('defaultWeight',e.target.value)}/>
                         </div>
                       </div>
 
@@ -961,6 +1015,14 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
                 class="btn btn-outline-dark"
                 type="button"
                 style={{marginRight:'10px'}}
+                onClick = {()=> this.updateTargetSite() }
+              >
+              Update
+              </Button>
+              <Button 
+                class="btn btn-outline-dark"
+                type="button"
+                style={{marginRight:'10px'}}
                 onClick = {()=> this.registerTargetSite() }
               >
               Register
@@ -973,12 +1035,12 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
                 Close
               </Button>
             </Modal.Footer>
-              <Modal isOpen={this.state.confirm_modal} toggle={this.closeModal.bind(this, 'confirm_modal')}>
+              <SModal isOpen={this.state.confirm_modal} toggle={this.closeModal.bind(this, 'confirm_modal')}>
                 <ModalHeader toggle={this.closeModal.bind(this, 'confirm_modal')}>
                 Confirm to remove
                 </ModalHeader>
                 <ModalBody>
-                  Are you sure to do this?
+                  Are you sure you want to delete?
                   <p></p>
                   <Button style={{float:'right'}}onClick={this.closeModal.bind(this, 'confirm_modal')}>
                   No
@@ -988,7 +1050,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
                   </Button>
                   
                 </ModalBody>
-              </Modal>
+              </SModal>
               <SelectGatewayConfigModal
                   show={this.state.showSelectGatewayConfigModal}
                   JobId = {this.props.id}
@@ -1014,6 +1076,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
                   setModalShow = {(s) => this.setState({showSelectRateModal: s})}
               />
             </Modal>
+
         );
     }
 }

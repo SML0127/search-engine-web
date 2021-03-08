@@ -481,7 +481,7 @@ class Tree extends Component {
                 Confirm to remove
                 </ModalHeader>
                 <ModalBody>
-                  Are you sure to do this?
+                  Are you sure you want to delete?
                   <p></p>
                   <Button style={{float:'right'}}onClick={this.closeModal.bind(this, 'confirm_modal')}>
                   No
