@@ -30,17 +30,17 @@ class HomeTab extends React.Component {
     this.getCountryOptions()
     g_user_id = this.props.userId
     schedule.scheduleJob('*/10 * * * * *', function(){
-      console.log(g_user_id);
-      console.log('log for each 10s');
+      //console.log(g_user_id);
+      //console.log('log for each 10s');
       axios.post(setting_server.DB_SERVER+'/api/db/executions', {
         req_type: "check_error",
         user_id: g_user_id 
       })
       .then(function (response) {
-        console.log(response)
+        //console.log(response)
         if (response['data']['success'] == true) {
           response['data']['result'].forEach(function (item, index, array) {
-              console.log('An error occurred while crawling ' + item[0])
+              //console.log('An error occurred while crawling ' + item[0])
               NotificationManager.error('An error occurred while crawling ' + item[0],'ERROR',  6000000);
           });
 
@@ -63,7 +63,7 @@ class HomeTab extends React.Component {
       user_id: this.props.userId
     })
     .then(function (response) {
-      console.log(response)
+      //console.log(response)
       if (response['data']['success'] == true) {
         //obj.setState({ curExchangeRate:response['data']['result'][0][0], updateTime:response['data']['result'][0][1]});
         obj.createNotification('job_fail')
@@ -141,7 +141,7 @@ class HomeTab extends React.Component {
 
       
   updateCountry(event) {
-    console.log(event.target.value)
+    //console.log(event.target.value)
     this.setState({country: event.target.value});
   }
 

@@ -130,7 +130,7 @@ class CustomLink extends React.Component {
     const obj = this;
     axios.post(setting_server.DB_SERVER+'/api/db/job', {
       req_type: "get_num_of_product_in_job",
-      job_id: this.props.id
+      job_id: obj.props.id
     })
     .then(function (response) {
       if (response['data']['success'] == true) {

@@ -157,8 +157,9 @@ class ScheduleTab extends React.Component {
             const end_date = row[2];
             const period = row[3];
             const activate = row[4];
-            const job_label = row[5];
-            return {num: index+1, job_id: job_id, start_date: start_date, end_date:end_date, period: period, activate: activate, job_label:job_label};
+            const job_label = row[6];
+            const targetsites = row[7];
+            return {num: index+1, job_id: job_id, start_date: start_date, end_date:end_date, period: period, activate: activate, job_label:job_label, targetsites:targetsites};
           });
           obj.setState({
             registeredSchedules: registeredSchedules,
@@ -324,6 +325,22 @@ class ScheduleTab extends React.Component {
                   }
                 },
                 {
+                  Header: "Target sites",
+                  width: 240,
+                  resizable: false,
+                  accessor: "targetsites",
+                  Cell: ( row ) => {
+                    return (
+                      <div
+                        style={{
+                          textAlign:"center",
+                          paddingTop:"4px"
+                        }}
+                      > {row.value} </div>
+                    )
+                  }
+                },
+                {
                   Header: "Start Date",
                   resizable: false,
                   accessor: "start_date",
@@ -355,6 +372,7 @@ class ScheduleTab extends React.Component {
                 },
                 {
                   Header: "Period",
+                  width: 75,
                   resizable: false,
                   accessor: "period",
                   Cell: ( row ) => {

@@ -14,6 +14,8 @@ import {
   ModalBody,
 }  from 'reactstrap';
 import setting_server from '../../../setting_server';
+import Checkbox from 'rc-checkbox';
+import 'rc-checkbox/assets/index.css';
 
 let gvar_selectedRegisteredTargetSiteId = null
 class Tree extends Component {
@@ -22,6 +24,75 @@ class Tree extends Component {
        super(props);
        this.state = this.initState();
        this.getRegisteredTargetSites = this.getRegisteredTargetSites.bind(this)
+       this.checkAll = this.checkAll.bind(this);
+       this.checkOneBox = this.checkOneBox.bind(this);
+   }
+
+   checkOneBox(idx, tsid){
+     //this.state.registeredTargetSites[idx]['boxChecked'] = !this.state.registeredTargetSites[idx]['boxChecked'];
+     console.log(tsid)
+     const obj = this;
+     axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
+       req_type: "check_target_site",
+       tjcid: tsid,
+       checked: !this.state.registeredTargetSites[idx]['boxChecked']
+     })
+     .then(function (response) {
+       if (response['data']['success'] == true) {
+         obj.state.registeredTargetSites[idx]['boxChecked'] = !obj.state.registeredTargetSites[idx]['boxChecked'];
+         obj.getRegisteredTargetSites()
+       } else {
+         console.log('getRegisteredTargetSites Failed');
+       }
+     })
+     .catch(function (error){
+       console.log(error);
+     });
+   }
+   checkAll(){
+     const obj = this;
+     if(this.state.isAllChecked){
+       axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
+         req_type: "check_false_all_target_site",
+         job_id: obj.props.jobId,
+       })
+       .then(function (response) {
+         if (response['data']['success'] == true) {
+           //obj.state.registeredTargetSites[idx]['boxChecked'] = !obj.state.registeredTargetSites[idx]['boxChecked'];
+           obj.getRegisteredTargetSites()
+         } else {
+           console.log('getRegisteredTargetSites Failed');
+         }
+       })
+       .catch(function (error){
+         console.log(error);
+       });
+
+       //for (let i = 0; i < this.state.registeredTargetSites.length; i++) {
+       //  this.state.registeredTargetSites[i]['boxChecked'] = false;
+       //}
+     }
+     else{
+       axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
+         req_type: "check_true_all_target_site",
+         job_id: obj.props.jobId,
+       })
+       .then(function (response) {
+         if (response['data']['success'] == true) {
+           //obj.state.registeredTargetSites[idx]['boxChecked'] = !obj.state.registeredTargetSites[idx]['boxChecked'];
+           obj.getRegisteredTargetSites()
+         } else {
+           console.log('getRegisteredTargetSites Failed');
+         }
+       })
+       .catch(function (error){
+         console.log(error);
+       });
+       //for (let i = 0; i < this.state.registeredTargetSites.length; i++) {
+       //  this.state.registeredTargetSites[i]['boxChecked'] = true;
+       //}
+     }
+     this.setState({isAllChecked: !this.state.isAllChecked })
    }
 
    clickRegisterModal(){
@@ -49,7 +120,8 @@ class Tree extends Component {
            const category = row[3];
            const c_num = row[4] == -999 ? '' : row[4]
            const max_items = row[5] == -999 ? '' : row[5]
-           return {num: index+1, id: id, label: label, url: url, category: category, c_num: c_num, max_items: max_items};
+           const checked = row[6]
+           return {num: index+1, id: id, label: label, url: url, category: category, c_num: c_num, max_items: max_items, boxChecked: checked};
          });
          obj.setState({registeredTargetSites: registeredTargetSites, selectedRegisteredTargetSiteIndex: null});
          gvar_selectedRegisteredTargetSiteId = null
@@ -89,6 +161,9 @@ class Tree extends Component {
     initState(){
       return {
         selectedRegisteredTargetSiteIndex: null,
+        isAllChecked: false,
+        disabled: false,
+        registeredTargetSites: []
       }
     }
 
@@ -157,6 +232,38 @@ class Tree extends Component {
                   }
                 }}
                 columns={[
+                 {
+                    Header:( row ) => {
+                      return (
+                         <div
+                           onClick={e => this.checkAll()}
+                         >
+                           <Checkbox
+                             checked={this.state.isAllChecked}
+                             disabled={this.state.disabled}
+                           />
+                         </div>
+                      )
+                    },
+                    width: 50,
+                    resizable: false,
+                    sortable: false,
+                    accessor: "boxChecked",
+                    Cell: ( row ) => {
+                      return (
+                       <div 
+                         style={{marginLeft:'27%', marginTop:'10%'}}
+                         onClick={e => this.checkOneBox(row.original.num - 1, row.original['id'])}
+                       >
+                         <Checkbox
+                           style={{width:'100%', height:'100%'}}
+                           checked={row.value}
+                           disabled={this.state.disabled}
+                         />
+                       </div>
+                      )
+                    }
+                  },
                   {
                     Header: "Target Site",
                     resizable: false,
