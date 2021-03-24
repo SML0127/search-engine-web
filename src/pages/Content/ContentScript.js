@@ -115,7 +115,7 @@ var ContentScript = {
 
 	otips: function(request) {
 		var deferredResponse = $.Deferred();
-
+	  console.log('otips in ContentScript')
 		//var contentSelector = new ContentSelector({
 		//	//parentCSSSelector: request.parentCSSSelector,
 		//	allowedElements: "*"//request.allowedElements

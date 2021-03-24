@@ -37,6 +37,9 @@ window.React = React;
 let g_user_program = {};
 let g_label = 1;
 let g_document = document;
+let g_call_otips = false;
+let g_tab_id = -1;
+
 class JobTab extends React.Component {
 
     constructor(props) {
@@ -141,19 +144,23 @@ class JobTab extends React.Component {
     updateChromeTab(url) {
       if (!url.match(/^https?:\/\//i)) {
         //chrome.tabs.update({url: 'http://'+ url})
-        chrome.tabs.update({url: 'http://'+ url}, function(tab1) {
-          console.log('click-------')
-          //g_document.getElementById("otips").click();
+
+        chrome.tabs.update({url: 'http://'+ url, 'active': true}, function(tab) {
+          console.log('click after? 0')
+          console.log(tab)
+          console.log(tab['id'])
+          g_tab_id = tab.id
           //setTimeout(() =>{ console.log("after");  console.log(g_document);g_document.getElementById("otips").click();console.log("?????");g_document.getElementById("otips").click();} , 10000)
-          console.log('--------click')
         });
       }
       else{
         //chrome.tabs.update({url: url});
-        chrome.tabs.update({url: url}, function(tab1) {
-          console.log('click-------')
+        chrome.tabs.update({url: url, 'active': true}, function(tab) {
+          console.log('click after? 1')
+          console.log(tab)
+          console.log(tab['id'])
+          g_tab_id = tab.id
           //setTimeout(() =>{ console.log("after");  console.log(g_document);g_document.getElementById("otips").click();console.log("?????");g_document.getElementById("otips").click();} , 10000)
-          console.log('--------click')
         });
       }
     }
@@ -250,10 +257,10 @@ class JobTab extends React.Component {
                  
                  if (url != null){
                    // only for chrome extension
-                   //obj.updateChromeTab(url)
+                   obj.updateChromeTab(url)
                  }
                  else{
-                   //obj.updateChromeTab(obj.props.url)
+                   obj.updateChromeTab(obj.props.url)
                  }
 
                  obj.setState({
@@ -591,11 +598,28 @@ class JobTab extends React.Component {
       this.refreshMsiteList();
       this.refreshTsiteList()
       //console.log(g_user_program)
-      this.loadRecentProgram()
       
     }
 
     componentDidMount(){
+      //g_document.getElementById("otips").click();
+      chrome.tabs.onUpdated.addListener(function(tabid, info, tab) {
+        if (info.status == "complete") {
+          console.log(g_tab_id)
+          console.log(tabid)
+          if (g_call_otips == false && g_tab_id == tabid){
+            console.log(tab)
+            chrome.tabs.update(tabid, { 'active': true }, (tab) => { g_document.getElementById("otips").click()});
+            //g_document.getElementById("otips").click();
+            g_call_otips = true;
+          }
+          return;
+        }
+        else{
+          g_call_otips = false;
+        }
+      });
+      this.loadRecentProgram()
 
     }
 

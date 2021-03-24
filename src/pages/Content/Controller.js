@@ -79,9 +79,6 @@ Controller.prototype = {
 		  //this.otips()
 
 			this.control({
-				//"#selector-tree tr button[action=data-preview-selector]": {
-				//	click: this.previewSelectorDataFromSelectorTree
-				//},
 				"#edit-selector Button[action=otips]": {
 					click: this.otips
 				},
@@ -93,16 +90,8 @@ Controller.prototype = {
 				},
 				"#edit-selector Button[action=select-selector-url]": {
 					click: this.selectSelectorURL
-				},
-				//"#edit-selector button[action=preview-selector]": {
-				//	click: this.previewSelector
-				//},
-				//"#edit-selector button[action=preview-click-element-selector]": {
-				//	click: this.previewClickElementSelector
-				//},
-				//"button.remove-start-url": {
-				//	click: this.removeStartUrl
-				//}
+				}
+
 			});
 			//this.showSitemaps();
 		}.bind(this));
@@ -1017,6 +1006,7 @@ Controller.prototype = {
 
 	otips: function () {
 	  console.log('Show opeartion tips')
+	  console.log('otips in Controller')
 		var deferredOtips = this.contentScript.showOperationTips({
 			allowedElements: "*"
 		});
