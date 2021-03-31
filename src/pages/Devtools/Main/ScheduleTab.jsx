@@ -220,7 +220,7 @@ class ScheduleTab extends React.Component {
 
 
 
-    componentWillMount(){
+    componentDidMount(){
 
       this.getRegisteredSchedules(this.props.userId);
     }

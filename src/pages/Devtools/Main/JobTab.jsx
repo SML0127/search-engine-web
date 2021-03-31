@@ -39,6 +39,7 @@ let g_label = 1;
 let g_document = document;
 let g_call_otips = false;
 let g_tab_id = -1;
+let g_window_id = -1;
 
 class JobTab extends React.Component {
 
@@ -150,6 +151,7 @@ class JobTab extends React.Component {
           console.log(tab)
           console.log(tab['id'])
           g_tab_id = tab.id
+          g_window_id = tab.windowId
           //setTimeout(() =>{ console.log("after");  console.log(g_document);g_document.getElementById("otips").click();console.log("?????");g_document.getElementById("otips").click();} , 10000)
         });
       }
@@ -160,6 +162,7 @@ class JobTab extends React.Component {
           console.log(tab)
           console.log(tab['id'])
           g_tab_id = tab.id
+          g_window_id = tab.windowId
           //setTimeout(() =>{ console.log("after");  console.log(g_document);g_document.getElementById("otips").click();console.log("?????");g_document.getElementById("otips").click();} , 10000)
         });
       }
@@ -609,7 +612,8 @@ class JobTab extends React.Component {
           console.log(tabid)
           if (g_call_otips == false && g_tab_id == tabid){
             console.log(tab)
-            chrome.tabs.update(tabid, { 'active': true }, (tab) => { g_document.getElementById("otips").click()});
+            chrome.windows.update(g_window_id, {'focused': true}, function (window) {  chrome.tabs.update(tabid, { 'active': true }, (tab) => { g_document.getElementById("otips").click()}) })
+            //chrome.tabs.update(tabid, { 'active': true }, (tab) => { g_document.getElementById("otips").click()});
             //g_document.getElementById("otips").click();
             g_call_otips = true;
           }

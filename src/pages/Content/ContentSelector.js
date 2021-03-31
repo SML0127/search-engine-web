@@ -238,6 +238,79 @@ ContentSelector.prototype = {
 
 	},
 
+
+  getListXpathNew: function(x1, x2){
+    let output1 = x1.split('//')
+    let output2 = x2.split('//')
+    
+    let output1_len = output1.length - 1
+    let output2_len = output2.length - 1
+    let output_idx = 1
+    let sub_output_idx = 0
+    let is_finished = false 
+    for (let idx_outer in output1) {
+        if (output1 == output2){
+           break;
+        }
+
+        sub_output1 = output1[output1_len - idx_outer].split('/')
+        try {
+          sub_output2 = output2[output2_len - idx_outer].split('/')
+        } catch (error) {
+          sub_output_idx = 0
+          output_idx = output1_len - idx_outer
+          break;
+        }
+
+
+        let sub_output1_len = sub_output1.length
+        let sub_output2_len = sub_output2.length
+    
+        for (let idx in sub_output1) {
+            if (sub_output1[sub_output1_len - idx - 1] != sub_output2[sub_output2_len - idx -1]) {
+                sub_output_idx = sub_output1_len - idx - 1
+                output_idx = output1_len - idx_outer 
+                is_finished = true
+                break;
+            }
+        }
+        if (is_finished){
+          break;
+        }
+    }
+    let fin = ''
+         
+    sub_output1 = output1[output_idx].split('/')
+    sub_output2 = output2[output_idx].split('/')
+    sub_output1[sub_output_idx] = sub_output1[sub_output_idx].split('[')[0]
+    
+    for (let idx in output1) {
+        if (idx == 0) {
+           continue;
+        }
+        if(idx == output_idx){
+           
+           for(let idx2 in sub_output1){
+              if (idx == 1 && idx2 == 0){
+                 //fin = fin + '//' + sub_output1[idx2]
+              }
+              else{
+                 if(sub_output_idx <= idx2){
+                   fin = fin + '/' + sub_output1[idx2]
+                 }
+              }
+           }
+        }
+        else  if(idx >= output_idx){
+           fin = fin + '//' + output1[idx]
+        }   
+    
+    }
+    return fin
+  },
+
+
+
   getListXpath: function(x1, x2){
 
      let output1 = x1.split('//')
@@ -255,6 +328,8 @@ ContentSelector.prototype = {
          output_idx = output1_len - idx
        }
      }
+     //listXPath1 =  //div[1]/div[1]/table[1]/tbody[1]/tr[2]/td[1]
+     //listXPath2 =  //div[1]/div[1]/table[1]/tbody[1]/tr[1]/td[1]
 
      let fin = ''
      for(let idx in output1){
@@ -273,7 +348,7 @@ ContentSelector.prototype = {
 
 
 
-	bindElementSelectionOtipsList: function () {
+	bindElementSelectionOtipsList: function (is_link = false) {
 
     console.log('bindElementSelectionOtipsList')
 		this.$allElements.bind("click.elementSelector", function (e) {
@@ -288,8 +363,6 @@ ContentSelector.prototype = {
       //}
 
       let num_selected = this.selectedElementOtipsList.length
-      console.log(num_selected) 
-      console.log(this.selectedElementOtipsList) 
       if(num_selected >= 1){
         if(this.selectedElementOtipsList[0] == e.currentTarget){
 
@@ -302,8 +375,6 @@ ContentSelector.prototype = {
         this.selectedElementOtipsList.push(element)
       }
       num_selected = this.selectedElementOtipsList.length
-      console.log(num_selected) 
-      console.log(this.selectedElementOtipsList) 
      
       if(num_selected >= 2){
         let elem1 = this.selectedElementOtipsList[num_selected - 1]
@@ -328,41 +399,45 @@ ContentSelector.prototype = {
 
         this.resultXpath = optRelXpath1;
 
-
-        let suffixListXpath = this.getListXpath(listXpath1, listXpath2)
-        //console.log(suffixListXpath)
+        console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+        let suffixListXpath = this.getListXpathNew(optRelXpath1, optRelXpath2)
+        console.log(suffixListXpath)
+        
         let x1 = absXpath1
         let x2 = absXpath2
 
-        let output1 = x1.split('/')
-        let output2 = x2.split('/')
 
-        let output1_len = output1.length
-        let output_idx
-
-        for(let idx in output1){
-          if(output1[idx] != output2[idx]){
-            output_idx = idx
-            break;
-          }
+        let output3 = x1.split('/')
+        let output4 = x2.split('/')
+        let output3_len = output3.length
+        let output3_idx
+        
+        for (let idx in output3) {
+            if (output3[idx] != output4[idx]) {
+                output3_idx = idx
+                break;
+            }
         }
-
-        let fin = ''
-        for(let idx in output1){
-          if(idx == 0){
-            continue;
-          }
-          if(parseInt(idx) < parseInt(output_idx)){
-            fin = fin + '/' + output1[idx]
-          }
-          else{
-            break;
-            //fin = fin + '/' + output1[idx]
-          }
+        
+        let fin2 = ''
+        for (let idx in output3) {
+            if (idx == 0) {
+                continue;
+            }
+            if (parseInt(idx) < parseInt(output3_idx)) {
+                fin2 = fin2 + '/' + output3[idx]
+            } else {
+                break;
+                //fin = fin + '/' + output1[idx]
+            }
         }
-        let finalXpath = fin + suffixListXpath
-
-
+        let finalXpath
+        if (suffixListXpath.slice(0,2) == '//'){
+          finalXpath = fin2 + suffixListXpath
+        }
+        else{
+          finalXpath = fin2 + '/' + suffixListXpath
+        }
 
         let res = document.evaluate(finalXpath, document);
         let tmpElements = [];
@@ -372,76 +447,93 @@ ContentSelector.prototype = {
         }
         let limit_num = tmpElements.length
 
-        let idx1 = finalXpath.lastIndexOf('//')
-        let idx2 = finalXpath.lastIndexOf('[')
-        let last_tag = finalXpath.slice(idx1+2, idx2)
-        if(last_tag == 'a'){
-          //console.log(finalXpath)
-			    this.highlightSelectedElementsOtipsURL(finalXpath);
-          this.openCollapse5()
-          this.selectedOptRelListXpath = finalXpath
-			    return false;
-        }
-        else{
-          let candidate1 = finalXpath.slice(0, idx1+2) + 'a'
-
-          //console.log(candidate1)
-          let res1 = document.evaluate(candidate1, document);
-          let tmpElements1 = [];
-          let node1
-          while(node1 = res1.iterateNext()) {
-            tmpElements1.push(node)
-          }
-          let candidate_limit_num = tmpElements1.length
-          //console.log(candidate_limit_num, limit_num)
-          if(parseInt(candidate_limit_num) <= parseInt(limit_num) && parseInt(candidate_limit_num) != 0 ){
-            finalXpath = candidate1
+        if(is_link){
+          let idx1 = finalXpath.lastIndexOf('//')
+          let idx2 = finalXpath.lastIndexOf('[')
+          let last_tag = finalXpath.slice(idx1+2, idx2)
+          if(last_tag == 'a'){
             //console.log(finalXpath)
 			      this.highlightSelectedElementsOtipsURL(finalXpath);
-            this.selectedElementOtipsList = []
             this.openCollapse5()
             this.selectedOptRelListXpath = finalXpath
+            console.log(finalXpath)
+            console.log(this.selectedOptRelListXpath)
 			      return false;
           }
           else{
-            let candidate2 = finalXpath + '//a'
-            //console.log(candidate2)
+            let candidate1 = finalXpath.slice(0, idx1+2) + 'a'
 
-            let res2 = document.evaluate(candidate2, document);
-            let tmpElements2 = [];
-            let node2
-            while(node2 = res2.iterateNext()) {
-              tmpElements2.push(node)
+            //console.log(candidate1)
+            let res1 = document.evaluate(candidate1, document);
+            let tmpElements1 = [];
+            let node1
+            while(node1 = res1.iterateNext()) {
+              tmpElements1.push(node)
             }
-            let candidate_limit_num2 = tmpElements2.length
-            //console.log(candidate_limit_num2)
-            if(parseInt(candidate_limit_num2) <= parseInt(limit_num) && parseInt(candidate_limit_num2) != 0 ){
-              finalXpath = candidate2
-              console.log(finalXpath)
+            let candidate_limit_num = tmpElements1.length
+            //console.log(candidate_limit_num, limit_num)
+            if(parseInt(candidate_limit_num) <= parseInt(limit_num) && parseInt(candidate_limit_num) != 0 ){
+              finalXpath = candidate1
+              //console.log(finalXpath)
 			        this.highlightSelectedElementsOtipsURL(finalXpath);
               this.selectedElementOtipsList = []
               this.openCollapse5()
               this.selectedOptRelListXpath = finalXpath
+              console.log(finalXpath)
+              console.log(this.selectedOptRelListXpath)
 			        return false;
             }
-          }
+            else{
+              let candidate2 = finalXpath + '//a'
+              //console.log(candidate2)
 
+              let res2 = document.evaluate(candidate2, document);
+              let tmpElements2 = [];
+              let node2
+              while(node2 = res2.iterateNext()) {
+                tmpElements2.push(node)
+              }
+              let candidate_limit_num2 = tmpElements2.length
+              //console.log(candidate_limit_num2)
+              if(parseInt(candidate_limit_num2) <= parseInt(limit_num) && parseInt(candidate_limit_num2) != 0 ){
+                finalXpath = candidate2
+                console.log(finalXpath)
+			          this.highlightSelectedElementsOtipsURL(finalXpath);
+                this.selectedElementOtipsList = []
+                this.openCollapse5()
+                this.selectedOptRelListXpath = finalXpath
+                console.log(finalXpath)
+                console.log(this.selectedOptRelListXpath)
+			          return false;
+              }
+            }
+
+			      this.highlightSelectedElementsOtipsURL(finalXpath);
+            this.selectedElementOtipsList = []
+            this.openCollapse5()
+            this.selectedOptRelListXpath = finalXpath
+            console.log(finalXpath)
+            console.log(this.selectedOptRelListXpath)
+		        
+			      return false;
+          }
+        }
+        else{
 			    this.highlightSelectedElementsOtipsURL(finalXpath);
           this.selectedElementOtipsList = []
           this.openCollapse5()
           this.selectedOptRelListXpath = finalXpath
-		      
 			    return false;
         }
+
+        
       }
-
-
 			// Cancel all other events
 			return false;
 		}.bind(this));
 	},
 
-  bindElementSelectionOtipsListClickTwo: function () {
+  bindElementSelectionOtipsListClickTwo: function (is_link = false) {
 
     console.log('bindElementSelectionOtipsListClickTwo')
 		this.$allElements.bind("click.elementSelector", function (e) {
@@ -493,41 +585,45 @@ ContentSelector.prototype = {
 
         this.resultXpath = optRelXpath1;
 
+        let suffixListXpath = this.getListXpathNew(optRelXpath1, optRelXpath2)
+        console.log(suffixListXpath)
 
-        let suffixListXpath = this.getListXpath(listXpath1, listXpath2)
-        //console.log(suffixListXpath)
+
         let x1 = absXpath1
         let x2 = absXpath2
 
-        let output1 = x1.split('/')
-        let output2 = x2.split('/')
 
-        let output1_len = output1.length
-        let output_idx
-
-        for(let idx in output1){
-          if(output1[idx] != output2[idx]){
-            output_idx = idx
-            break;
-          }
+        let output3 = x1.split('/')
+        let output4 = x2.split('/')
+        let output3_len = output3.length
+        let output3_idx
+        
+        for (let idx in output3) {
+            if (output3[idx] != output4[idx]) {
+                output3_idx = idx
+                break;
+            }
         }
-
-        let fin = ''
-        for(let idx in output1){
-          if(idx == 0){
-            continue;
-          }
-          if(parseInt(idx) < parseInt(output_idx)){
-            fin = fin + '/' + output1[idx]
-          }
-          else{
-            break;
-            //fin = fin + '/' + output1[idx]
-          }
+        
+        let fin2 = ''
+        for (let idx in output3) {
+            if (idx == 0) {
+                continue;
+            }
+            if (parseInt(idx) < parseInt(output3_idx)) {
+                fin2 = fin2 + '/' + output3[idx]
+            } else {
+                break;
+                //fin = fin + '/' + output1[idx]
+            }
         }
-        let finalXpath = fin + suffixListXpath
-
-
+        let finalXpath
+        if (suffixListXpath.slice(0,2) == '//'){
+          finalXpath = fin2 + suffixListXpath
+        }
+        else{
+          finalXpath = fin2 + '/' + suffixListXpath
+        }
 
         let res = document.evaluate(finalXpath, document);
         let tmpElements = [];
@@ -540,57 +636,66 @@ ContentSelector.prototype = {
         let idx1 = finalXpath.lastIndexOf('//')
         let idx2 = finalXpath.lastIndexOf('[')
         let last_tag = finalXpath.slice(idx1+2, idx2)
-        if(last_tag == 'a'){
-          //console.log(finalXpath)
-			    this.highlightSelectedElementsOtipsURL(finalXpath);
-          this.openCollapse5()
-          this.selectedOptRelListXpath2 = finalXpath
-			    return false;
-        }
-        else{
-          let candidate1 = finalXpath.slice(0, idx1+2) + 'a'
-
-          //console.log(candidate1)
-          let res1 = document.evaluate(candidate1, document);
-          let tmpElements1 = [];
-          let node1
-          while(node1 = res1.iterateNext()) {
-            tmpElements1.push(node)
-          }
-          let candidate_limit_num = tmpElements1.length
-          //console.log(candidate_limit_num, limit_num)
-          if(parseInt(candidate_limit_num) <= parseInt(limit_num) && parseInt(candidate_limit_num) != 0 ){
-            finalXpath = candidate1
+        if (is_link){
+          if(last_tag == 'a'){
             //console.log(finalXpath)
 			      this.highlightSelectedElementsOtipsURL(finalXpath);
-            this.selectedElementOtipsList = []
             this.openCollapse5()
             this.selectedOptRelListXpath2 = finalXpath
 			      return false;
           }
           else{
-            let candidate2 = finalXpath + '//a'
-            //console.log(candidate2)
+            let candidate1 = finalXpath.slice(0, idx1+2) + 'a'
 
-            let res2 = document.evaluate(candidate2, document);
-            let tmpElements2 = [];
-            let node2
-            while(node2 = res2.iterateNext()) {
-              tmpElements2.push(node)
+            //console.log(candidate1)
+            let res1 = document.evaluate(candidate1, document);
+            let tmpElements1 = [];
+            let node1
+            while(node1 = res1.iterateNext()) {
+              tmpElements1.push(node)
             }
-            let candidate_limit_num2 = tmpElements2.length
-            //console.log(candidate_limit_num2)
-            if(parseInt(candidate_limit_num2) <= parseInt(limit_num) && parseInt(candidate_limit_num2) != 0 ){
-              finalXpath = candidate2
-              console.log(finalXpath)
+            let candidate_limit_num = tmpElements1.length
+            //console.log(candidate_limit_num, limit_num)
+            if(parseInt(candidate_limit_num) <= parseInt(limit_num) && parseInt(candidate_limit_num) != 0 ){
+              finalXpath = candidate1
+              //console.log(finalXpath)
 			        this.highlightSelectedElementsOtipsURL(finalXpath);
               this.selectedElementOtipsList = []
               this.openCollapse5()
               this.selectedOptRelListXpath2 = finalXpath
 			        return false;
             }
-          }
+            else{
+              let candidate2 = finalXpath + '//a'
+              //console.log(candidate2)
 
+              let res2 = document.evaluate(candidate2, document);
+              let tmpElements2 = [];
+              let node2
+              while(node2 = res2.iterateNext()) {
+                tmpElements2.push(node)
+              }
+              let candidate_limit_num2 = tmpElements2.length
+              //console.log(candidate_limit_num2)
+              if(parseInt(candidate_limit_num2) <= parseInt(limit_num) && parseInt(candidate_limit_num2) != 0 ){
+                finalXpath = candidate2
+                console.log(finalXpath)
+			          this.highlightSelectedElementsOtipsURL(finalXpath);
+                this.selectedElementOtipsList = []
+                this.openCollapse5()
+                this.selectedOptRelListXpath2 = finalXpath
+			          return false;
+              }
+            }
+
+			      this.highlightSelectedElementsOtipsURL(finalXpath);
+            this.selectedElementOtipsList = []
+            this.openCollapse5()
+            this.selectedOptRelListXpath2 = finalXpath
+			      return false;
+          }
+        }
+        else{
 			    this.highlightSelectedElementsOtipsURL(finalXpath);
           this.selectedElementOtipsList = []
           this.openCollapse5()
@@ -785,10 +890,10 @@ ContentSelector.prototype = {
       //$(".-sitemap-select-item-selected").removeClass("-sitemap-select-item-selected");
       
      
-      console.log('111111111111')
-      console.log(tag_name)
-      console.log(txt)
-      console.log(tag_id)
+      //console.log('111111111111')
+      //console.log(tag_name)
+      //console.log(txt)
+      //console.log(tag_id)
       if((tag_name == 'INPUT' && !class_name.includes('button') && !tag_id.includes("submit"))|| tag_name == 'TEXTAREA'){
         console.log('22222222222')
         console.log(this.currentEvent.currentTarget.value)
@@ -1029,9 +1134,9 @@ ContentSelector.prototype = {
 
   generateRelXpath: function(element) {
     _document = element.ownerDocument;
-    //console.log(_document)
-    //console.log(element)
     this.tempXpath = "";
+    this.indexes = [];
+    this.matchIndex = [];
     relXpath = this.formRelXpath(_document, element);
     console.log(relXpath)
 
@@ -1042,13 +1147,11 @@ ContentSelector.prototype = {
     } catch (err) {}
     if (numOfDoubleForwardSlash > 1 && relXpath.includes('[') && !relXpath.includes('@href') && !relXpath.includes('@src')) {
         relXpath = this.optimizeXpath(_document, relXpath)
+        console.log('optimize : ', relXpath)
     }
     if (relXpath === undefined) {
         relXpath = "It might be child of svg/pseudo/comment/iframe from different src. XPath doesn't support for them."
     }
-    //this.tempXpath = "";
-    //console.log("Optimized Relative XPath")
-    //console.log(relXpath)
     return relXpath
   },
   
@@ -1060,24 +1163,22 @@ ContentSelector.prototype = {
   },
 
   formRelXpath: function(_document, element) {
-    console.log(_document)
-    console.log(element)
     var userAttr = "";//userAttrName.value.trim();
     var idChecked = "withid";//idCheckbox.checked ? "withid" : "withoutid";
     var classChecked = "withclass";//classAttr.checked ? "withclass" : "withoutclass";
     var nameChecked = "withname";//nameAttr.checked ? "withname" : "withoutname";
     var placeholderChecked = "withplaceholder";//placeholderAttr.checked ? "withplaceholder" : "withoutplaceholder";
-    var textChecked = "";//placeholderAttr.checked ? "withplaceholder" : "withoutplaceholder";
+    var textChecked = "withouttext";//placeholderAttr.checked ? "withplaceholder" : "withoutplaceholder";
     var attributeChoicesForXpath = [userAttr, idChecked, classChecked, nameChecked, placeholderChecked, textChecked]
     var userAttr = attributeChoicesForXpath[0];
 
-
-    var innerText = [].reduce.call(element.childNodes, function(a, b) {
-        //return a + (b.nodeType === 3 ? b.textContent : '')
-        return a + ''
-    }, '').trim().slice(0, 50);
-    innerText = this.removeLineBreak(innerText);
-    //innerText = ""
+    //smlee
+    //var innerText = [].reduce.call(element.childNodes, function(a, b) {
+    //    //return a + (b.nodeType === 3 ? b.textContent : '')
+    //    return a + ''
+    //}, '').trim().slice(0, 50);
+    //innerText = this.removeLineBreak(innerText);
+    
    
     var tagName = element.tagName.toLowerCase();
     if (tagName.includes("style") || tagName.includes("script")) {
@@ -1087,54 +1188,64 @@ ContentSelector.prototype = {
         tagName = "*"
     }
 
-    if (innerText.includes("'")) {
-        innerText = innerText.split('  ')[innerText.split('  ').length - 1];
-        containsText = '[contains(text(),"' + innerText + '")]';
-        equalsText = '[text()="' + innerText + '"]'
-    } else {
-        innerText = innerText.split('  ')[innerText.split('  ').length - 1];
-        containsText = "[contains(text(),'" + innerText + "')]";
-        equalsText = "[text()='" + innerText + "']"
-    }
-    //console.log(innerText)
+    //smlee
+    //if (innerText.includes("'")) {
+    //    innerText = innerText.split('  ')[innerText.split('  ').length - 1];
+    //    containsText = '[contains(text(),"' + innerText + '")]';
+    //    equalsText = '[text()="' + innerText + '"]'
+    //} else {
+    //    innerText = innerText.split('  ')[innerText.split('  ').length - 1];
+    //    containsText = "[contains(text(),'" + innerText + "')]";
+    //    equalsText = "[text()='" + innerText + "']"
+    //}
+    //smlee
+    var innerText = "";
+
+
     if (tagName.includes('html')) {
         return '//html' + this.tempXpath
     }
     var attr = "";
     var attrValue = "";
     var listOfAttr = {};
-    if ((!element.getAttribute(userAttr) || userAttr.toLowerCase() === "id") && element.id !== '' && attributeChoicesForXpath.includes("withid")) {
+    //smlee
+    //if ((!element.getAttribute(userAttr) || userAttr.toLowerCase() === "id") && element.id !== '' && attributeChoicesForXpath.includes("withid")) {
+    if ( element.id !== '') {
         var id = element.id;
         id = this.removeLineBreak(id);
         this.tempXpath = '//' + tagName + "[@id='" + id + "']" + this.tempXpath;
         var totalMatch = _document.evaluate(this.tempXpath, _document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
         if (totalMatch === 1) {
-            console.log('2222')
+            console.log(this.tempXpath)
             return this.tempXpath
-        } else {
+        } 
+        else {
+            //smlee
+            // empty string like '', "" is false
             if (innerText && element.getElementsByTagName('*').length === 0) {
+                console.log('never 1115')
                 var containsXpath = '//' + tagName + containsText;
                 var totalMatch = _document.evaluate(containsXpath, _document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
                 if (totalMatch === 0) {
                     var equalsXpath = '//' + tagName + equalsText;
                     var totalMatch = _document.evaluate(equalsXpath, _document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
                     if (totalMatch === 1) {
-                        console.log('3333333')
                         return equalsXpath
                     } else {
                         this.tempXpath = this.tempXpath
                     }
                 } else if (totalMatch === 1) {
-                    console.log('444444')
                     return containsXpath
                 } else {
                     this.tempXpath = this.tempXpath
                 }
-            } else {
+            } 
+            else {
               this.tempXpath = this.tempXpath
             }
         }
-    } else if (element.attributes.length != 0) {
+    } 
+    else if (element.attributes.length != 0) {
         if (!attrValue) {
             for (var i = 0; i < element.attributes.length; i++) {
                 attr = element.attributes[i].name;
@@ -1148,25 +1259,32 @@ ContentSelector.prototype = {
         if (userAttr in listOfAttr) {
             attr = userAttr;
             attrValue = listOfAttr[attr]
-        } else if ("placeholder" in listOfAttr) {
+        } 
+        else if ("placeholder" in listOfAttr) {
             attr = "placeholder";
             attrValue = listOfAttr[attr]
-        } else if ("title" in listOfAttr) {
+        }
+        else if ("title" in listOfAttr) {
             attr = "title";
             attrValue = listOfAttr[attr]
-        } else if ("value" in listOfAttr) {
+        }
+        else if ("value" in listOfAttr) {
             attr = "value";
             attrValue = listOfAttr[attr]
-        } else if ("name" in listOfAttr) {
+        }
+        else if ("name" in listOfAttr) {
             attr = "name";
             attrValue = listOfAttr[attr]
-        } else if ("type" in listOfAttr) {
+        }
+        else if ("type" in listOfAttr) {
             attr = "type";
             attrValue = listOfAttr[attr]
-        } else if ("class" in listOfAttr) {
+        }
+        else if ("class" in listOfAttr) {
             attr = "class";
             attrValue = listOfAttr[attr]
-        } else {
+        }
+        else {
             attr = Object.keys(listOfAttr)[0];
             attrValue = listOfAttr[attr]
         }
@@ -1181,63 +1299,68 @@ ContentSelector.prototype = {
             if (attrValue.includes("'")) {
                 if (attrValue.charAt(0) === " " || attrValue.charAt(attrValue.length - 1) === " " || this.containsFlag) {
                     xpathWithAttribute = '//' + tagName + '[contains(@' + attr + ',"' + attrValue.trim() + '")]' + this.tempXpath
-                } else {
+                } 
+                else {
                   xpathWithAttribute = '//' + tagName + '[@' + attr + '="' + attrValue + '"]' + this.tempXpath
                 }
-            } else {
+            }
+            else {
                 if (attrValue.charAt(0) === " " || attrValue.charAt(attrValue.length - 1) === " " || this.containsFlag) {
                     xpathWithAttribute = '//' + tagName + "[contains(@" + attr + ",'" + attrValue.trim() + "')]" + this.tempXpath
-                } else {
+                } 
+                else {
                   xpathWithAttribute = '//' + tagName + "[@" + attr + "='" + attrValue + "']" + this.tempXpath
                 }
             }
             var totalMatch = _document.evaluate(xpathWithAttribute, _document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
+
             if (totalMatch === 1) {
                 if ((xpathWithAttribute.includes('@href') && !userAttr.includes("href")) || (xpathWithAttribute.includes('@src') && !userAttr.includes("src")) && innerText) {
+                    console.log('never 1211')
                     var containsXpath = '//' + tagName + containsText;
                     var totalMatch = _document.evaluate(containsXpath, _document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
                     if (totalMatch === 0) {
                         var equalsXpath = '//' + tagName + equalsText;
                         var totalMatch = _document.evaluate(equalsXpath, _document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
                         if (totalMatch === 1) {
-                            console.log('5555555')
+                            console.log(this.tempXpath)
                             return equalsXpath
                         }
-                    } else if (totalMatch === 1) {
-                        console.log('66666')
+                    } 
+                    else if (totalMatch === 1) {
+                        console.log(this.tempXpath)
                         return containsXpath
                     }
                 }
-                console.log('77777777')
+                console.log(this.tempXpath)
                 return xpathWithAttribute
             } 
             else if (innerText) {
+                console.log('never 1228')
                 var containsXpath = '//' + tagName + containsText;
                 var totalMatch = _document.evaluate(containsXpath, _document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
                 if (totalMatch === 0) {
                     var equalsXpath = '//' + tagName + equalsText;
                     var totalMatch = _document.evaluate(equalsXpath, _document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
                     if (totalMatch === 1) {
-                        console.log('8888888')
                         return equalsXpath
                     } else {
                         this.tempXpath = equalsXpath
                     }
-                } else if (totalMatch === 1) {
-                    console.log('999999')
+                } 
+                else if (totalMatch === 1) {
                     return containsXpath
-                } else {
+                } 
+                else {
                     containsXpath = xpathWithAttribute + containsText;
                     totalMatch = _document.evaluate(containsXpath, _document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
                     if (totalMatch === 0) {
                         var equalsXpath = xpathWithAttribute + equalsText;
                         var totalMatch = _document.evaluate(equalsXpath, _document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
                         if (totalMatch === 1) {
-                            console.log('101010')
                             return equalsXpath
                         }
                     } else if (totalMatch === 1) {
-                        console.log('11 11 11')
                         return containsXpath
                     } else if (attrValue.includes('/') || innerText.includes('/')) {
                         if (attrValue.includes('/')) {
@@ -1251,7 +1374,8 @@ ContentSelector.prototype = {
                         this.tempXpath = containsXpath
                     }
                 }
-            } else {
+            } 
+            else {
                 this.tempXpath = xpathWithAttribute;
                 if (attrValue.includes('/')) {
                     this.tempXpath = "//" + tagName + xpathWithoutAttribute
@@ -1259,17 +1383,17 @@ ContentSelector.prototype = {
             }
         } 
         else if (innerText) {
+            console.log('never 1275')
             var containsXpath = '//' + tagName + containsText;
             var totalMatch = _document.evaluate(containsXpath, _document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
             if (totalMatch === 0) {
                 var equalsXpath = '//' + tagName + equalsText;
                 var totalMatch = _document.evaluate(equalsXpath, _document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
                 if (totalMatch === 1) {
-                    console.log('12 12 12')
                     return equalsXpath
                 }
-            } else if (totalMatch === 1) {
-                console.log('13 13 13')
+            }
+            else if (totalMatch === 1) {
                 return containsXpath
             }
             this.tempXpath = containsXpath
@@ -1279,17 +1403,16 @@ ContentSelector.prototype = {
         }
     } 
     else if (attrValue == "" && innerText && !tagName.includes("script")) {
+        console.log('never 1295')
         var containsXpath = '//' + tagName + containsText + this.tempXpath;
         var totalMatch = _document.evaluate(containsXpath, _document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
         if (totalMatch === 0) {
             this.tempXpath = '//' + tagName + equalsText + this.tempXpath;
             var totalMatch = _document.evaluate(this.tempXpath, _document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
             if (totalMatch === 1) {
-                console.log('14 14 14')
                 return this.tempXpath
             }
         } else if (totalMatch === 1) {
-            console.log('15 15 15')
             return containsXpath
         } else {
             this.tempXpath = containsXpath
@@ -1305,19 +1428,18 @@ ContentSelector.prototype = {
         if (sibling === element) {
             this.indexes.push(ix + 1);
             this.tempXpath = this.formRelXpath(_document, element.parentNode);
-            if(typeof this.tempXpath == 'undefined'){
-              this.tempXpath = ""
-            }
-            //console.log(this.tempXpath)
+            //if(typeof this.tempXpath == 'undefined'){
+            //  this.tempXpath = ""
+            //}
             if (!this.tempXpath.includes("/")) {
-            //console.log('15 15 15')
                 return this.tempXpath
-            } else {
+            } 
+            else {
                 var totalMatch = _document.evaluate(this.tempXpath, _document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
                 if (totalMatch === 1) {
-            //console.log('15 15 15')
                     return this.tempXpath
-                } else {
+                } 
+                else {
                     this.tempXpath = "/" + this.tempXpath.replace(/\/\/+/g, '/');
                     var regSlas = /\/+/g;
                     var regBarces = /[^[\]]+(?=])/g;
@@ -1329,35 +1451,26 @@ ContentSelector.prototype = {
                             var lastTag = this.tempXpath.slice(this.matchIndex[this.matchIndex.length - 1]);
                             if ((match = regBarces.exec(lastTag)) != null) {
                                 lastTag = lastTag.replace(regBarces, this.indexes[j]).split("]")[0] + "]";
-                                //console.log(this.tempXpath)
                                 this.tempXpath = this.tempXpath.slice(0, this.matchIndex[this.matchIndex.length - 1]) + lastTag
-                                //console.log(this.tempXpath)
-                            } else {
-                                //console.log(this.tempXpath)
+                            } 
+                            else {
                                 this.tempXpath = this.tempXpath + "[" + this.indexes[j] + "]"
-                                //console.log(this.tempXpath)
                             }
-                        } else {
+                        } 
+                        else {
                             var lastTag = this.tempXpath.slice(this.matchIndex[this.matchIndex.length - (j + 1)], this.matchIndex[this.matchIndex.length - (j)]);
                             if ((match = regBarces.exec(lastTag)) != null) {
                                 lastTag = lastTag.replace(regBarces, this.indexes[j]);
-                                //console.log(this.tempXpath)
                                 this.tempXpath = this.tempXpath.slice(0, this.matchIndex[this.matchIndex.length - (j + 1)]) + lastTag + this.tempXpath.slice(this.matchIndex[this.matchIndex.length - j])
-                                //console.log(this.tempXpath)
-                            } else {
-                                //console.log(this.tempXpath)
-                                //console.log(this.matchIndex[this.matchIndex.length - j])
+                            } 
+                            else {
                                
                                 this.tempXpath = this.tempXpath.slice(0, this.matchIndex[this.matchIndex.length - j]) + "[" + this.indexes[j] + "]" + this.tempXpath.slice(this.matchIndex[this.matchIndex.length - j])
-                              
-                                //console.log(this.tempXpath)
                             }
                         }
-                        //console.log(this.tempXpath)
                         if (this.tempXpath[0] == '['){
                           this.tempXpath = this.tempXpath.slice(3)
                         }
-                        //console.log(this.tempXpath)
                         var totalMatch = _document.evaluate(this.tempXpath, _document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
                         if (totalMatch === 1) {
                             var regSlashContent = /([a-zA-Z])([^/]*)/g;
@@ -1382,6 +1495,7 @@ ContentSelector.prototype = {
                                     this.tempXpath = relXpath
                                 }
                             }
+                            console.log(this.tempXpath)
                             return this.tempXpath.replace('//html', '')
                         }
                     }
@@ -1927,7 +2041,8 @@ ContentSelector.prototype = {
           '<div id="collapse2" class="panel-collapse collapse" style="visibility: visible !important; overflow:visible !important">' +
             '<ul class="list-group">' +
               '<li class="list-group-item">You can choose from the following options</li>' +
-              '<li class="list-group-item clickable" style="background:#f3f3f3" id ="click-list">Modify the list of the elements</li>' +
+              '<li class="list-group-item clickable" style="background:#f3f3f3" id ="click-list">Modify the list of the elements (for link)</li>' +
+              '<li class="list-group-item clickable" style="background:#f3f3f3" id ="click-list4">Modify the list of the elements (for value)</li>' +
               '<li class="list-group-item clickable" style="background:#f3f3f3" id ="extract-element">Extract the element</li>' +
               '<li class="list-group-item clickable" style="background:#f3f3f3" id ="click-element">Click the element</li>' +
               '<li class="list-group-item clickable" style="background:#f3f3f3" id ="hover-element">Hover over the element</li>' +
@@ -1954,7 +2069,8 @@ ContentSelector.prototype = {
           '<div id="collapse5" class="panel-collapse collapse" style="visibility: visible !important; overflow:visible !important">' +
             '<ul class="list-group">' +
               '<li class="list-group-item">You can choose from the following options</li>' +
-              '<li class="list-group-item clickable" style="background:#f3f3f3" id ="click-list2">Modify the list of elements</li>' +
+              '<li class="list-group-item clickable" style="background:#f3f3f3" id ="click-list2">Modify the list of elements (for link)</li>' +
+              '<li class="list-group-item clickable" style="background:#f3f3f3" id ="click-list3">Modify the list of elements (for value)</li>' +
               '<li class="list-group-item clickable" style="background:#f3f3f3" id ="extract-list" > Extract all element in the list </li>' +
               '<li class="list-group-item clickable" style="background:#f3f3f3" id ="pagination"> Pagination </li>' +
               '<li class="list-group-item"><div class="row justify-content-center"><button type="button" id="cancel-otips5" class="btn btn-light" style="width:40%; float:center;text-transform: unset !important; background-color:#CCCCCC; min-width:40%">Cancel</button></div></li>' +
@@ -2167,13 +2283,55 @@ ContentSelector.prototype = {
       //this.unbindElementOperationTips()
       $(this.selectedElementOtips).addClass('-sitemap-select-item-selected');
 
+      this.bindElementSelectionOtipsList(true)
+		  //this.unbindElementHighlight();
+
+		}.bind(this));
+
+    $("#click-list4").click(function (e) {
+		  $("#collapse1").removeClass('in')
+		  $("#collapse2").removeClass('in')
+		  $("#collapse3").removeClass('in')
+		  $("#collapse4").addClass('in')
+		  $("#collapse5").removeClass('in')
+		  $("#collapse6").removeClass('in')
+		  //this.unbindElementSelection();
+      this.selectedElementOtipsList = []
+      
+      this.selectedElementOtipsList.push(this.selectedElementOtips)
+      console.log(this.selectedElementOtipsList)
+      //this.unbindElementOperationTips()
+      $(this.selectedElementOtips).addClass('-sitemap-select-item-selected');
+
       this.bindElementSelectionOtipsList()
 		  //this.unbindElementHighlight();
 
 		}.bind(this));
 
 
+
+
     $("#click-list2").click(function (e) {
+		  $("#collapse1").removeClass('in')
+		  $("#collapse2").removeClass('in')
+		  $("#collapse3").removeClass('in')
+		  $("#collapse4").removeClass('in')
+		  $("#collapse5").removeClass('in')
+		  $("#collapse6").addClass('in')
+		  this.unbindElementSelection();
+		  $(".-sitemap-select-item-selected").removeClass('-sitemap-select-item-selected');
+      console.log('1111111111111')
+      this.selectedElementOtipsList = []
+      //console.log(this.selectedElementOtipsList)
+      //this.unbindElementOperationTips()
+      this.bindElementHighlightOtips()
+      //this.unbindElementSelection() // click
+      this.bindElementSelectionOtipsListClickTwo(true)
+		  //this.unbindElementHighlight();
+
+		}.bind(this));
+
+    $("#click-list3").click(function (e) {
 		  $("#collapse1").removeClass('in')
 		  $("#collapse2").removeClass('in')
 		  $("#collapse3").removeClass('in')
@@ -2192,6 +2350,7 @@ ContentSelector.prototype = {
 		  //this.unbindElementHighlight();
 
 		}.bind(this));
+
 
 	},
 

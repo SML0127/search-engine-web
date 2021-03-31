@@ -185,6 +185,7 @@ class PIModal extends React.Component {
 
     componentDidMount(){
        //console.log(this.props)
+       this.getProductList(this.props.userId);
     }
     
     getSelectedCategory(selected_category){
@@ -192,7 +193,6 @@ class PIModal extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-      this.getProductList(this.props.userId);
       //this.loadUserProgram(nextProps);
     }
 

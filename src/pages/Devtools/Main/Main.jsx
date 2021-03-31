@@ -118,12 +118,33 @@ class CustomLink extends React.Component {
     }
   }
 
-  componentWillMount(){
-    this.loadCount();
-    this.loadLastupdate();
-    this.loadUrl();
-    this.loadCountry();
+  componentDidMount(){
+    this.loadJobInfo();
+    //this.loadCount();
+    //this.loadLastupdate();
+    //this.loadUrl();
+    //this.loadCountry();
   }
+
+
+  loadJobInfo() {
+    const obj = this;
+    axios.post(setting_server.DB_SERVER+'/api/db/job', {
+      req_type: "get_job_info",
+      job_id: obj.props.id
+    })
+    .then(function (response) {
+      if (response['data']['success'] == true) {
+        //(country, url, cnt_mpid, last_update)
+        obj.setState({count: response['data']['result'][2], lastUpdate: response['data']['result'][3], country: response['data']['result'][0], url: response['data']['result'][1]});
+      }
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
+
+
 
 
   loadCount() {
@@ -135,7 +156,6 @@ class CustomLink extends React.Component {
     .then(function (response) {
       if (response['data']['success'] == true) {
         obj.setState({count: response['data']['result'][0]});
-        // lastUpdate = response['data']['result'][0][1];
       }
     })
     .catch(function (error) {
@@ -155,11 +175,8 @@ class CustomLink extends React.Component {
           
         }
         else{
-          //console.log(obj.props.id)
-          //console.log(response['data']['result'][0])
           obj.setState({lastUpdate: response['data']['result'][0]});
         }
-        // lastUpdate = response['data']['result'][0][1];
       }
     })
     .catch(function (error) {
@@ -178,7 +195,6 @@ class CustomLink extends React.Component {
       if (response['data']['success'] == true) {
         obj.setState({country: response['data']['result'][0]});
       } else {
-        //console.log('get_url Failed');
       }
     })
     .catch(function (error) {

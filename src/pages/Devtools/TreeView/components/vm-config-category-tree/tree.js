@@ -167,10 +167,6 @@ class Tree extends Component {
       }
     }
 
-    componentWillReceiveProps(nextProps) {
-      if(this.props.refresh != nextProps.refresh){
-      }
-    }
 
     componentDidMount(){
       this.getRegisteredTargetSites();

@@ -18,6 +18,7 @@ class ReteGraph extends React.Component {
         //chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         //  console.log(request)
         //  console.log(components)
+        // replace gvar_editor to this.state.editor
         //  //addOperator(gvar_editor, request) 
         //});
     }

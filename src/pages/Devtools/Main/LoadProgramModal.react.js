@@ -17,13 +17,14 @@ class LoadProgramModal extends React.Component {
 
     
     componentDidMount(){
+      this.loadUserProgram();
       if(this.props.upid != null){
         this.setState({selectedProgramId :this.props.upid})
       }
     }
     
     componentWillReceiveProps(nextProps) {
-      this.loadUserProgram(nextProps);
+      //this.loadUserProgram(nextProps);
       if(this.props.upid != null){
         this.setState({selectedProgramId :this.props.upid})
       }
@@ -45,8 +46,9 @@ class LoadProgramModal extends React.Component {
         }
     }
 
-    loadUserProgram(nextProps) {
+    loadUserProgram() {
         var obj = this;
+        console.log(obj)
         axios.post(setting_server.DB_SERVER+'/api/db/userprogram', {
             req_type: "get_user_program",
             job_id: obj.props.jobId

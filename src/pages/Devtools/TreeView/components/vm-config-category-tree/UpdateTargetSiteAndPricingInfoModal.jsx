@@ -701,14 +701,14 @@ class UpdateTargetSiteAndPricingInfoModal extends React.Component {
     }
     
     componentWillReceiveProps(nextProps) {
-      console.log(this.props.selectedRegisteredTargetSiteId)
-      console.log('11111??????')
-      this.getTargetSites(this.props.userId);
+      //console.log(this.props.selectedRegisteredTargetSiteId)
+      //console.log('11111??????')
+      //this.getTargetSites(this.props.userId);
     }
 
   
     componentDidMount(){
-      console.log(this.props)
+      this.getTargetSites(this.props.userId);
       this.getExchangeRate()
       //this.getTargetSites(this.props.userId);
       this.getDeliveryCompanies();
