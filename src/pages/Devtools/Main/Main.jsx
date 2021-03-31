@@ -542,8 +542,8 @@ export default class Main extends React.Component {
         deleteJobModalShow: [],
         selectedTab: 'home',
         tabs: [
-          (<DTab key={"home"} title={'Home'} unclosable={true} {...this.makeListeners("home")}>
-            <HomeTab makeNewJob={this.makeNewJob.bind(this)} userId={this.props.userId} />
+          (<DTab key={"home"} url={''} title={'Home'} unclosable={true} {...this.makeListeners("home")}>
+            <HomeTab url={''} makeNewJob={this.makeNewJob.bind(this)} userId={this.props.userId} />
           </DTab>)
         ],
         temp: 0
@@ -575,11 +575,12 @@ export default class Main extends React.Component {
       let newTabs = this.state.tabs;
       const index = newTabs.findIndex((element) => element.key === "home");
       newTabs[index] = 
-        (<DTab key={"home"} title={'Home'} unclosable={true} {...this.makeListeners("home")}>
+        (<DTab key={"home"} url={''} title={'Home'} unclosable={true} {...this.makeListeners("home")}>
           <HomeTab
             makeNewJob={this.makeNewJob.bind(this)}
             userId={this.props.userId}
             parentId={param.selectedGroupId}
+            url={''}
           />
         </DTab>);
       this.setState({
@@ -651,7 +652,7 @@ export default class Main extends React.Component {
           return tab.key;
         });
         const newTab = (
-          <DTab key={jobId} title={jobLabel} {...obj.makeListeners(jobId)}>
+          <DTab key={jobId} url={url} title={jobLabel} {...obj.makeListeners(jobId, '', url)}>
             <JobTab jobId={jobId} url={url} userId = {obj.props.userId} is_dev = {obj.props.is_dev}  />
           </DTab>
         );
@@ -670,9 +671,36 @@ export default class Main extends React.Component {
     });
   }
 
-  handleTabSelect(e, key, currentTabs) {
+  handleTabSelect(e, key, url) {
     console.log('handleTabSelect key:', key);
+    console.log(url)
     this.setState({selectedTab: key});
+    if (url instanceof Array){
+      console.log(url)         
+      console.log(url[url.length - 1])         
+      console.log(url[url.length - 1]['props'])         
+      console.log(url[url.length - 1]['props']['url'])         
+      if (url[url.length - 1]['props']['url'] != null){
+        chrome.tabs.update({url: url[url.length - 1]['props']['url'], 'active': true}, function(tab) {
+          console.log('tab select')
+          console.log(url)
+          //console.log(tab['id'])
+          //g_tab_id = tab.id
+          //g_window_id = tab.windowId
+        });
+      }
+    }
+    else{
+      if (url != '' && url != null){
+        chrome.tabs.update({url: url, 'active': true}, function(tab) {
+          console.log('tab select')
+          console.log(url)
+          //console.log(tab['id'])
+          //g_tab_id = tab.id
+          //g_window_id = tab.windowId
+        });
+      }
+    }
   }
   
   handleTabClose(e, key, currentTabs) {
@@ -686,9 +714,9 @@ export default class Main extends React.Component {
     console.log('currentTabs: ', currentTabs);
     this.setState({tabs: currentTabs});
   }
-  makeListeners(key){
+  makeListeners(key, currentTab = '', url = ''){
     return {
-      onClick: (e) => {this.handleTabSelect(e, key)}, // never called
+      onClick: (e) => {this.handleTabSelect(e, key, url)}, 
       // onContextMenu: (e) => { console.log('onContextMenu', key, e); this.handleTabContextMenu(key, e)},
       // onDoubleClick: (e) => { console.log('onDoubleClick', key, e); this.handleTabDoubleClick(key, e)},
     }
@@ -751,7 +779,7 @@ export default class Main extends React.Component {
     });
     if (!currentKeys.includes(jobId)) {
       const newTab = (
-      <DTab key={jobId} title={jobLabel} {...this.makeListeners(jobId)}>
+      <DTab key={jobId} url = {url} title={jobLabel} {...this.makeListeners(jobId, '', url)}>
         <JobTab jobId={jobId} url={url} userId = {this.props.userId} is_dev = {this.props.is_dev}  />
         </DTab>
       );
@@ -760,7 +788,12 @@ export default class Main extends React.Component {
           tabs: newTabs,
           selectedTab: jobId
       });
-    } else {
+    } 
+    else {
+      chrome.tabs.update({url: url, 'active': true}, function(tab) {
+        console.log('tab select')
+        console.log(url)
+      });
       this.setState({
         selectedTab: jobId
       });

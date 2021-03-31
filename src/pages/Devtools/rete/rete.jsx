@@ -440,12 +440,9 @@ function createNotification(type){
 
 
 export async function addOperator(editor, req) {
-  console.log('Starrt addOperator')
-  console.log(editor)
-  console.log(editor.nodes)
-  let ops = editor.nodes
+  console.log('Add Operator')
   let len = Object.keys(editor.nodes).length
-  //console.log(len)
+  console.log(len)
   let last_node
   for (var idx = 0; idx < len; idx++) {
     editor.nodes[idx].outputs.forEach((value, key, mapObject) => {

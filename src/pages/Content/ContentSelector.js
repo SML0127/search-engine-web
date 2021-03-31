@@ -2060,7 +2060,7 @@ ContentSelector.prototype = {
           '<div id="collapse4" class="panel-collapse collapse" style="visibility: visible !important; overflow:visible !important">' +
             '<ul class="list-group">' +
               '<li class="list-group-item">Please follow the steps below</li>' +
-              '<li class="list-group-item" style="background:#f3f3f3" id ="extract-element">Click the list of the elements</li>' +
+              '<li class="list-group-item" style="background:#f3f3f3" >Click the list of the elements</li>' +
               '<li class="list-group-item" style="background:#f3f3f3; color:#999999" >(Done) Step 1: Click an element </li>' +
               '<li class="list-group-item" style="background:#f3f3f3" > Step 2: Click another slimilar element </li>' +
               '<li class="list-group-item"><div class="row justify-content-center"><button type="button" id="cancel-otips4" class="btn btn-light" style="width:40%; float:center;text-transform: unset !important; background-color:#CCCCCC; min-width:40%">Cancel</button></div></li>' +

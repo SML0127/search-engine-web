@@ -40,7 +40,21 @@ let g_document = document;
 let g_call_otips = false;
 let g_tab_id = -1;
 let g_window_id = -1;
-
+chrome.tabs.onUpdated.addListener(function(tabid, info, tab) {
+  if (info.status == "complete") {
+    console.log(g_tab_id)
+    console.log(tabid)
+    if (g_call_otips == false && g_tab_id == tabid){
+      console.log(tab)
+      chrome.windows.update(g_window_id, {'focused': true}, function (window) {  chrome.tabs.update(tabid, { 'active': true }, (tab) => { g_document.getElementById("otips").click()}) })
+      g_call_otips = true;
+    }
+    return;
+  }
+  else{
+    g_call_otips = false;
+  }
+});
 class JobTab extends React.Component {
 
     constructor(props) {
@@ -144,26 +158,15 @@ class JobTab extends React.Component {
 
     updateChromeTab(url) {
       if (!url.match(/^https?:\/\//i)) {
-        //chrome.tabs.update({url: 'http://'+ url})
-
         chrome.tabs.update({url: 'http://'+ url, 'active': true}, function(tab) {
-          console.log('click after? 0')
-          console.log(tab)
-          console.log(tab['id'])
           g_tab_id = tab.id
           g_window_id = tab.windowId
-          //setTimeout(() =>{ console.log("after");  console.log(g_document);g_document.getElementById("otips").click();console.log("?????");g_document.getElementById("otips").click();} , 10000)
         });
       }
       else{
-        //chrome.tabs.update({url: url});
         chrome.tabs.update({url: url, 'active': true}, function(tab) {
-          console.log('click after? 1')
-          console.log(tab)
-          console.log(tab['id'])
           g_tab_id = tab.id
           g_window_id = tab.windowId
-          //setTimeout(() =>{ console.log("after");  console.log(g_document);g_document.getElementById("otips").click();console.log("?????");g_document.getElementById("otips").click();} , 10000)
         });
       }
     }
@@ -201,7 +204,7 @@ class JobTab extends React.Component {
         job_id: obj.props.jobId,
       })
       .then(function (response) {
-        console.log(response['data'])
+        //console.log(response['data'])
         if (response['data']['success'] == true) {
          
         } else {
@@ -260,9 +263,11 @@ class JobTab extends React.Component {
                  
                  if (url != null){
                    // only for chrome extension
+                   g_document.getElementById("unbind-otips").click()
                    obj.updateChromeTab(url)
                  }
                  else{
+                   g_document.getElementById("unbind-otips").click()
                    obj.updateChromeTab(obj.props.url)
                  }
 
@@ -605,55 +610,12 @@ class JobTab extends React.Component {
     }
 
     componentDidMount(){
-      //g_document.getElementById("otips").click();
-      chrome.tabs.onUpdated.addListener(function(tabid, info, tab) {
-        if (info.status == "complete") {
-          console.log(g_tab_id)
-          console.log(tabid)
-          if (g_call_otips == false && g_tab_id == tabid){
-            console.log(tab)
-            chrome.windows.update(g_window_id, {'focused': true}, function (window) {  chrome.tabs.update(tabid, { 'active': true }, (tab) => { g_document.getElementById("otips").click()}) })
-            //chrome.tabs.update(tabid, { 'active': true }, (tab) => { g_document.getElementById("otips").click()});
-            //g_document.getElementById("otips").click();
-            g_call_otips = true;
-          }
-          return;
-        }
-        else{
-          g_call_otips = false;
-        }
-      });
       this.loadRecentProgram()
-
     }
 
-    handleTabSelect(e, key, currentTabs) {
-        console.log('handleTabSelect key:', key);
-        this.setState({selectedTab: key});
-    }
-
-    handleTabClose(e, key, currentTabs) {
-        console.log('tabClosed key:', key);
-        this.setState({tabs: currentTabs});
-    }
-
-    handleTabPositionChange(e, key, currentTabs) {
-        console.log('tabPositionChanged key:', key);
-        this.setState({tabs: currentTabs});
-    }
-
-    makeListeners(key){
-        return {
-onClick: (e) => { console.log('onClick', key, e);}, // never called
-             onContextMenu: (e) => { console.log('onContextMenu', key, e); this.handleTabContextMenu(key, e)},
-             onDoubleClick: (e) => { console.log('onDoubleClick', key, e); this.handleTabDoubleClick(key, e)},
-        }
-    }
     getSelectedCategory(selected_category){
       this.setState({selected_category: selected_category})
     }
-
-
 
     getOperatorAndProps(operator, id, options, edges){
         var op
@@ -925,7 +887,7 @@ onClick: (e) => { console.log('onClick', key, e);}, // never called
                     </Button>
 		            </div>
                 <div id="edit-selector" style={{float:"left", width:'100%'}}>
-		            	  <Button color="secondary" action='unbind-otips' type="button"  style={{width:'10%'}}>
+		            	  <Button  id="unbind-otips" color="secondary" action='unbind-otips' type="button"  style={{width:'10%'}}>
                       Hide Opeartion tips
                     </Button>
 		            </div>
