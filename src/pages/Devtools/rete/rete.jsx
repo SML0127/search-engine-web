@@ -443,8 +443,10 @@ export async function addOperator(editor, req) {
   console.log('Add Operator')
   let len = Object.keys(editor.nodes).length
   console.log(len)
+  console.log(editor.nodes)
   let last_node
   for (var idx = 0; idx < len; idx++) {
+    console.log(editor.nodes[idx])
     editor.nodes[idx].outputs.forEach((value, key, mapObject) => {
       if(editor.nodes[idx].name == "Expander"){
         if(key == 'toDown'){
@@ -561,5 +563,4 @@ export async function addOperator(editor, req) {
 }
 
 //const components = [new OpenURLComponent(), new ExpanderComponent(), new BFSIteratorComponent(), new ValuesScrapperComponent(), new ListsScrapperComponent(), new DictionariesScrapperComponent(), new ClickOperatorComponent(), new InputOperatorComponent(), new WaitOperatorComponent(), new ScrollOperatorComponent(), new BranchOperatorComponent(), new HoverOperatorComponent() ];
-
 export default components;

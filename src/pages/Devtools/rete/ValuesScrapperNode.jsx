@@ -38,8 +38,8 @@ export class ValuesScrapperNode extends Node {
         rows[idx][name] = value
         this.setState({ rows: rows })
     };
-
-
+    
+    
     handleChangeAttr(idx, value) {
       const rows = [...this.state.rows];
       rows[idx]['col_attr'] =  value

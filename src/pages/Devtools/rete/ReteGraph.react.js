@@ -3,17 +3,29 @@ import Rete from "rete";
 import { createEditor } from "./rete";
 import { updateEditor } from "./rete";
 import { addOperator } from "./rete";
-import components from "./rete";
+import global_editors from "./GlobalEditors.react";
 import "./styles.css";
 
-var gvar_editor = {} // editor
-var gvar_editor_index = {} // job_id: gvar editor index
-var gvar_job_id = -1 // job_id: gvar editor index
+let gvar_job_id = -1 // job_id: gvar editor index
+let gvar_editor = {} // job_id: gvar editor index
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
   console.log(request)
-  console.log(components)
   if(request['action'] != null){
-    addOperator(gvar_editor[gvar_job_id], request) 
+    console.log('ACTION')
+    console.log(global_editors)
+    if (global_editors[gvar_job_id] != null ){
+      console.log('222222222')
+      addOperator(global_editors[gvar_job_id], request) 
+    }
+    else{
+      console.log('333333333')
+    }
+  }
+  else if(request['gvar_job_id'] != null){
+    console.log('SELECT')
+    gvar_job_id = String(request['gvar_job_id'])
+
   }
 });
 class ReteGraph extends React.Component {
@@ -33,12 +45,14 @@ class ReteGraph extends React.Component {
 
     createE(ref){
         if(this.state.is_created == false){
-            gvar_editor[this.props.job_id] = new Rete.NodeEditor("work-flow@1.0.0", ref);
-            createEditor(ref, gvar_editor[this.props.job_id], this.props.saveGraphData, this.props.editor, this.props.job_id)
+            global_editors[this.props.job_id] = new Rete.NodeEditor("work-flow@1.0.0", ref);
+            console.log('77777777777777777777')
+            let job_id = String(this.props.job_id)
+            createEditor(ref, global_editors[this.props.job_id], this.props.saveGraphData, this.props.editor, this.props.job_id)
             this.state.is_created = true
         }
         else{
-            updateEditor(gvar_editor[this.props.job_id], this.props.saveGraphData, this.props.editor, this.props.job_id)
+            updateEditor(global_editors[this.props.job_id], this.props.saveGraphData, this.props.editor, this.props.job_id)
         }
     }
 
@@ -47,19 +61,18 @@ class ReteGraph extends React.Component {
     }
 
     componentDidMount(){
+      console.log(this.props.job_id)
+      gvar_job_id = this.props.job_id
     }
   
     componentWillReceiveProps(props){
         if(props.refresh != this.state.refresh){
             console.log("refresh")
             //this.state.editor.clear()
-            gvar_editor[this.props.job_id].clear()
+            global_editors[this.props.job_id].clear()
             this.state.refresh = props.refresh
             this.forceUpdate()
-            //console.log(props)
-            //console.log(this.props.job_id)
-            gvar_job_id = this.props.job_id
-
+            //gvar_job_id = this.props.job_id
         }
     }
 

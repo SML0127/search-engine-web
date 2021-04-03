@@ -16,7 +16,15 @@ export class OpenURLNode extends Node {
         }
         this.updateState()
     }
-    
+
+
+    checkBFSIter(){
+      console.log(this.props.node.data['url'])
+      chrome.tabs.update({url: this.props.node.data['url'], 'active': true}, function(tab) {})
+    }
+
+
+
     updateState(){
         if(Object.keys(this.props.node.data).length >= 1){
             //console.log(this.props.node.data)
@@ -54,7 +62,11 @@ export class OpenURLNode extends Node {
                 />
                 </div>
         ))}
-
+		    <Button color="secondary" type="button"  style={{width:'80%'}}
+          onClick = {()=> this.checkBFSIter()}
+        >
+           TEST
+        </Button>
         <Modal
             {...this.props}
             show={this.state.modalShow}

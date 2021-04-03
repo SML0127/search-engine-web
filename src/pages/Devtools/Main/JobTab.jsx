@@ -157,6 +157,7 @@ class JobTab extends React.Component {
 
 
     updateChromeTab(url) {
+      document.getElementById("unbind-otips").click();
       if (!url.match(/^https?:\/\//i)) {
         chrome.tabs.update({url: 'http://'+ url, 'active': true}, function(tab) {
           g_tab_id = tab.id
@@ -263,11 +264,9 @@ class JobTab extends React.Component {
                  
                  if (url != null){
                    // only for chrome extension
-                   g_document.getElementById("unbind-otips").click()
                    obj.updateChromeTab(url)
                  }
                  else{
-                   g_document.getElementById("unbind-otips").click()
                    obj.updateChromeTab(obj.props.url)
                  }
 
@@ -302,7 +301,6 @@ class JobTab extends React.Component {
           if(key == "ops")
               continue
           if (obj[key] === null || obj[key] === undefined || obj[key] == "") {
-              console.log(key)
               delete obj[key];
           }
         }
@@ -336,7 +334,6 @@ class JobTab extends React.Component {
         if(operator[cur_nodeId] == "OpenURL"){
             ops = {
               'id': open_url_id,
-              //'id': id,
               'name': "OpenURL",
               'label': g_label,
               'query': options[cur_nodeId]['query'],
@@ -347,8 +344,8 @@ class JobTab extends React.Component {
             }
             g_label += 1
             this.removeEmpty(ops)
-            console.log(edges[cur_nodeId])
-            console.log(typeof edges[cur_nodeId] == 'undefined')
+            //console.log(edges[cur_nodeId])
+            //console.log(typeof edges[cur_nodeId] == 'undefined')
             if( typeof edges[cur_nodeId] != 'undefined'){
                cur_nodeId = edges[cur_nodeId][0]
             }
@@ -358,13 +355,11 @@ class JobTab extends React.Component {
                return;
             }
         }
-       
-      
      
         let is_right_exist = true;
         do{
             var op
-            op = this.getOperatorAndProps(operator[cur_nodeId], cur_nodeId, options[cur_nodeId], edges)
+            op = this.getOperatorAndProps(operator[cur_nodeId], cur_nodeId, options[cur_nodeId], edges, open_url)
             op['workflow_data'] = node_of_workflow[cur_nodeId]
             ops['ops'].push(op)
             is_right_exist = (typeof edges[cur_nodeId] != 'undefined')
@@ -377,20 +372,74 @@ class JobTab extends React.Component {
         user_program['ops'].push(ops)
         let BFSIteratorsDict = {}
         // second or deeper level
+        let prev_query = null
+        let prev_attr = null
+        let prev_pre = null
+        let prev_suf = null
+        let prev_attr_del = null
+        let prev_attr_idx = null
         for(let idx in BFSIteratorNodeIds){
           cur_nodeId = BFSIteratorNodeIds[idx];
           var operators = []
           var ops = {}
-
           var cur_level_bfsiterator_nodeId = cur_nodeId
           let is_right_exist = true;
           let sameLevelOps = []
           let is_prev_has_sub = false;
           let depth = 0;
           do{
+
               if(operator[cur_nodeId] != "CloseNode"){
-                var op = this.getOperatorAndProps(operator[cur_nodeId], cur_nodeId, options[cur_nodeId], edges)
-                op['workflow_data'] = node_of_workflow[cur_nodeId]
+                var op = this.getOperatorAndProps(operator[cur_nodeId], cur_nodeId, options[cur_nodeId], edges, open_url)
+                if(operator[cur_nodeId] == "BFSIterator"){
+                  console.log(node_of_workflow[cur_nodeId]['data'])
+                  //console.log(node_of_workflow[cur_nodeId]['data']['rows'].length == 0)
+                  if (node_of_workflow[cur_nodeId]['data']['rows'] != null){
+                    if (node_of_workflow[cur_nodeId]['data']['rows'].length != 0){
+                      let init = node_of_workflow[cur_nodeId]['data']['rows'][0]['initial']
+                      let url_query = node_of_workflow[cur_nodeId]['data']['rows'][0]['query']
+                      //console.log(init)
+                      //console.log(url_query)
+                      open_url = open_url + url_query.replace(url_query.split('=')[1], init)
+                    }
+                  }
+                  console.log('@@@@@@@@@@11111111@@@@@@')
+                  console.log(prev_query)
+                  if (prev_query != null){
+                    node_of_workflow[cur_nodeId]['data']['prev_query'] = prev_query
+                    node_of_workflow[cur_nodeId]['data']['prev_attr'] = prev_attr
+                    node_of_workflow[cur_nodeId]['data']['prev_pre'] = prev_pre
+                    node_of_workflow[cur_nodeId]['data']['prev_suf'] = prev_suf
+                    node_of_workflow[cur_nodeId]['data']['prev_attr_del'] = prev_attr_del
+                    node_of_workflow[cur_nodeId]['data']['prev_attr_idx'] = prev_attr_idx
+                    prev_query = null
+                    prev_attr = null
+                    prev_pre = null
+                    prev_suf = null
+                    prev_attr_del = null
+                    prev_attr_idx = null
+                  }
+                  node_of_workflow[cur_nodeId]['data']['open_url'] = open_url
+                  op['workflow_data'] = node_of_workflow[cur_nodeId]
+                }
+                else if (operator[cur_nodeId] == "Expander"){
+                  console.log(node_of_workflow[cur_nodeId]['data'])
+                  console.log(node_of_workflow[cur_nodeId]['data']['query'])
+                  if (node_of_workflow[cur_nodeId]['data']['query'] != null){
+                    console.log(node_of_workflow[cur_nodeId]['data']['query'])
+                    prev_query = node_of_workflow[cur_nodeId]['data']['query']
+                    prev_attr = node_of_workflow[cur_nodeId]['data']['attribute']
+                    prev_pre = node_of_workflow[cur_nodeId]['data']['prefix']
+                    prev_suf = node_of_workflow[cur_nodeId]['data']['suffix']
+                    prev_attr_del = node_of_workflow[cur_nodeId]['data']['attr_delimiter']
+                    prev_attr_idx = node_of_workflow[cur_nodeId]['data']['attr_idx']
+                  }
+                  console.log(prev_query)
+                  op['workflow_data'] = node_of_workflow[cur_nodeId]
+                }
+                else{
+                  op['workflow_data'] = node_of_workflow[cur_nodeId]
+                }
                 if(depth == 0){
                   sameLevelOps.push(op)
                 }
@@ -437,6 +486,8 @@ class JobTab extends React.Component {
     drawWorkflow(user_program, upid, upid_title){
         var tmp = this.state.refresh
         g_user_program = user_program
+        console.log('draw work flow')
+        console.log(upid)
         this.setState({
           refresh:++tmp, 
           dataDB: JSON.stringify(user_program['dataDb'], null, 2), 
@@ -494,6 +545,7 @@ class JobTab extends React.Component {
     updateProgram(site, category, projectId){
       var obj = this;
       this.workflowToUserProgram();
+
       axios.post(setting_server.DB_SERVER+'/api/db/userprogram', {
         req_type: "update_user_program",
         program: JSON.stringify(g_user_program),
@@ -617,7 +669,7 @@ class JobTab extends React.Component {
       this.setState({selected_category: selected_category})
     }
 
-    getOperatorAndProps(operator, id, options, edges){
+    getOperatorAndProps(operator, id, options, edges, open_url){
         var op
         switch(operator) {
             case "Wait":
@@ -712,6 +764,7 @@ class JobTab extends React.Component {
                    'ops':[]
                 }
                 g_label += 1
+                console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 this.removeEmpty(op)
                 break;
             case "ClickOperator":

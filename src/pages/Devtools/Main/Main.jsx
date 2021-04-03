@@ -21,8 +21,7 @@ import ScheduleTab from './ScheduleTab';
 import WorkerTab from './WorkerTab';
 import './style.css';
 import setting_server from '../setting_server';
-
-
+import global_editors from "../rete/GlobalEditors.react";
 //import SideNav, { Toggle, Nav, NavItem, NavIcon, NavText } from '@trendmicro/react-sidenav';
 // Be sure to include styles at some point, probably during your bootstraping
 //import '@trendmicro/react-sidenav/dist/react-sidenav.css';
@@ -51,7 +50,6 @@ import { AlertHeading } from "react-bootstrap/Alert";
 
 
 var gUserId = -1 
-
 class CustomLink extends React.Component {
   constructor() {
     super(); 
@@ -673,31 +671,21 @@ export default class Main extends React.Component {
 
   handleTabSelect(e, key, url) {
     console.log('handleTabSelect key:', key);
-    console.log(url)
+    console.log(global_editors)
     this.setState({selectedTab: key});
     if (url instanceof Array){
-      console.log(url)         
-      console.log(url[url.length - 1])         
-      console.log(url[url.length - 1]['props'])         
-      console.log(url[url.length - 1]['props']['url'])         
       if (url[url.length - 1]['props']['url'] != null){
         chrome.tabs.update({url: url[url.length - 1]['props']['url'], 'active': true}, function(tab) {
-          console.log('tab select')
-          console.log(url)
-          //console.log(tab['id'])
-          //g_tab_id = tab.id
-          //g_window_id = tab.windowId
+          chrome.runtime.sendMessage({gvar_job_id:key, editors:global_editors}, function (response) {
+          }.bind(this));
         });
       }
     }
     else{
       if (url != '' && url != null){
         chrome.tabs.update({url: url, 'active': true}, function(tab) {
-          console.log('tab select')
-          console.log(url)
-          //console.log(tab['id'])
-          //g_tab_id = tab.id
-          //g_window_id = tab.windowId
+          chrome.runtime.sendMessage({gvar_job_id:key, editors:global_editors}, function (response) {
+          }.bind(this));
         });
       }
     }
@@ -792,7 +780,8 @@ export default class Main extends React.Component {
     else {
       chrome.tabs.update({url: url, 'active': true}, function(tab) {
         console.log('tab select')
-        console.log(url)
+        chrome.runtime.sendMessage({gvar_job_id:jobId, editors:global_editors}, function (response) {
+        }.bind(this));
       });
       this.setState({
         selectedTab: jobId

@@ -49,7 +49,10 @@ export class ExpanderNode extends Node {
       this.setState({matchSelf : !this.state.matchSelf})
     }
 
-
+    checkBFSIter(){
+      console.log(this.state)
+      console.log(this.state.open_url)
+    }
 
 
     render() {
@@ -81,9 +84,6 @@ export class ExpanderNode extends Node {
                 ))}
                 </div>
 
-		            <Button color="secondary" type="button"  style={{width:'80%'}}>
-                   TEST
-                </Button>
                 <div>
                 {/* Inputs */}
                 {inputs.map(input => (

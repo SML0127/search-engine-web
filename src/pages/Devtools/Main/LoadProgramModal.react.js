@@ -48,6 +48,7 @@ class LoadProgramModal extends React.Component {
 
     loadUserProgram() {
         var obj = this;
+        console.log('load user program')
         console.log(obj)
         axios.post(setting_server.DB_SERVER+'/api/db/userprogram', {
             req_type: "get_user_program",
@@ -161,6 +162,8 @@ class LoadProgramModal extends React.Component {
                 onClick={(obj) => {
 
                     this.props.drawWorkflow(this.state.programs_info[this.state.selectedProgramIndex][3], this.state.programs_info[this.state.selectedProgramIndex][0], this.state.programs_info[this.state.selectedProgramIndex][1])
+
+                    console.log(this.state.programs_info[this.state.selectedProgramIndex][0])
                     this.closeModal();
                 }}
               >

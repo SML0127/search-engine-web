@@ -1,7 +1,7 @@
 {
   "name": "PSE(197.35)",
   "devtools_page": "pse-extension.html",
-  "permissions": ["<all_urls>", "tabs", "notifications", "downloads", "webNavigation"],
+  "permissions": ["<all_urls>", "tabs", "notifications", "downloads", "webNavigation", "unlimitedStorage"],
   "content_scripts": [{
     "matches": ["http://*/*", "https://*/*", "<all_urls>"],
     "js":[
