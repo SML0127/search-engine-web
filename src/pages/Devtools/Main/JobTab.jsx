@@ -42,10 +42,10 @@ let g_tab_id = -1;
 let g_window_id = -1;
 chrome.tabs.onUpdated.addListener(function(tabid, info, tab) {
   if (info.status == "complete") {
-    console.log(g_tab_id)
-    console.log(tabid)
+    //console.log(g_tab_id)
+    //console.log(tabid)
     if (g_call_otips == false && g_tab_id == tabid){
-      console.log(tab)
+      //console.log(tab)
       chrome.windows.update(g_window_id, {'focused': true}, function (window) {  chrome.tabs.update(tabid, { 'active': true }, (tab) => { g_document.getElementById("otips").click()}) })
       g_call_otips = true;
     }
@@ -278,7 +278,6 @@ class JobTab extends React.Component {
                    upid_title: upid_title,
                    nodes: user_program['object_tree']
                  })
-                 console.log(upid)
                  //setTimeout(() =>{ console.log("after"), obj.handleClick()} , 10000)
                  //document.getElementById("otips").click();
 
@@ -392,7 +391,7 @@ class JobTab extends React.Component {
               if(operator[cur_nodeId] != "CloseNode"){
                 var op = this.getOperatorAndProps(operator[cur_nodeId], cur_nodeId, options[cur_nodeId], edges, open_url)
                 if(operator[cur_nodeId] == "BFSIterator"){
-                  console.log(node_of_workflow[cur_nodeId]['data'])
+                  //console.log(node_of_workflow[cur_nodeId]['data'])
                   //console.log(node_of_workflow[cur_nodeId]['data']['rows'].length == 0)
                   if (node_of_workflow[cur_nodeId]['data']['rows'] != null){
                     if (node_of_workflow[cur_nodeId]['data']['rows'].length != 0){
@@ -403,8 +402,8 @@ class JobTab extends React.Component {
                       open_url = open_url + url_query.replace(url_query.split('=')[1], init)
                     }
                   }
-                  console.log('@@@@@@@@@@11111111@@@@@@')
-                  console.log(prev_query)
+                  //console.log('@@@@@@@@@@11111111@@@@@@')
+                  //console.log(prev_query)
                   if (prev_query != null){
                     node_of_workflow[cur_nodeId]['data']['prev_query'] = prev_query
                     node_of_workflow[cur_nodeId]['data']['prev_attr'] = prev_attr
@@ -423,10 +422,10 @@ class JobTab extends React.Component {
                   op['workflow_data'] = node_of_workflow[cur_nodeId]
                 }
                 else if (operator[cur_nodeId] == "Expander"){
-                  console.log(node_of_workflow[cur_nodeId]['data'])
-                  console.log(node_of_workflow[cur_nodeId]['data']['query'])
+                  //console.log(node_of_workflow[cur_nodeId]['data'])
+                  //console.log(node_of_workflow[cur_nodeId]['data']['query'])
                   if (node_of_workflow[cur_nodeId]['data']['query'] != null){
-                    console.log(node_of_workflow[cur_nodeId]['data']['query'])
+                    //console.log(node_of_workflow[cur_nodeId]['data']['query'])
                     prev_query = node_of_workflow[cur_nodeId]['data']['query']
                     prev_attr = node_of_workflow[cur_nodeId]['data']['attribute']
                     prev_pre = node_of_workflow[cur_nodeId]['data']['prefix']
@@ -434,7 +433,7 @@ class JobTab extends React.Component {
                     prev_attr_del = node_of_workflow[cur_nodeId]['data']['attr_delimiter']
                     prev_attr_idx = node_of_workflow[cur_nodeId]['data']['attr_idx']
                   }
-                  console.log(prev_query)
+                  //console.log(prev_query)
                   op['workflow_data'] = node_of_workflow[cur_nodeId]
                 }
                 else{
@@ -581,7 +580,6 @@ class JobTab extends React.Component {
     }
 
     refreshList() {
-      console.log('refresh list')
       const obj = this;
       axios.post(setting_server.DB_SERVER+'/api/db/executions', {
         req_type: "get_executions",

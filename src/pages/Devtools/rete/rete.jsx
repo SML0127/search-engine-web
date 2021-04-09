@@ -440,13 +440,9 @@ function createNotification(type){
 
 
 export async function addOperator(editor, req) {
-  console.log('Add Operator')
   let len = Object.keys(editor.nodes).length
-  console.log(len)
-  console.log(editor.nodes)
   let last_node
   for (var idx = 0; idx < len; idx++) {
-    console.log(editor.nodes[idx])
     editor.nodes[idx].outputs.forEach((value, key, mapObject) => {
       if(editor.nodes[idx].name == "Expander"){
         if(key == 'toDown'){
@@ -467,7 +463,7 @@ export async function addOperator(editor, req) {
       //console.log('---------------')
     });
   }
-  console.log(last_node)
+  //console.log(last_node)
   if(req.action == 'click'){
     const node = await components[6].createNode()
     node.data = {'rows':[{'col_query': req.xpath, 'col_delay': 5, 'col_repeat':false}]}
@@ -559,7 +555,6 @@ export async function addOperator(editor, req) {
     editor.addNode(bfsiter_node2)
     editor.connect(expander_node2.outputs.get('toDown'), bfsiter_node2.inputs.get('fromLeft'));
   }
-  console.log('------------------')
 }
 
 //const components = [new OpenURLComponent(), new ExpanderComponent(), new BFSIteratorComponent(), new ValuesScrapperComponent(), new ListsScrapperComponent(), new DictionariesScrapperComponent(), new ClickOperatorComponent(), new InputOperatorComponent(), new WaitOperatorComponent(), new ScrollOperatorComponent(), new BranchOperatorComponent(), new HoverOperatorComponent() ];

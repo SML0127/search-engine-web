@@ -21,10 +21,6 @@ import ScheduleTab from './ScheduleTab';
 import WorkerTab from './WorkerTab';
 import './style.css';
 import setting_server from '../setting_server';
-import global_editors from "../rete/GlobalEditors.react";
-//import SideNav, { Toggle, Nav, NavItem, NavIcon, NavText } from '@trendmicro/react-sidenav';
-// Be sure to include styles at some point, probably during your bootstraping
-//import '@trendmicro/react-sidenav/dist/react-sidenav.css';
 import JobConfigModal from "./JobConfigModal.react";
 import VMModal from "./VMModal.react";
 import PIModal from "./PIModal.react";
@@ -47,6 +43,23 @@ import Tooltip from 'react-bootstrap/Tooltip'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import { SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION } from "constants";
 import { AlertHeading } from "react-bootstrap/Alert";
+import { addOperator } from "../rete/rete";
+import global_editors from "../rete/GlobalEditors.react";
+
+let gvar_job_id = -1 // job_id: gvar editor index
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  //console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+  //console.log(request)
+  //console.log(gvar_job_id)
+  if(request['action'] != null){
+    //console.log('ACTION')
+    //console.log(global_editors)
+    if (global_editors[gvar_job_id] != null ){
+      //console.log('222222222')
+      addOperator(global_editors[gvar_job_id], request) 
+    }
+  }
+});
 
 
 var gUserId = -1 
@@ -628,7 +641,6 @@ export default class Main extends React.Component {
       site: site
     })
     .then(function (response) {
-      console.log(response)
       if (response['data']['success'] == true) {
         const jobId = String(response['data']['result'][0]);
         const jobLabel = response['data']['result'][1];
@@ -643,7 +655,6 @@ export default class Main extends React.Component {
           lastUpdate: today.getFullYear()+'-'+String(parseInt(today.getMonth()+1)).padStart(2, "0")+'-' +today.getDate()
         };
         
-        console.log(today.getFullYear()+'-'+String(parseInt(today.getMonth()+1)).padStart(2, "0")+'-' +today.getDate())
         // a part of addJobTab
         const currentTabs = obj.state.tabs;
         const currentKeys = currentTabs.map((tab) => {
@@ -670,30 +681,26 @@ export default class Main extends React.Component {
   }
 
   handleTabSelect(e, key, url) {
-    console.log('handleTabSelect key:', key);
-    console.log(global_editors)
     this.setState({selectedTab: key});
     if (url instanceof Array){
       if (url[url.length - 1]['props']['url'] != null){
         chrome.tabs.update({url: url[url.length - 1]['props']['url'], 'active': true}, function(tab) {
-          chrome.runtime.sendMessage({gvar_job_id:key, editors:global_editors}, function (response) {
-          }.bind(this));
+          //smlee
+          gvar_job_id = key
         });
       }
     }
     else{
       if (url != '' && url != null){
         chrome.tabs.update({url: url, 'active': true}, function(tab) {
-          chrome.runtime.sendMessage({gvar_job_id:key, editors:global_editors}, function (response) {
-          }.bind(this));
+          //smlee
+          gvar_job_id = key
         });
       }
     }
   }
   
   handleTabClose(e, key, currentTabs) {
-    console.log('tabClosed key:', key);
-    console.log('currentTabs: ', currentTabs);
     this.setState({tabs: currentTabs});
   }
   
@@ -776,12 +783,16 @@ export default class Main extends React.Component {
           tabs: newTabs,
           selectedTab: jobId
       });
+      //smlee
+      gvar_job_id = jobId
     } 
     else {
       chrome.tabs.update({url: url, 'active': true}, function(tab) {
         console.log('tab select')
-        chrome.runtime.sendMessage({gvar_job_id:jobId, editors:global_editors}, function (response) {
-        }.bind(this));
+        //chrome.runtime.sendMessage({gvar_job_id:jobId, editors:global_editors}, function (response) {
+        //}.bind(this));
+        //smlee
+        gvar_job_id = key
       });
       this.setState({
         selectedTab: jobId
@@ -870,7 +881,6 @@ export default class Main extends React.Component {
 
   makeNewProject(projectName, userId){
     const obj = this;
-    console.log(this.props.userId, '3234');
     axios.post(setting_server.DB_SERVER+'/api/db/project', {
       req_type: "make_new_project",
       project_name: projectName,
@@ -878,7 +888,6 @@ export default class Main extends React.Component {
     })
     .then(function (response) {
       if (response['data']['success'] == true) {
-        console.log(response['data']['success'], '123');
         obj.loadProjectList();
       } else {
         console.log('makeNewProject failed');
@@ -891,7 +900,6 @@ export default class Main extends React.Component {
 
   makeNewGroup(groupName, userId){
     const obj = this;
-    console.log(groupName, userId)
     axios.post(setting_server.DB_SERVER+'/api/db/group', {
       req_type: "make_new_group",
       group_name: groupName,
@@ -910,7 +918,6 @@ export default class Main extends React.Component {
           site: -1
         })
         .then(function(response){
-          console.log(response)
           if(response['data']['success'] == true) {
             obj.loadGroupList();
           } else {
@@ -986,7 +993,6 @@ export default class Main extends React.Component {
         const newTabs = currentTabs.filter((item) => {
           return !jobIdsInDeletedGroup.includes(parseInt(item.key))
         });
-        console.log(newTabs);
         if (newTabs.map((item) => item.key).includes(obj.state.selectedTab)) {
           obj.setState({tabs: newTabs});
         } else {

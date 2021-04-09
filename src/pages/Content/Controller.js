@@ -1005,8 +1005,8 @@ Controller.prototype = {
 
 
 	otips: function () {
-	  console.log('Show opeartion tips')
-	  console.log('otips in Controller')
+	  //console.log('Show opeartion tips')
+	  //console.log('otips in Controller')
 		var deferredOtips = this.contentScript.showOperationTips({
 			allowedElements: "*"
 		});

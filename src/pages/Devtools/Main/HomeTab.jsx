@@ -72,7 +72,7 @@ class HomeTab extends React.Component {
       }
     })
     .catch(function (error){
-      console.log(error);
+      //console.log(error);
     });
   }
 
@@ -133,7 +133,7 @@ class HomeTab extends React.Component {
 
       
   updateSite(event) {
-    console.log(event.target.value)
+    //console.log(event.target.value)
     this.setState({site: event.target.value});
   }
 

@@ -2320,7 +2320,6 @@ ContentSelector.prototype = {
 		  $("#collapse6").addClass('in')
 		  this.unbindElementSelection();
 		  $(".-sitemap-select-item-selected").removeClass('-sitemap-select-item-selected');
-      console.log('1111111111111')
       this.selectedElementOtipsList = []
       //console.log(this.selectedElementOtipsList)
       //this.unbindElementOperationTips()
@@ -2340,7 +2339,6 @@ ContentSelector.prototype = {
 		  $("#collapse6").addClass('in')
 		  this.unbindElementSelection();
 		  $(".-sitemap-select-item-selected").removeClass('-sitemap-select-item-selected');
-      console.log('1111111111111')
       this.selectedElementOtipsList = []
       //console.log(this.selectedElementOtipsList)
       //this.unbindElementOperationTips()

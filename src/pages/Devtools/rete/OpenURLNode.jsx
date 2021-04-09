@@ -65,7 +65,7 @@ export class OpenURLNode extends Node {
 		    <Button color="secondary" type="button"  style={{width:'80%'}}
           onClick = {()=> this.checkBFSIter()}
         >
-           TEST
+           Move
         </Button>
         <Modal
             {...this.props}

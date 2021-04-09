@@ -4,6 +4,7 @@ import { Form, Button } from "tabler-react";
 import Modal from 'react-bootstrap/Modal';
 import Tooltip from 'react-bootstrap/Tooltip'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 import axios from 'axios';
 
 export class BFSIteratorNode extends Node {
@@ -19,39 +20,27 @@ export class BFSIteratorNode extends Node {
         this.updateState()
     }
 
-
-
-  loadJobInfo() {
-    const obj = this;
-    axios.post(setting_server.DB_SERVER+'/api/db/job', {
-      req_type: "get_job_info",
-      job_id: obj.props.id
-    })
-    .then(function (response) {
-      if (response['data']['success'] == true) {
-        //(country, url, cnt_mpid, last_update)
-        obj.setState({count: response['data']['result'][2], lastUpdate: response['data']['result'][3], country: response['data']['result'][0], url: response['data']['result'][1]});
-      }
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-  }
-
-
-
+    loadJobInfo() {
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/job', {
+        req_type: "get_job_info",
+        job_id: obj.props.id
+      })
+      .then(function (response) {
+        if (response['data']['success'] == true) {
+          //(country, url, cnt_mpid, last_update)
+          obj.setState({count: response['data']['result'][2], lastUpdate: response['data']['result'][3], country: response['data']['result'][0], url: response['data']['result'][1]});
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    }
 
     checkBFSIter(){
       console.log(this.props.node.data)
       let open_url = this.props.node.data['open_url']
       if(this.props.node.data['prev_query'] != null){
-        console.log(this.props.node.data['prev_query'])
-        console.log(this.props.node.data['prev_attr'])
-        console.log(this.props.node.data['prev_pre'])
-        console.log(this.props.node.data['prev_suf'])
-        console.log(this.props.node.data['prev_attr_del'])
-        console.log(this.props.node.data['prev_attr_idx'])
-        console.log(this.props.node.data['open_url'])
 
         var prev_query = this.props.node.data['prev_query']
         var prev_attr = this.props.node.data['prev_attr']
@@ -62,35 +51,37 @@ export class BFSIteratorNode extends Node {
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
            var currTab = tabs[0];
            if (currTab) {
-             console.log(currTab)
              var tabId = currTab.id
              chrome.tabs.executeScript(tabId, { "code": "document.documentElement.outerHTML;" }, function (result) {
-               console.log(result[0]);
                var xmlString = result[0] 
                var doc = new DOMParser().parseFromString(xmlString, "text/html");
-               //console.log(prev_query)
-               //console.log(doc)
-               //console.log(doc.evaluate(prev_query, doc, null, XPathResult.ANY_TYPE, null))
-               //console.log(doc.evaluate('//html', doc, null, XPathResult.ANY_TYPE, null))
                console.log(doc.evaluate(prev_query, doc, null, XPathResult.ANY_TYPE, null).iterateNext())
-               console.log(doc.evaluate(prev_query, doc, null, XPathResult.ANY_TYPE, null).iterateNext().getAttribute(prev_attr))
-               let param = doc.evaluate(prev_query, doc, null, XPathResult.ANY_TYPE, null).iterateNext().getAttribute(prev_attr)
-               const url = new URL(open_url);
-               console.log(url.origin + param)
-               chrome.tabs.update({url: url.origin + param, 'active': true}, function(tab) {})
+               if (doc.evaluate(prev_query, doc, null, XPathResult.ANY_TYPE, null).iterateNext() == null){
+                 NotificationManager.warning('Save the user program first' ,'', 8000);
+               }
+               else{
+                 let param = doc.evaluate(prev_query, doc, null, XPathResult.ANY_TYPE, null).iterateNext().getAttribute(prev_attr)
+                 const url = new URL(open_url);
+                 console.log(url.origin + param)
+                 chrome.tabs.update({url: url.origin + param, 'active': true}, function(tab) {})
+               }
              });
            }
          });
       }
       else{
-        chrome.tabs.update({url: this.props.node.data['open_url'], 'active': true}, function(tab) {})
+        if (this.props.node.data['open_url'] == null){
+          NotificationManager.warning('Save the user program first' ,'', 8000);
+        }
+        else{
+          chrome.tabs.update({url: this.props.node.data['open_url'], 'active': true}, function(tab) {})
+        }
       }
 
     }
 
 
     updateState(){
-        console.log(this.props.node.data)
         if(Object.keys(this.props.node.data).length >= 1  ){
             var rows = this.props.node.data['rows']
             if(typeof rows != "undefined"){
@@ -170,7 +161,7 @@ export class BFSIteratorNode extends Node {
 		        <Button color="secondary" type="button"  style={{width:'80%'}}
               onClick = {()=> this.checkBFSIter()}
             >
-               TEST
+               Move
             </Button>
             <div>
             {/* Inputs */}
