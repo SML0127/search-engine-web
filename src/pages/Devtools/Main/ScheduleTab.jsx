@@ -42,36 +42,86 @@ class ScheduleTab extends React.Component {
     }
 
     handleChange(row) {
-      this.state.registeredSchedules[row.original.num - 1]['activate'] = !this.state.registeredSchedules[row.original.num - 1]['activate'];
-      this.setState({})
+      //this.state.registeredSchedules[row.original.num - 1]['activate'] = !this.state.registeredSchedules[row.original.num - 1]['activate'];
+      //this.setState({})
       let dag_id = row.original.job_label.replace(/ /gi, '_')
-      if (this.state.registeredSchedules[row.original.num - 1]['activate'] == true){
+      if (this.state.registeredSchedules[row.original.num - 1]['activate'] == false){
         console.log('Activate schedule')
-        this.setActivateSchedule(row.original.job_id)
-        this.activateSchedule(dag_id)
+        this.activateSchedule(dag_id, row.original.job_id, row)
+        //this.setActivateSchedule(row.original.job_id)
       }
       else{
         console.log('Deactivate schedule')
-        this.setDeactivateSchedule(row.original.job_id)
-        this.deactivateSchedule(dag_id)
+        this.deactivateSchedule(dag_id, row.original.job_id, row)
+        //this.setDeactivateSchedule(row.original.job_id)
       }
     }
 
 
-   setActivateSchedule(job_id){
+    activateSchedule(dag_id, job_id, row){
       const obj = this;
-      axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
-        req_type: "set_activate_schedule",
-        job_id: job_id
+      console.log(dag_id, job_id)
+      axios.post(setting_server.DRIVER_UTIL_SERVER+'/api/driver/', {
+        req_type: "activate_schedule",
+        dag_id: dag_id
       })
       .then(function (response) {
+        console.log(response)
+        if (response['data']['success'] == true) {
+          obj.state.registeredSchedules[row.original.num - 1]['activate'] = true;
+          obj.setState({})
+          obj.setActivateSchedule(job_id, row)
+        } else {
+          NotificationManager.error('Fail to activate ' + dag_id, 'WARNING',  10000);
+        }
       })
       .catch(function (error){
         console.log(error);
       });
     }
 
-   setDeactivateSchedule(job_id){
+
+
+    deactivateSchedule(dag_id, job_id, row){
+      const obj = this;
+      console.log(dag_id, job_id)
+      axios.post(setting_server.DRIVER_UTIL_SERVER+'/api/driver/', {
+        req_type: "deactivate_schedule",
+        dag_id: dag_id
+      })
+      .then(function (response) {
+        console.log(response)
+        if (response['data']['success'] == true) {
+          obj.state.registeredSchedules[row.original.num - 1]['activate'] = false;
+          obj.setState({})
+          obj.setDeactivateSchedule(job_id, row)
+        } else {
+          NotificationManager.error('Fail to activate ' + dag_id, 'WARNING',  10000);
+        }
+      })
+      .catch(function (error){
+        console.log(error);
+      });
+    }
+
+
+
+
+   setActivateSchedule(job_id, row){
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
+        req_type: "set_activate_schedule",
+        job_id: job_id
+      })
+      .then(function (response) {
+
+      })
+      .catch(function (error){
+        console.log(error);
+      });
+    }
+
+   setDeactivateSchedule(job_id, row){
       const obj = this;
       axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
         req_type: "set_deactivate_schedule",
@@ -84,45 +134,9 @@ class ScheduleTab extends React.Component {
       });
     }
 
-
-    activateSchedule(dag_id){
-      const obj = this;
-      axios.post(setting_server.DRIVER_UTIL_SERVER+'/api/driver/', {
-        req_type: "activate_schedule",
-        dag_id: dag_id
-      })
-      .then(function (response) {
-        if (response['data']['success'] == true) {
-        } else {
-        }
-      })
-      .catch(function (error){
-        console.log(error);
-      });
-    }
-
-
-
-    deactivateSchedule(dag_id){
-      const obj = this;
-      axios.post(setting_server.DRIVER_UTIL_SERVER+'/api/driver/', {
-        req_type: "deactivate_schedule",
-        dag_id: dag_id
-      })
-      .then(function (response) {
-        if (response['data']['success'] == true) {
-        } else {
-        }
-      })
-      .catch(function (error){
-        console.log(error);
-      });
-    }
-
    createNotification = (type) => {
       switch (type) {
         case 'warning':
-            NotificationManager.warning('Select delivery company','WARNING',  3000);
             break;
         case 'error':
             NotificationManager.error('Error message', 'Click me!', 5000, () => {

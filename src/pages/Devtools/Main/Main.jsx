@@ -130,11 +130,8 @@ class CustomLink extends React.Component {
   }
 
   componentDidMount(){
+
     this.loadJobInfo();
-    //this.loadCount();
-    //this.loadLastupdate();
-    //this.loadUrl();
-    //this.loadCountry();
   }
 
 

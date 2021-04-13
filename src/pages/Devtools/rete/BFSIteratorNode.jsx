@@ -20,22 +20,6 @@ export class BFSIteratorNode extends Node {
         this.updateState()
     }
 
-    loadJobInfo() {
-      const obj = this;
-      axios.post(setting_server.DB_SERVER+'/api/db/job', {
-        req_type: "get_job_info",
-        job_id: obj.props.id
-      })
-      .then(function (response) {
-        if (response['data']['success'] == true) {
-          //(country, url, cnt_mpid, last_update)
-          obj.setState({count: response['data']['result'][2], lastUpdate: response['data']['result'][3], country: response['data']['result'][0], url: response['data']['result'][1]});
-        }
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-    }
 
     checkBFSIter(){
       console.log(this.props.node.data)
