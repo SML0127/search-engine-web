@@ -28,8 +28,10 @@ class VMModal extends React.Component {
     }
 
     componentDidMount(){
-      this.getProductList(this.props.userId);
-      this.getJobWorking();
+      if (this.props.show == true){
+        this.getProductList(this.props.userId);
+        this.getJobWorking();
+      }
     }
     
     getSelectedCategory(selected_category){
@@ -38,6 +40,11 @@ class VMModal extends React.Component {
     
 
     componentWillReceiveProps(nextProps) {
+      if (nextProps.show == true){
+        console.log('Get List of Products')
+        this.getProductList(this.props.userId);
+        this.getJobWorking();
+      }
       //this.loadUserProgram(nextProps);
     }
 

@@ -40,21 +40,21 @@ let g_document = document;
 let g_call_otips = false;
 let g_tab_id = -1;
 let g_window_id = -1;
-chrome.tabs.onUpdated.addListener(function(tabid, info, tab) {
-  if (info.status == "complete") {
-    //console.log(g_tab_id)
-    //console.log(tabid)
-    if (g_call_otips == false && g_tab_id == tabid){
-      //console.log(tab)
-      chrome.windows.update(g_window_id, {'focused': true}, function (window) {  chrome.tabs.update(tabid, { 'active': true }, (tab) => { g_document.getElementById("otips").click()}) })
-      g_call_otips = true;
-    }
-    return;
-  }
-  else{
-    g_call_otips = false;
-  }
-});
+//chrome.tabs.onUpdated.addListener(function(tabid, info, tab) {
+//  if (info.status == "complete") {
+//    //console.log(g_tab_id)
+//    //console.log(tabid)
+//    if (g_call_otips == false && g_tab_id == tabid){
+//      //console.log(tab)
+//      chrome.windows.update(g_window_id, {'focused': true}, function (window) {  chrome.tabs.update(tabid, { 'active': true }, (tab) => { g_document.getElementById("otips").click()}) })
+//      g_call_otips = true;
+//    }
+//    return;
+//  }
+//  else{
+//    g_call_otips = false;
+//  }
+//});
 class JobTab extends React.Component {
 
     constructor(props) {
@@ -264,10 +264,10 @@ class JobTab extends React.Component {
                  
                  if (url != null){
                    // only for chrome extension
-                   obj.updateChromeTab(url)
+                   //obj.updateChromeTab(url)
                  }
                  else{
-                   obj.updateChromeTab(obj.props.url)
+                   //obj.updateChromeTab(obj.props.url)
                  }
 
                  obj.setState({

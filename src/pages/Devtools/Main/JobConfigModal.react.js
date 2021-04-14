@@ -193,12 +193,11 @@ class JobConfigModal extends React.Component {
     
     componentDidMount(){
       //this.getTargetSites(this.props.JobId);
-      this.loadJobCountry();
-      this.loadJobProperties();
     }
     
     componentWillReceiveProps(nextProps) {
       if(nextProps.show == true){
+        this.loadJobCountry();
         this.loadJobProperties();
       }
       //this.loadUserProgram(nextProps);

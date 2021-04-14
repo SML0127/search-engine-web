@@ -184,8 +184,9 @@ class PIModal extends React.Component {
     }
 
     componentDidMount(){
-       //console.log(this.props)
-       this.getProductList(this.props.userId);
+      if (this.props.show == true){
+        this.getProductList(this.props.userId);
+      }
     }
     
     getSelectedCategory(selected_category){
@@ -193,7 +194,10 @@ class PIModal extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-      //this.loadUserProgram(nextProps);
+      if (nextProps.show == true){
+        console.log('Get List of Products')
+        this.getProductList(this.props.userId);
+      }
     }
 
     initState() {

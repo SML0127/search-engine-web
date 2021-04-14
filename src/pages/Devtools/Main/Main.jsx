@@ -34,9 +34,11 @@ import workerIcon from './worker.png';
 import folderIcon from './folder.png';
 import productIcon from './product.png';
 import jobConfigIcon from './job_config.png';
+import copyJobIcon from './copy.png';
 import jobVMIcon from './admin.png';
 import NewProjectModal from './NewProjectModal';
 import NewGroupModal from './NewGroupModal';
+import CopyJobModal from './CopyJobModal';
 import DeleteGroupModal from './DeleteGroupModal';
 import DeleteJobModal from './DeleteJobModal';
 import Tooltip from 'react-bootstrap/Tooltip'
@@ -47,19 +49,19 @@ import { addOperator } from "../rete/rete";
 import global_editors from "../rete/GlobalEditors.react";
 
 let gvar_job_id = -1 // job_id: gvar editor index
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-  //console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-  //console.log(request)
-  //console.log(gvar_job_id)
-  if(request['action'] != null){
-    //console.log('ACTION')
-    //console.log(global_editors)
-    if (global_editors[gvar_job_id] != null ){
-      //console.log('222222222')
-      addOperator(global_editors[gvar_job_id], request) 
-    }
-  }
-});
+//chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+//  //console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+//  //console.log(request)
+//  //console.log(gvar_job_id)
+//  if(request['action'] != null){
+//    //console.log('ACTION')
+//    //console.log(global_editors)
+//    if (global_editors[gvar_job_id] != null ){
+//      //console.log('222222222')
+//      addOperator(global_editors[gvar_job_id], request) 
+//    }
+//  }
+//});
 
 
 var gUserId = -1 
@@ -81,6 +83,7 @@ class CustomLink extends React.Component {
     this.addPIModal = this.addPIModal.bind(this);
 
   }
+  
 
   addJobConfigModal(){
     this.setState({addJobConfigModalShow: true})
@@ -130,8 +133,8 @@ class CustomLink extends React.Component {
   }
 
   componentDidMount(){
-
     this.loadJobInfo();
+    //this.setState({count: response['data']['result'][2], lastUpdate: response['data']['result'][3], country: response['data']['result'][0], url: response['data']['result'][1]});
   }
 
 
@@ -317,69 +320,69 @@ class CustomLink extends React.Component {
           </div>
         </button>
         <div className="metismenu-link">
-        <OverlayTrigger
-          placement="left"
-          delay={{ show: 250, hide: 400 }}
-          overlay={
-            <Tooltip>
-              Configure job schedueling property 
-            </Tooltip>
-          }
-        >
-          <img
-              src={jobConfigIcon}
+          <OverlayTrigger
+            placement="left"
+            delay={{ show: 250, hide: 400 }}
+            overlay={
+              <Tooltip>
+                Configure job schedueling property 
+              </Tooltip>
+            }
+          >
+            <img
+                src={jobConfigIcon}
+                width="30"
+                height="30"
+                onClick={()=> this.addJobConfigModal()}
+                style={{
+                  cursor: "pointer",
+                  float: "right"
+                }}
+            />
+          </OverlayTrigger>
+          <OverlayTrigger
+            placement="left"
+            delay={{ show: 250, hide: 400 }}
+            overlay={
+              <Tooltip>
+                Check <br/> the products on my site
+              </Tooltip>
+            }
+          >
+            <img
+              src={productIcon}
               width="30"
               height="30"
-              onClick={()=> this.addJobConfigModal()}
+              onClick={() => this.addPIModal()}
               style={{
                 cursor: "pointer",
-                float: "right"
+                float: "right",
+                marginRight: '3%',
               }}
-          />
-        </OverlayTrigger>
-        <OverlayTrigger
-          placement="left"
-          delay={{ show: 250, hide: 400 }}
-          overlay={
-            <Tooltip>
-              Check <br/> the products on my site
-            </Tooltip>
-          }
-        >
-          <img
-            src={productIcon}
-            width="30"
-            height="30"
-            onClick={() => this.addPIModal()}
-            style={{
-              cursor: "pointer",
-              float: "right",
-              marginRight: '3%',
-            }}
-          />
-        </OverlayTrigger>
-        <OverlayTrigger
-          placement="left"
-          delay={{ show: 250, hide: 400 }}
-          overlay={
-            <Tooltip>
-              Check <br/>the current progress of <br/>the scheduled job
-            </Tooltip>
-          }
-        >
-          <img
-            src={jobVMIcon}
-            width="30"
-            height="30"
-            onClick={() => this.addVMModal()}
-            style={{
-              cursor: "pointer",
-              float: "right",
-              marginRight: '4%',
-              marginTop: '1.2%',
-            }}
-          />
-        </OverlayTrigger>
+            />
+          </OverlayTrigger>
+          <OverlayTrigger
+            placement="left"
+            delay={{ show: 250, hide: 400 }}
+            overlay={
+              <Tooltip>
+                Check <br/>the current progress of <br/>the scheduled job
+              </Tooltip>
+            }
+          >
+            <img
+              src={jobVMIcon}
+              width="30"
+              height="30"
+              onClick={() => this.addVMModal()}
+              style={{
+                cursor: "pointer",
+                float: "right",
+                marginRight: '4%',
+                marginTop: '1.2%',
+              }}
+            />
+          </OverlayTrigger>
 
         </div>
         <JobConfigModal
@@ -543,8 +546,9 @@ export default class Main extends React.Component {
       this.state = {
         selectedGroupId: -1,
         groupJobList: [],
-        url:'TESTTTTTTTT',
+        url:'TEST',
         newGroupModalShow: false,
+        copyJobModalShow: false,
         // configModalShow: false,
         deleteGroupModalShow: [],
         deleteJobModalShow: [],
@@ -567,10 +571,10 @@ export default class Main extends React.Component {
       this.deleteJob = this.deleteJob.bind(this);
       this.setDeleteGroupModalShow = this.setDeleteGroupModalShow.bind(this);
       this.setDeleteJobModalShow = this.setDeleteJobModalShow.bind(this);
-      //this.createNotification = this.createNotification.bind(this);    
       this.jobSelected = this.jobSelected.bind(this);
       this.handleClick = this.handleClick.bind(this);
-
+      this.loadGroupList = this.loadGroupList.bind(this);
+      this.copyExistJob = this.copyExistJob.bind(this)
   }
   // setSelectedProjectId(projectId){
   //   this.setState({
@@ -625,6 +629,60 @@ export default class Main extends React.Component {
       this.addJobTab(param.item);
     }
   }
+
+
+  copyExistJob(job_id, new_job_label, user_id) {
+    const obj = this;
+    axios.post(setting_server.DB_SERVER+'/api/db/job', {
+      req_type: "copy_exist_job",
+      job_id: job_id,
+      job_label: new_job_label,
+      user_id: user_id
+    })
+    .then(function (response) {
+      console.log(response)
+      if (response['data']['success'] == true) {
+        const jobId = String(response['data']['result'][0]);
+        const jobLabel = response['data']['result'][1];
+        const jobCountry = response['data']['result'][2];
+        const parentId = response['data']['result'][3];
+        const url = response['data']['result'][4];
+        const today = new Date();
+        const newJob = {
+          id: Number(jobId),
+          parentId: parentId,
+          label: 'New! '+jobLabel,
+          url:url,
+          country: jobCountry,
+          lastUpdate: today.getFullYear()+'-'+String(parseInt(today.getMonth()+1)).padStart(2, "0")+'-' +today.getDate()
+        };
+        
+        // a part of addJobTab
+        const currentTabs = obj.state.tabs;
+        const currentKeys = currentTabs.map((tab) => {
+          return tab.key;
+        });
+        const newTab = (
+          <DTab key={jobId} url={url} title={jobLabel} {...obj.makeListeners(jobId, '', url)}>
+            <JobTab jobId={jobId} url={url} userId = {obj.props.userId} is_dev = {obj.props.is_dev}  />
+          </DTab>
+        );
+        let newTabs = currentTabs.concat([newTab]);
+        obj.setState({
+          groupJobList: obj.state.groupJobList.concat(newJob),
+          tabs: newTabs,
+          selectedTab: jobId
+        });
+      } else {
+        console.log('makeNewProject failed');
+      }
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
+
+
 
   makeNewJob(userId, parentId, url, jobLabel, country, site) {
     const obj = this;
@@ -741,6 +799,7 @@ export default class Main extends React.Component {
             }
             obj.setState({
               groupJobList: group_job,
+              jobList: job
             });
           } else{
             console.log(response)
@@ -1178,6 +1237,31 @@ export default class Main extends React.Component {
                 />
               </OverlayTrigger> 
             </span>
+            <span style={{float: "right", marginRight: "4px"}}>
+              <OverlayTrigger
+                placement="left"
+                delay={{ show: 250, hide: 400 }}
+                overlay={
+                  <Tooltip>
+                    Copy exist job
+                  </Tooltip>
+                }
+              >
+                <img
+                  src={copyJobIcon}
+                  width="25"
+                  height="25"
+                  onClick={() =>
+                    this.setState({
+                      copyJobModalShow: true
+                    })
+                  }
+                  style={{
+                    cursor: "pointer"
+                  }}
+                />
+              </OverlayTrigger> 
+            </span>
           </div>
           <MetisMenu
             className="menu"
@@ -1205,6 +1289,13 @@ export default class Main extends React.Component {
             </Row>
           </Container>
         </div>
+        <CopyJobModal
+          show={this.state.copyJobModalShow}
+          setModalShow={(s) => this.setState({copyJobModalShow: s})}
+          jobList={this.state.jobList}
+          userId={this.props.userId}
+          copyExistJob = {this.copyExistJob}
+        />
         <NewGroupModal
           show={this.state.newGroupModalShow}
           makeNewGroup={this.makeNewGroup}
@@ -1347,6 +1438,31 @@ export default class Main extends React.Component {
                 />
               </OverlayTrigger> 
             </span>
+            <span style={{float: "right", marginRight: "4px"}}>
+              <OverlayTrigger
+                placement="left"
+                delay={{ show: 250, hide: 400 }}
+                overlay={
+                  <Tooltip>
+                    Copy exist job
+                  </Tooltip>
+                }
+              >
+                <img
+                  src={copyJobIcon}
+                  width="25"
+                  height="25"
+                  onClick={() =>
+                    this.setState({
+                      copyJobModalShow: true
+                    })
+                  }
+                  style={{
+                    cursor: "pointer"
+                  }}
+                />
+              </OverlayTrigger> 
+            </span>
           </div>
           <MetisMenu
             className="menu"
@@ -1374,6 +1490,13 @@ export default class Main extends React.Component {
             </Row>
           </Container>
         </div>
+        <CopyJobModal
+          show={this.state.copyJobModalShow}
+          setModalShow={(s) => this.setState({copyJobModalShow: s})}
+          jobList={this.state.jobList}
+          userId={this.props.userId}
+          copyExistJob = {this.copyExistJob}
+        />
         <NewGroupModal
           show={this.state.newGroupModalShow}
           makeNewGroup={this.makeNewGroup}
