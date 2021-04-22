@@ -22,6 +22,8 @@ import { WaitNode } from "./WaitNode";
 import { ScrollNode } from "./ScrollNode";
 import { BranchNode } from "./BranchNode";
 import { HoverNode } from "./HoverNode";
+import { OptionListScrapperNode } from "./OptionListScrapperNode";
+import { OptionMatrixScrapperNode } from "./OptionMatrixScrapperNode";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
 import DockPlugin from 'rete-dock-plugin';
 import AutoArrangePlugin from 'rete-auto-arrange-plugin';
@@ -252,6 +254,38 @@ class ValuesScrapperComponent extends Rete.Component {
 }
 
 
+class OptionListScrapperComponent extends Rete.Component {
+    constructor() {
+        super("OptionListScrapper");
+        this.data.component = OptionListScrapperNode;
+    }
+    
+    builder(node) {
+        var out = new Rete.Output("toRight", "", numSocket);
+        var input = new Rete.Input('fromLeft', "INPUT", numSocket);
+        return node.addInput(input).addOutput(out);
+    }
+
+    worker(node, inputs, outputs) {}
+}
+
+class OptionMatrixScrapperComponent extends Rete.Component {
+    constructor() {
+        super("OptionMatrixScrapper");
+        this.data.component = OptionMatrixScrapperNode;
+    }
+    
+    builder(node) {
+        var out = new Rete.Output("toRight", "", numSocket);
+        var input = new Rete.Input('fromLeft', "INPUT", numSocket);
+        return node.addInput(input).addOutput(out);
+    }
+
+    worker(node, inputs, outputs) {}
+}
+
+
+
 
 
 
@@ -304,7 +338,7 @@ class BranchOperatorComponent extends Rete.Component {
     worker(node, inputs, outputs) {}
 }
 
-const components = [new OpenURLComponent(), new ExpanderComponent(), new BFSIteratorComponent(), new ValuesScrapperComponent(), new ListsScrapperComponent(), new DictionariesScrapperComponent(), new ClickOperatorComponent(), new InputOperatorComponent(), new WaitOperatorComponent(), new ScrollOperatorComponent(), new BranchOperatorComponent(), new HoverOperatorComponent() ];
+const components = [new OpenURLComponent(), new ExpanderComponent(), new BFSIteratorComponent(), new ValuesScrapperComponent(), new ListsScrapperComponent(), new DictionariesScrapperComponent(), new ClickOperatorComponent(), new InputOperatorComponent(), new WaitOperatorComponent(), new ScrollOperatorComponent(), new BranchOperatorComponent(), new HoverOperatorComponent(), new OptionListScrapperComponent(), new OptionMatrixScrapperComponent()];
 
 export async function createEditor(container, editor, saveGraphData, GraphData, job_id) {
     //var editor = new Rete.NodeEditor("work-flow@1.0.0", container);

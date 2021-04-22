@@ -50,20 +50,12 @@ import global_editors from "../rete/GlobalEditors.react";
 
 let gvar_job_id = -1 // job_id: gvar editor index
 //chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-//  //console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-//  //console.log(request)
-//  //console.log(gvar_job_id)
 //  if(request['action'] != null){
-//    //console.log('ACTION')
-//    //console.log(global_editors)
 //    if (global_editors[gvar_job_id] != null ){
-//      //console.log('222222222')
 //      addOperator(global_editors[gvar_job_id], request) 
 //    }
 //  }
 //});
-
-
 var gUserId = -1 
 class CustomLink extends React.Component {
   constructor() {
@@ -777,6 +769,9 @@ export default class Main extends React.Component {
     let group;
     let job;
     let group_job;
+    obj.setState({
+      groupJobList: [],
+    });
     axios.post(setting_server.DB_SERVER+'/api/db/group', {
       req_type: "get_group_list",
       user_id: obj.props.userId

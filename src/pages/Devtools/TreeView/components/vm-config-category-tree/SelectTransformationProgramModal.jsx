@@ -125,7 +125,10 @@ class SelectTransformationProgramModal extends React.Component {
             return {num: index+1, id: id, label: label, program: program};
           });
           for(var idx in transformationPrograms){
-             if(transformationPrograms[idx]['id'] == obj.props.selectedPid){
+             if (obj.state.selectedTransformationProgramId != '-1' && transformationPrograms[idx]['id'] == obj.state.selectedTransformationProgramId){
+               obj.setState({selectedTransformationProgram: transformationPrograms[idx]['program'], selectedTransformationProgramLabel: transformationPrograms[idx]['label'] })
+             }
+             else if(transformationPrograms[idx]['id'] == obj.props.selectedPid){
                obj.setState({selectedTransformationProgram: transformationPrograms[idx]['program'], selectedTransformationProgramLabel: transformationPrograms[idx]['label'] })
              }
           }

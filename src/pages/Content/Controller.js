@@ -1029,51 +1029,12 @@ Controller.prototype = {
 
 
 	selectSelector: function () {
-	//selectSelector: function () {
-		//var input = $(button).closest(".form-group").find("input.selector-value");
-		//var sitemap = this.getCurrentlyEditedSelectorSitemap();
-    //console.log(sitemap)
-		//var selector = this.getCurrentlyEditedSelector();
-    //console.log(selector)
-		//var currentStateParentSelectorIds = this.getCurrentStateParentSelectorIds();
-    //console.log(currentStateParentSelectorIds)
-		//var parentCSSSelector = sitemap.selectors.getParentCSSSelectorWithinOnePage(currentStateParentSelectorIds);
-    //console.log(parentCSSSelector)
-    //var contentScript = new ContentScript({})
 		var deferredSelector = this.contentScript.selectSelector({
-			//parentCSSSelector: parentCSSSelector,
 			allowedElements: "*"
 		});
     //console.log(selector.getItemCSSSelector())
 		deferredSelector.done(function(result) {
       console.log(result)
-			//$(input).val(result.CSSSelector);
-      //console.log(result.CSSSelector)// result.CSSSelector = css selector
-			// update validation for selector field
-			//var validator = this.getFormValidator();
-      //console.log(validator)
-			//validator.revalidateField(input);
-      //console.log(input)
-			// @TODO how could this be encapsulated?
-			// update header row, data row selectors after selecting the table. selectors are updated based on tables
-			// inner html
-			//if(selector.type === 'SelectorTable') {
-
-			//	this.getSelectorHTML().done(function(html) {
-
-			//		var tableHeaderRowSelector = SelectorTable.getTableHeaderRowSelectorFromTableHTML(html);
-      //    console.log(tableHeaderRowSelector)
-			//		var tableDataRowSelector = SelectorTable.getTableDataRowSelectorFromTableHTML(html);
-      //    console.log(tableDataRowSelector)
-			//		$("input[name=tableHeaderRowSelector]").val(tableHeaderRowSelector);
-			//		$("input[name=tableDataRowSelector]").val(tableDataRowSelector);
-
-			//		var headerColumns = SelectorTable.getTableHeaderColumnsFromHTML(tableHeaderRowSelector, html);
-      //    console.log(headerColumns)
-			//		this.renderTableHeaderColumns(headerColumns);
-			//	}.bind(this));
-			//}//no touch
-
 		}.bind(this));
 	},
 

@@ -17,7 +17,7 @@ class LoadProgramModal extends React.Component {
 
     
     componentDidMount(){
-      this.loadUserProgram();
+      //this.loadUserProgram();
       if(this.props.upid != null){
         this.setState({selectedProgramId :this.props.upid})
       }
@@ -25,8 +25,12 @@ class LoadProgramModal extends React.Component {
     
     componentWillReceiveProps(nextProps) {
       //this.loadUserProgram(nextProps);
-      if(this.props.upid != null){
-        this.setState({selectedProgramId :this.props.upid})
+      if (nextProps.show == true){
+        if(this.props.upid != null){
+          this.loadUserProgram();
+
+          this.setState({selectedProgramId :this.props.upid})
+        }
       }
     }
 
@@ -53,6 +57,7 @@ class LoadProgramModal extends React.Component {
             job_id: obj.props.jobId
         })
         .then(function (resultData){
+            console.log(resultData)
             obj.setState({
                 programs_info: resultData["data"]['output']
             })
@@ -159,7 +164,7 @@ class LoadProgramModal extends React.Component {
               <Button color="primary" 
                 onClick={(obj) => {
 
-                    this.props.drawWorkflow(this.state.programs_info[this.state.selectedProgramIndex][3], this.state.programs_info[this.state.selectedProgramIndex][0], this.state.programs_info[this.state.selectedProgramIndex][1])
+                    this.props.drawWorkflow(this.state.programs_info[this.state.selectedProgramIndex][3], this.state.programs_info[this.state.selectedProgramIndex][0], this.state.programs_info[this.state.selectedProgramIndex][1], this.state.programs_info[this.state.selectedProgramIndex][4])
 
                     this.closeModal();
                 }}

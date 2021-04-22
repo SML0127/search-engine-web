@@ -212,7 +212,7 @@ export class ListsScrapperNode extends Node {
 		              	 <Button color='secondary' onClick={this.handleAddRow}  style={{width:'90%'}}>
                        +
                      </Button>
-		              	 <Button color="secondary" action='select-selector' type="button"  style={{width:'10%'}}>
+		              	 <Button color="secondary" action='select-selector-url' type="button"  style={{width:'10%'}}>
                        Get XPath
                      </Button>
 		              </div>

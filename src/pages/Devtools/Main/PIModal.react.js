@@ -64,7 +64,9 @@ class PIModal extends React.Component {
           mpid: obj.state.selectedProductMpid
       })
       .then(function (response) {
+
         if (response['data']['success'] === true) {
+          console.log(response)
           //min_margin, margin_rate, min_price, shipping_cost 
           let min_margin = response['data']['result'][0][0]
           let margin_rate = response['data']['result'][0][1]
@@ -484,64 +486,45 @@ class PIModal extends React.Component {
       })
       .then(function (response) {
         if (response['data']['success'] == true) {
+          console.log(response)
           let productOptions = response['data']['result'];
-
           let productOptionsCombination = {}
           let option_stock = 999
           let option_price = 0
           let option_stock_status = ""
           let option_msg = ""
-          productOptions = productOptions.map(function(row, index){
+          let productOptionValues = productOptions.map(function(row, index){
             const id = row[0];
-            const oname = row[1];
-            const ovalue = row[2];
-            const pid = row[0];
-            const list_price = row[3];
-            const price = row[4];
-            const stock = row[5];
-            const stock_status = row[6] == 'None'? '':row[6];
-            const msg = row[7] == 'None'? '':row[7];
+            const pid = row[1];
+            const oname = row[2];
+            const ovalue = row[3];
+            const list_price = row[4];
+            const price = row[5];
+            const stock = row[6];
+            const stock_status = row[7] == 'None'? '':row[6];
+            const msg = row[8] == 'None'? '':row[7];
             option_stock = stock
             option_price = price
             option_stock_status = stock_status
             option_msg = msg
-            if( ovalue in  productOptionsCombination){
-              productOptionsCombination[ovalue] = []
-              productOptionsCombination[ovalue].push(ovalue)
-            }
-            else{
-              productOptionsCombination[ovalue].push(ovalue)
-            }
-            return {num: index+1, id: id, oname: oname, ovalue: ovalue, pid: pid, price:price, list_price:list_price, stock:stock, stock_status: stock_status, msg: msg};
+            return {num: index+1, id: id, oname: oname, ovalue: ovalue, mpid: pid, price:price, list_price:list_price, stock:stock, stock_status: stock_status, msg: msg};
           });
 
  
-          obj.setState({productOptions: productOptions});
-        
-          var results  = obj.getCombinations(productOptionsCombination, 0, [], {});
-          var productOptionsValueCombination = []
-          for(let idx in results){
-            var string = ""
-            for(let key in results[idx]){
-              console.log(key)
-              string += results[idx][key] + " & "
-            }
-            productOptionsValueCombination.push(string.slice(0,-3))
-          }
-         
+          console.log(productOptionValues) 
+          obj.setState({productOptionValues: productOptionValues});
 
+          //let productOptionValues = productOptions
+          //     .map(function(row,idx){
+          //      return {num: idx+1, name:row, stock: option_stock, price: option_price, stock_status: option_stock_status, msg: option_msg}
+          //})
 
-          let productOptionValues = productOptionsValueCombination
-               .map(function(row,idx){
-                return {num: idx+1, name:row, stock: option_stock, price: option_price, stock_status: option_stock_status, msg: option_msg}
-          })
-
-          //console.log(processedOptionValues)
-          obj.setState({productOptionValues: productOptionValues}); 
+          ////console.log(processedOptionValues)
+          //obj.setState({productOptionValues: productOptionValues});
           //obj.setState({productOptionsValues: productOptionsValues});
         } else {
           console.log(response)
-          console.log('Failed to get pl');
+          console.log('Failed to get product option');
         }
       })
       .catch(function (error){
@@ -1026,25 +1009,10 @@ class PIModal extends React.Component {
                            }}
                            columns={[
                              {
-                               Header: "Option",
+                               Header: "Option Name",
                                resizable: false,
-                               accessor: "name",
-                               Cell: ( row ) => {
-                                 console.log(row)
-                                 return (
-                                   <div
-                                     style={{
-                                       textAlign:"center",
-                                       paddingTop:"4px"
-                                     }}
-                                   > {row.value} </div>
-                                 )
-                               }
-                             },
-                             {
-                               Header: "Stock",
-                               resizable: false,
-                               accessor: "stock",
+                               accessor: "oname",
+                               width:250,
                                Cell: ( row ) => {
                                  return (
                                    <div
@@ -1057,26 +1025,10 @@ class PIModal extends React.Component {
                                }
                              },
                              {
-                               Header: "Price",
+                               Header: "Option Value",
                                resizable: false,
-                               accessor: "price",
-                               Cell: ( row ) => {
-                                 console.log(row)
-                                 return (
-                                   <div
-                                     style={{
-                                       textAlign:"center",
-                                       paddingTop:"4px"
-                                     }}
-                                   > {row.value} </div>
-                                 )
-                               }
-                             },
-                             {
-                               Header: "Out of stock message",
-                               resizable: false,
-                               width:200,
-                               accessor: "msg",
+                               accessor: "ovalue",
+                               width:250,
                                Cell: ( row ) => {
                                  return (
                                    <div
@@ -1087,7 +1039,7 @@ class PIModal extends React.Component {
                                    > {row.value} </div>
                                  )
                                }
-                             },
+                             }
                            ]}
                            minRows={5}
                            defaultPageSize={1000}

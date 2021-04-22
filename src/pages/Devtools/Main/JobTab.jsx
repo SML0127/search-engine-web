@@ -5,6 +5,7 @@ import * as React from "react";
 
 import Collapsible from 'react-collapsible';
 import ReteGraph from "../rete/ReteGraph.react";
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 //import rete from "../rete/ClickOperatorNode";
 import rete from "../rete/rete"
 import {
@@ -27,6 +28,7 @@ import ErrorMysiteModal from "./ErrorMysiteModal.react";
 import ErrorTargetsiteModal from "./ErrorTargetsiteModal.react";
 import SaveProgramModal from "./SaveProgramModal.react";
 import UploadModal from "./OneTimeUploadModal.react";
+import UpdateUserProgramModal from "./UpdateUserProgramModal"
 import axios from 'axios'
 import setting_server from '../setting_server';
 import refreshIcon from './refresh.png';
@@ -42,10 +44,7 @@ let g_tab_id = -1;
 let g_window_id = -1;
 //chrome.tabs.onUpdated.addListener(function(tabid, info, tab) {
 //  if (info.status == "complete") {
-//    //console.log(g_tab_id)
-//    //console.log(tabid)
 //    if (g_call_otips == false && g_tab_id == tabid){
-//      //console.log(tab)
 //      chrome.windows.update(g_window_id, {'focused': true}, function (window) {  chrome.tabs.update(tabid, { 'active': true }, (tab) => { g_document.getElementById("otips").click()}) })
 //      g_call_otips = true;
 //    }
@@ -94,6 +93,7 @@ class JobTab extends React.Component {
         this.getTreeNodes = this.getTreeNodes.bind(this)
         this.getSelectedCategory = this.getSelectedCategory.bind(this)
         this.drawWorkflow = this.drawWorkflow.bind(this)
+        this.updateProgram = this.updateProgram.bind(this)
         
     }
 
@@ -174,8 +174,13 @@ class JobTab extends React.Component {
 
     runDriver(){
       const obj = this;
+      if (obj.state.upid_template <= 0){
+        NotificationManager.error('Save as before crawling','', 10000);
+        return
+      }
       console.log(obj.state.upid)
       console.log(obj.state.upid_title)
+    
       axios.post(setting_server.DRIVER_UTIL_SERVER+'/api/driver/', {
         req_type: "run_driver",
         wf: obj.state.upid,
@@ -230,7 +235,7 @@ class JobTab extends React.Component {
             job_id: obj.props.jobId
         })
         .then(function (response) {
-            //console.log(response)
+            console.log(response)
             if (response['data']['success'] == true) {
                if( !response['data']['result']){
                  g_user_program = {}
@@ -248,6 +253,7 @@ class JobTab extends React.Component {
                  let result = response['data']['result'][1];
                  let upid = response['data']['result'][0];
                  let upid_title = response['data']['result'][2];
+                 let upid_template = response['data']['result'][3];
                  let user_program = result
                  let tmp = obj.state.refresh
                  let url_node_id 
@@ -264,7 +270,7 @@ class JobTab extends React.Component {
                  
                  if (url != null){
                    // only for chrome extension
-                   //obj.updateChromeTab(url)
+                   //obj.updateChromeTab(obj.props.url)
                  }
                  else{
                    //obj.updateChromeTab(obj.props.url)
@@ -276,6 +282,7 @@ class JobTab extends React.Component {
                    program:user_program,
                    upid: upid,
                    upid_title: upid_title,
+                   upid_template: upid_template,
                    nodes: user_program['object_tree']
                  })
                  //setTimeout(() =>{ console.log("after"), obj.handleClick()} , 10000)
@@ -482,7 +489,7 @@ class JobTab extends React.Component {
     }
 
 
-    drawWorkflow(user_program, upid, upid_title){
+    drawWorkflow(user_program, upid, upid_title, upid_template){
         var tmp = this.state.refresh
         g_user_program = user_program
         console.log('draw work flow')
@@ -493,6 +500,7 @@ class JobTab extends React.Component {
           program:user_program,
           upid: upid,
           upid_title: upid_title,
+          upid_template: upid_template,
           nodes: user_program['object_tree']
        })
     }
@@ -540,11 +548,9 @@ class JobTab extends React.Component {
     }
 
 
-
-    updateProgram(site, category, projectId){
+    updateProgram(){
       var obj = this;
-      this.workflowToUserProgram();
-
+      obj.workflowToUserProgram();
       axios.post(setting_server.DB_SERVER+'/api/db/userprogram', {
         req_type: "update_user_program",
         program: JSON.stringify(g_user_program),
@@ -557,6 +563,29 @@ class JobTab extends React.Component {
           console.log(error);
       });
 
+    }
+
+
+
+    showUpdateProgramModal(){
+      var obj = this;
+      if(obj.state.upid_template <= 0){
+        obj.setState({updateUserProgramModalShow: true})  
+      }
+      else{
+        this.workflowToUserProgram();
+        axios.post(setting_server.DB_SERVER+'/api/db/userprogram', {
+          req_type: "update_user_program",
+          program: JSON.stringify(g_user_program),
+          wid: obj.state.upid
+        })
+        .then(function (response) {
+            console.log(response);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+      }
     }
 
     runTransformationMysite() {
@@ -670,6 +699,29 @@ class JobTab extends React.Component {
     getOperatorAndProps(operator, id, options, edges, open_url){
         var op
         switch(operator) {
+            case "OptionMatrixScrapper":
+                console.log(options)
+                op = {
+                  "id": id,
+                  "name": "OptionMatrixScrapper",
+                  "option_name_query": options['option_name_query'],
+                  "option_x_value_query": options['option_x_value_query'],
+                  "option_y_value_query": options['option_y_value_query'],
+                  "option_matrix_row_wise_value_query": options['option_matrix_row_wise_value_query'],
+                }
+                this.removeEmpty(op)
+                break;
+            case "OptionListScrapper":
+                console.log(options)
+                op = {
+                  "id": id,
+                  "name": "OptionListScrapper",
+                  "option_name_query": options['option_name_query'],
+                  "option_dropdown_query": options['option_dropdown_query'],
+                  "option_value_query": options['option_value_query'],
+                }
+                this.removeEmpty(op)
+                break;
             case "Wait":
                 op = {
                   "id": id,
@@ -972,7 +1024,7 @@ class JobTab extends React.Component {
                       color="secondary"
                       style = {{float:'right', marginRight:'1%', textTransform: 'capitalize'}}
                       onClick={() => {
-                            this.updateProgram()
+                            this.showUpdateProgramModal()
                           }
                       }
                     >
@@ -1630,6 +1682,11 @@ class JobTab extends React.Component {
                       mthistoryId= {this.state.mthistoryId}
                       setModalShow={(s) => this.setState({errtargetsitemodalShow: s})}
                   />
+                  <UpdateUserProgramModal
+                      show={this.state.updateUserProgramModalShow}
+                      updateProgram= {this.updateProgram}
+                      setModalShow={(s) => this.setState({updateUserProgramModalShow: s})}
+                  />
                   </Card>
                 </Grid.Col> 
               </Grid.Row>
@@ -2224,6 +2281,11 @@ class JobTab extends React.Component {
                       show={this.state.errtargetsitemodalShow}
                       mthistoryId= {this.state.mthistoryId}
                       setModalShow={(s) => this.setState({errtargetsitemodalShow: s})}
+                  />
+                  <UpdateUserProgramModal
+                      show={this.state.updateUserProgramModalShow}
+                      updateProgram= {this.updateProgram}
+                      setModalShow={(s) => this.setState({updateUserProgramModalShow: s})}
                   />
                   </Card>
                 </Grid.Col> 

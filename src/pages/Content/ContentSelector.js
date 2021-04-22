@@ -49,6 +49,7 @@ ContentSelector.prototype = {
 			this.selectedElements;
       this.resultXpath;
 			this.top = 0;
+		  this.removeOperationTips();
 			this.initGUI();
 		}
 
@@ -62,6 +63,7 @@ ContentSelector.prototype = {
 			this.selectedElements = [];
       this.resultXpath;
 			this.top = 0;
+		  this.removeOperationTips();
 			this.initGUIURL();
 		}
 
@@ -570,24 +572,16 @@ ContentSelector.prototype = {
 			  $(elem2).removeClass("-sitemap-select-item-hover");
 			  $(elem2).removeClass('-sitemap-select-item-selected');
         var optRelXpath1 = this.generateRelXpath(elem1);
-        //console.log("optRelXPath = ", optRelXpath1)
         var absXpath1 = this.generateAbsXpath(elem1);
-        //console.log("absXPath = ", absXpath1)
         var listXpath1 = this.generateListXpath(absXpath1)
-        //console.log("listXPath = ", listXpath1)
 
         var optRelXpath2 = this.generateRelXpath(elem2);
-        //console.log("optRelXPath = ", optRelXpath2)
         var absXpath2 = this.generateAbsXpath(elem2);
-        //console.log("absXPath = ", absXpath2)
         var listXpath2 = this.generateListXpath(absXpath2)
-        //console.log("listXPath = ", listXpath2)
 
         this.resultXpath = optRelXpath1;
 
         let suffixListXpath = this.getListXpathNew(optRelXpath1, optRelXpath2)
-        console.log(suffixListXpath)
-
 
         let x1 = absXpath1
         let x2 = absXpath2
@@ -718,13 +712,16 @@ ContentSelector.prototype = {
       this.selectedElements = []
 		  $(".-sitemap-select-item-selected").removeClass('-sitemap-select-item-selected');
     }
+
 		this.$allElements.bind("click.elementSelector", function (e) {
 			var element = e.currentTarget;
       //let elementsOfXPath = document.evaluate(optListXpath,document);
       this.selectedElements.push(element)
       let num_selected = this.selectedElements.length
-      console.log(this.selectedElements)
-      console.log(num_selected)
+      //console.log(this.selectedElements)
+      //console.log(num_selected)
+
+		  $(element).addClass('-sitemap-select-item-selected');
       if(num_selected >= 2){
         let elem1 = this.selectedElements[num_selected - 1]
         let elem2 = this.selectedElements[num_selected - 2]
@@ -733,56 +730,52 @@ ContentSelector.prototype = {
 			  $(elem2).removeClass("-sitemap-select-item-hover");
 			  $(elem2).removeClass('-sitemap-select-item-selected');
         var optRelXpath1 = this.generateRelXpath(elem1);
-        console.log("optRelXPath = ", optRelXpath1)
         var absXpath1 = this.generateAbsXpath(elem1);
-        console.log("absXPath = ", absXpath1)
         var listXpath1 = this.generateListXpath(absXpath1)
-        console.log("listXPath = ", listXpath1)
 
         var optRelXpath2 = this.generateRelXpath(elem2);
-        console.log("optRelXPath = ", optRelXpath2)
         var absXpath2 = this.generateAbsXpath(elem2);
-        console.log("absXPath = ", absXpath2)
         var listXpath2 = this.generateListXpath(absXpath2)
-        console.log("listXPath = ", listXpath2)
 
         this.resultXpath = optRelXpath1;
 
 
-        let suffixListXpath = this.getListXpath(listXpath1, listXpath2)
-        console.log(suffixListXpath)
+        let suffixListXpath = this.getListXpathNew(optRelXpath1, optRelXpath2)
+        
         let x1 = absXpath1
         let x2 = absXpath2
 
-        let output1 = x1.split('/')
-        let output2 = x2.split('/')
+        let output3 = x1.split('/')
+        let output4 = x2.split('/')
+        let output3_len = output3.length
+        let output3_idx
 
-        let output1_len = output1.length
-        let output_idx
-
-        for(let idx in output1){
-          if(output1[idx] != output2[idx]){
-            output_idx = idx
-            break;
-          }
+        
+        for (let idx in output3) {
+            if (output3[idx] != output4[idx]) {
+                output3_idx = idx
+                break;
+            }
         }
-
-        let fin = ''
-        for(let idx in output1){
-          if(idx == 0){
-            continue;
-          }
-          if(parseInt(idx) < parseInt(output_idx)){
-            fin = fin + '/' + output1[idx]
-          }
-          else{
-            break;
-            //fin = fin + '/' + output1[idx]
-          }
+        let fin2 = ''
+        for (let idx in output3) {
+            if (idx == 0) {
+                continue;
+            }
+            if (parseInt(idx) < parseInt(output3_idx)) {
+                fin2 = fin2 + '/' + output3[idx]
+            } else {
+                break;
+                //fin = fin + '/' + output1[idx]
+            }
         }
-        let finalXpath = fin + suffixListXpath
-
-
+        let finalXpath
+        if (suffixListXpath.slice(0,2) == '//'){
+          finalXpath = fin2 + suffixListXpath
+        }
+        else{
+          finalXpath = fin2 + '/' + suffixListXpath
+        }
 
         let res = document.evaluate(finalXpath, document);
         let tmpElements = [];
@@ -795,54 +788,10 @@ ContentSelector.prototype = {
         let idx1 = finalXpath.lastIndexOf('//')
         let idx2 = finalXpath.lastIndexOf('[')
         let last_tag = finalXpath.slice(idx1+2, idx2)
-        if(last_tag == 'a'){
-          console.log(finalXpath)
-			    this.highlightSelectedElementsURL(finalXpath);
-			    return false;
-        }
-        else{
-          let candidate1 = finalXpath.slice(0, idx1+2) + 'a'
 
-          console.log(candidate1)
-          let res1 = document.evaluate(candidate1, document);
-          let tmpElements1 = [];
-          let node1
-          while(node1 = res1.iterateNext()) {
-            tmpElements1.push(node)
-          }
-          let candidate_limit_num = tmpElements1.length
-          console.log(candidate_limit_num, limit_num)
-          if(parseInt(candidate_limit_num) <= parseInt(limit_num) && parseInt(candidate_limit_num) != 0 ){
-            finalXpath = candidate1
-            console.log(finalXpath)
-			      this.highlightSelectedElementsURL(finalXpath);
-			      return false;
-          }
-          else{
-            let candidate2 = finalXpath + '//a'
-            console.log(candidate2)
-
-            let res2 = document.evaluate(candidate2, document);
-            let tmpElements2 = [];
-            let node2
-            while(node2 = res2.iterateNext()) {
-              tmpElements2.push(node)
-            }
-            let candidate_limit_num2 = tmpElements2.length
-            console.log(candidate_limit_num2)
-            if(parseInt(candidate_limit_num2) <= parseInt(limit_num) && parseInt(candidate_limit_num2) != 0 ){
-              finalXpath = candidate2
-              console.log(finalXpath)
-			        this.highlightSelectedElementsURL(finalXpath);
-			        return false;
-            }
-          }
-
-			    this.highlightSelectedElementsURL(finalXpath);
-			    return false;
-        }
+			  this.highlightSelectedElementsURL(finalXpath);
+			  return false;
       }
-
 
 			// Cancel all other events
 			return false;
@@ -1773,49 +1722,16 @@ ContentSelector.prototype = {
 
 	highlightSelectedElements: function (optRelXpath) {
 		try {
-			//var resultCssSelector = this.getCurrentCSSSelector();
-      //console.log(" highlightSelectedElements");
       console.log(optRelXpath)
       var res = document.evaluate(optRelXpath, document);
       var elem = "temp";
       if(res){
         elem = res.iterateNext();
       }
-      //console.log(elem)
-      //console.log('-----------------------')
 			$(".-sitemap-select-item-selected").removeClass('-sitemap-select-item-selected');
       $(elem).addClass('-sitemap-select-item-selected');
-      //https://www.amazon.com/s?bbn=16225007011&rh=n%3A16225007011%2Cn%3A172456&dc&fst=as%3Aoff&qid=1578897380&rnid=16225007011&ref=lp_16225007011_nr_n_0
-      //var elementsOfXPath = document.evaluate('//div[1]/span[1]/div[1]/div[1]/div[2]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/h2[1]/a[1]/span[1]',document);
-
-      //https://en.zalando.de/womens-clothing-dresses/
-      //var elementsOfXPath = document.evaluate('//article[1]/div[1]/div[2]/header[1]/a[1]/div[1]/div[2]',document);
-
-      //https://www.walmart.com/browse/food/coffee/976759_1086446_1229652?povid=1086446+%7C++%7C+Coffee%20Whole%20Bean%20Coffee%20Featured%20Categories%20Collapsible
-      //var elementsOfXPath = document.evaluate('//div[1]/div[2]/div[5]/div[1]/a[1]/span[1]',document);
-     
-      //https://www.newegg.com/p/pl?N=100023490&cm_sp=Cat_Digital-Cameras_1-_-VisNav-_-Cameras_1
-      //var elementsOfXPath = document.evaluate('//div/div[1]/a[@class=\'item-title\']',document);
-      
-      //https://global.rakuten.com/en/category/206878/?l-id=rgm-top-en-nav-shoes-mensneakers 
-      //var elementsOfXPath = document.evaluate('//li/div[1]/div[2]/div[1]/a[1]',document);
-
-
-      //var selectedElements = [];
-      //while(node = elementsOfXPath .iterateNext()) {
-      //  selectedElements.push(node)
-      //}
-
-      //for (var i = 0; i < selectedElements.length; i++) {
-      //  //console.log(selectedElements[i]);
-      //  $(selectedElements[i]).addClass('-sitemap-select-item-selected');
-      //}
 
 			$("body #-selector-toolbar .selector").text(optRelXpath);
-			//// highlight selected elements
-      //console.log(this.selectedElements)
-      //console.log(this.parent)
-			//$(ElementQuery(this.selectedElements, this.parent)).addClass('-sitemap-select-item-selected');
 		}
 		catch(err) {
 			if(err === "found multiple element groups, but allowMultipleSelectors disabled") {
@@ -1953,10 +1869,8 @@ ContentSelector.prototype = {
 		this.unbindElementSelection();
 		this.unbindElementHighlight();
 		this.removeToolbar();
-		//this.unbindKeyboardSelectionMaipulatios();
-		//this.unbindMultipleGroupPopupHide();
-		//this.unbindMultipleGroupCheckbox();
-		//this.unbindMoveImagesToTop();
+    this.unbindOperationTipsGUI()
+    this.initOperationTipsGUI()
 	},
 
 	highlightSelection: function () {

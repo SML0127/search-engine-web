@@ -225,11 +225,11 @@ export class ValuesScrapperNode extends Node {
                     <Button color="primary" 
                         onClick={(obj) => {
                                 var table_rows = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[0].childNodes[1].childNodes
-                                console.log(table_rows)
+                                //console.log(table_rows)
                                 var rows_data = []
                                 for(var idx in table_rows){
                                     var row_data = {}
-                                    console.log(table_rows[idx])
+                                    //console.log(table_rows[idx])
                                     for(var idxx in table_rows[idx].childNodes){
                                         if(typeof table_rows[idx].childNodes[idxx].childNodes != "undefined"){
                                             if(table_rows[idx].childNodes[idxx].childNodes[0].nodeName === "INPUT"){
