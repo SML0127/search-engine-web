@@ -165,6 +165,7 @@ class ScheduleTab extends React.Component {
         if (response['data']['success'] == true) {
           //job_id, start_date, end_date, period, job_label
           let registeredSchedules = response['data']['result'];
+          console.log(registeredSchedules)
           registeredSchedules = registeredSchedules.map(function(row, index){
             const job_id = row[0];
             const start_date = row[1];
@@ -181,6 +182,7 @@ class ScheduleTab extends React.Component {
             selectedScheduleJobId: null,
             selectedScheduleJobLabel: null
           });
+          console.log(registeredSchedules)
         } else {
           console.log('getRegisteredSchedules Failed');
         }
@@ -402,6 +404,7 @@ class ScheduleTab extends React.Component {
                 }
               ]}
               minRows={8}
+              defaultPageSize={200}
               showPagination ={false}
               bordered = {false} 
               style={{

@@ -28,8 +28,10 @@ class ErrorModal extends React.Component {
     
     componentWillReceiveProps(nextProps) {
       if(this.state.execId != nextProps.execId){
-        g_var_execId = nextProps.execId;
-        this.refreshList()
+        if (nextProps.show != false){
+          g_var_execId = nextProps.execId;
+          this.refreshList()
+        }
       }
     }
 

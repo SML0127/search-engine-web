@@ -24,6 +24,7 @@ import $ from "min-jquery";
 import EditableTree from '../TreeView/components/tree';
 import LoadProgramModal from "./LoadProgramModal.react";
 import ErrorModal from "./ErrorModal.react";
+import DataModal from "./DataModal.react";
 import ErrorMysiteModal from "./ErrorMysiteModal.react";
 import ErrorTargetsiteModal from "./ErrorTargetsiteModal.react";
 import SaveProgramModal from "./SaveProgramModal.react";
@@ -68,6 +69,7 @@ class JobTab extends React.Component {
           modalShow: false,
           loadmodalShow: false,
           errmodalShow: false,
+          dataShow: false,
           savemodalShow: false,
           GraphData: {},
           upid_title: '',
@@ -538,7 +540,8 @@ class JobTab extends React.Component {
                 console.log(response['data']);
                 obj.setState({
                   upid : response['data']['id'],
-                  upid_title: response['data']['title']
+                  upid_title: response['data']['title'],
+                  upid_template: response['data']['id']
                 })
             })
             .catch(function (error) {
@@ -1253,9 +1256,47 @@ class JobTab extends React.Component {
                                              color="secondary"
                                              style = {{float:'center',  textTransform: 'capitalize'}}
                                              onClick={() => {
-                                                   console.log(row.value)
                                                    this.setState({execId: row.value, errmodalShow: true})
-                                                   console.log(this.state)
+                                                 }
+                                             }
+                                           >
+                                           Show
+                                           </Button>
+                                          </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "Data",
+                              resizable: false,
+                              accessor: "0",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > 
+                                           <Button 
+                                             color="secondary"
+                                             style = {{float:'center',  textTransform: 'capitalize'}}
+                                             onClick={() => {
+                                                   this.setState({execId: row.value, dataShow: true})
                                                  }
                                              }
                                            >
@@ -1672,6 +1713,11 @@ class JobTab extends React.Component {
                       execId= {this.state.execId}
                       setModalShow={(s) => this.setState({errmodalShow: s})}
                   />
+                  <DataModal
+                      show={this.state.dataShow}
+                      execId= {this.state.execId}
+                      setModalShow={(s) => this.setState({dataShow: s})}
+                  />
                   <ErrorMysiteModal
                       show={this.state.errmysitemodalShow}
                       smhistoryId= {this.state.smhistoryId}
@@ -1853,8 +1899,47 @@ class JobTab extends React.Component {
                                              color="secondary"
                                              style = {{float:'center',  textTransform: 'capitalize'}}
                                              onClick={() => {
-                                                   console.log(row.value)
                                                    this.setState({execId: row.value, errmodalShow: true})
+                                                 }
+                                             }
+                                           >
+                                           Show
+                                           </Button>
+                                          </div>
+                                      )
+                                  }
+                              }
+                          },
+                          {
+                              Header: "Data",
+                              resizable: false,
+                              accessor: "0",
+                              Cell: ( row ) => {
+                                  if (row.value == null){
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"15px"
+                                              }}
+                                          > - </div>
+                                      )
+                                  }
+                                  else{
+                                      return (
+                                          <div
+                                              style={{
+                                                  textAlign:"center",
+                                                  paddingTop:"4px",
+                                                  paddingLeft:"12px"
+                                              }}
+                                          > 
+                                           <Button 
+                                             color="secondary"
+                                             style = {{float:'center',  textTransform: 'capitalize'}}
+                                             onClick={() => {
+                                                   this.setState({execId: row.value, dataShow: true})
                                                    console.log(this.state)
                                                  }
                                              }
@@ -2271,6 +2356,11 @@ class JobTab extends React.Component {
                       show={this.state.errmodalShow}
                       execId= {this.state.execId}
                       setModalShow={(s) => this.setState({errmodalShow: s})}
+                  />
+                  <DataModal
+                      show={this.state.dataShow}
+                      execId= {this.state.execId}
+                      setModalShow={(s) => this.setState({dataShow: s})}
                   />
                   <ErrorMysiteModal
                       show={this.state.errmysitemodalShow}

@@ -474,6 +474,8 @@ function createNotification(type){
 
 
 export async function addOperator(editor, req) {
+  console.log('----------------------')
+  console.log(req)
   let len = Object.keys(editor.nodes).length
   let last_node
   for (var idx = 0; idx < len; idx++) {
@@ -483,7 +485,7 @@ export async function addOperator(editor, req) {
           //console.log(value.connections.length)
           if(value.connections.length == 0){
             last_node = editor.nodes[idx];
-            //console.log(last_node);
+            console.log(last_node);
           }
         }
       }
@@ -491,13 +493,13 @@ export async function addOperator(editor, req) {
         //console.log(value.connections.length)
         if(value.connections.length == 0){
           last_node = editor.nodes[idx];
-          //console.log(last_node);
+          console.log(last_node);
         }
       }
-      //console.log('---------------')
+      console.log('---------------')
     });
   }
-  //console.log(last_node)
+  console.log(last_node)
   if(req.action == 'click'){
     const node = await components[6].createNode()
     node.data = {'rows':[{'col_query': req.xpath, 'col_delay': 5, 'col_repeat':false}]}

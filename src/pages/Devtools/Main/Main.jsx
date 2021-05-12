@@ -713,6 +713,7 @@ export default class Main extends React.Component {
           </DTab>
         );
         let newTabs = currentTabs.concat([newTab]);
+        gvar_job_id = jobId
         obj.setState({
           groupJobList: obj.state.groupJobList.concat(newJob),
           tabs: newTabs,
