@@ -65,22 +65,40 @@ class JobConfigModal extends React.Component {
     registerAirflowScheduling(){
       const obj = this;
       axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
-        req_type: "make_airflow_script",
-        job_id: obj.props.JobId,
-        start_date: obj.state.start_date,
-        end_date: obj.state.end_date,
-        period: obj.state.period,
-        check_c: obj.state.check_c,
-        check_m: obj.state.check_vmm,
-        check_t: obj.state.check_vmt,
-        user_id: obj.props.userId
+        req_type: "save_job_properties",
+        job_id: this.checkIsNull(obj.props.JobId),
+        start_date: this.checkIsNull(obj.state.start_date) == '' ? '2020-01-01 00:00:00' : this.checkIsNull(obj.state.start_date),
+        end_date: this.checkIsNull(obj.state.end_date) == '' ? '2020-01-01 00:00:00' : this.checkIsNull(obj.state.end_date),
+        period: this.checkIsNull(obj.state.period),
+        m_category: this.checkIsNull(obj.state.my_site_category),
+        num_worker: this.checkIsNull(obj.state.numWorker),
+        num_thread: this.checkIsNull(obj.state.numThread)
       })
       .then(function (response) {
-        
+         if(response['data']['success'] == true){
+           axios.post(setting_server.DB_SERVER+'/api/db/jobproperties', {
+             req_type: "make_airflow_script",
+             job_id: obj.props.JobId,
+             start_date: obj.state.start_date,
+             end_date: obj.state.end_date,
+             period: obj.state.period,
+             check_c: obj.state.check_c,
+             check_m: obj.state.check_vmm,
+             check_t: obj.state.check_vmt,
+             user_id: obj.props.userId
+           })
+           .then(function (response) {
+             
+           })
+           .catch(function (error){
+             console.log(error);
+           });
+         }
       })
       .catch(function (error){
         console.log(error);
       });
+
     }
 
     checkIsNull(value){
@@ -381,7 +399,7 @@ class JobConfigModal extends React.Component {
                   onClick = {()=> {this.registerAirflowScheduling()}}
                   style={{marginLeft:'1%', marginTop:'2%'}}
                 >
-                Register Scheduling
+                Save & Register
                 </Button> 
               </div>
             </Modal.Body>

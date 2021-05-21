@@ -176,8 +176,8 @@ class Tree extends Component {
         id: "",
         date: new Date(),
         date_psql: "2020-01-01",
-        start_date_psql: "2020-01-01 00:00:00",
-        end_date_psql: "2020-01-01 00:00:00",
+        start_date_psql: new Date().toISOString().slice(0, 10) + " 00:00:00",
+        end_date_psql: new Date().toISOString().slice(0, 10) + " 23:59:59",
         period: '7',
       }
     }

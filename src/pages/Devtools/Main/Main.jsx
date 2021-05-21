@@ -24,6 +24,7 @@ import setting_server from '../setting_server';
 import JobConfigModal from "./JobConfigModal.react";
 import VMModal from "./VMModal.react";
 import PIModal from "./PIModal.react";
+import HistoryModal from "./HistoryModal.react";
 import MetisMenu from 'react-metismenu';
 import './react-metismenu-standart.css';
 import newGroupIcon from './add.png';
@@ -33,6 +34,7 @@ import scheduleIcon from './schedule.png';
 import workerIcon from './worker.png';
 import folderIcon from './folder.png';
 import productIcon from './product.png';
+import historyIcon from './history.png';
 import jobConfigIcon from './job_config.png';
 import copyJobIcon from './copy.png';
 import jobVMIcon from './admin.png';
@@ -49,13 +51,13 @@ import { addOperator } from "../rete/rete";
 import global_editors from "../rete/GlobalEditors.react";
 
 let gvar_job_id = -1 // job_id: gvar editor index
-//chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-//  if(request['action'] != null){
-//    if (global_editors[gvar_job_id] != null ){
-//      addOperator(global_editors[gvar_job_id], request) 
-//    }
-//  }
-//});
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  if(request['action'] != null){
+    if (global_editors[gvar_job_id] != null ){
+      addOperator(global_editors[gvar_job_id], request) 
+    }
+  }
+});
 var gUserId = -1 
 class CustomLink extends React.Component {
   constructor() {
@@ -68,6 +70,7 @@ class CustomLink extends React.Component {
       addJobConfigModalShow: false,
       addVMModalShow: false,
       addPIModalShow: false,
+      addHistoryModalShow: false,
       url: ''
     }
     this.addJobConfigModal = this.addJobConfigModal.bind(this);
@@ -83,6 +86,10 @@ class CustomLink extends React.Component {
 
   addPIModal(){
     this.setState({addPIModalShow: true})
+  }
+
+  addHistoryModal(){
+    this.setState({addHistoryModalShow: true})
   }
   addVMModal(){
     this.setState({addVMModalShow: true})
@@ -353,6 +360,29 @@ class CustomLink extends React.Component {
               }}
             />
           </OverlayTrigger>
+
+          <OverlayTrigger
+            placement="left"
+            delay={{ show: 250, hide: 400 }}
+            overlay={
+              <Tooltip>
+                Check <br/> the history of upload
+              </Tooltip>
+            }
+          >
+            <img
+              src={historyIcon}
+              width="30"
+              height="30"
+              onClick={() => this.addHistoryModal()}
+              style={{
+                cursor: "pointer",
+                float: "right",
+                marginRight: '3%',
+              }}
+            />
+          </OverlayTrigger>
+
           <OverlayTrigger
             placement="left"
             delay={{ show: 250, hide: 400 }}
@@ -395,6 +425,12 @@ class CustomLink extends React.Component {
             JobId = {this.props.id}
             userId={gUserId}
             setModalShow={(s) => this.setState({addPIModalShow: s})}
+        />
+        <HistoryModal
+            show={this.state.addHistoryModalShow}
+            JobId = {this.props.id}
+            userId={gUserId}
+            setModalShow={(s) => this.setState({addHistoryModalShow: s})}
         />
         </>
       );
@@ -479,6 +515,29 @@ class CustomLink extends React.Component {
               }}
             />
           </OverlayTrigger>
+
+          <OverlayTrigger
+            placement="left"
+            delay={{ show: 250, hide: 400 }}
+            overlay={
+              <Tooltip>
+                Check <br/> the history of upload
+              </Tooltip>
+            }
+          >
+            <img
+              src={historyIcon}
+              width="30"
+              height="30"
+              onClick={() => this.addHistoryModal()}
+              style={{
+                cursor: "pointer",
+                float: "right",
+                marginRight: '3%',
+              }}
+            />
+          </OverlayTrigger>
+
           <OverlayTrigger
             placement="left"
             delay={{ show: 250, hide: 400 }}
@@ -520,6 +579,12 @@ class CustomLink extends React.Component {
             JobId = {this.props.id}
             userId={gUserId}
             setModalShow={(s) => this.setState({addPIModalShow: s})}
+        />
+        <HistoryModal
+            show={this.state.addHistoryModalShow}
+            JobId = {this.props.id}
+            userId={gUserId}
+            setModalShow={(s) => this.setState({addHistoryModalShow: s})}
         />
         </>
       );
