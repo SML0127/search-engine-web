@@ -276,6 +276,8 @@ class HistoryModal extends React.Component {
           obj.setState({
               selectedProductName: productDetail['p_name'],
               selectedProductPrice: productDetail['price'],
+              selectedProductMpid: productDetail['mpid'],
+              selectedProductSpid: productDetail['spid'],
               selectedProductSprice: productDetail['price'],
               selectedProductSku: productDetail['sku'],
               selectedProductStock: productDetail['stock'],
@@ -291,6 +293,7 @@ class HistoryModal extends React.Component {
               tariff_rate: productDetail['tariff_rate'],
               tariff_threshold: productDetail['tariff_threshold'],
               vat_rate: productDetail['vat_rate'],
+              crawling_time: productDetail['crawling_time'],
               productOptionValues: productOptionValues
           });
         } else {
@@ -561,7 +564,28 @@ class HistoryModal extends React.Component {
                               productTargetsiteLists: [],
                               productUploadTime: [],
                               selectedProductIndex1: null,
-                              selectedProductIndex2: null
+                              selectedProductIndex2: null,
+                              selectedProductName: '', 
+                              selectedProductPrice:  '',
+                              selectedProductMpid: '',
+                              selectedProductSpid: '',
+                              selectedProductSprice: '',
+                              selectedProductSku:  '',
+                              selectedProductStock: '', 
+                              selectedProductCompany: '', 
+                              selectedProductManufacturer: '', 
+                              selectedImageLink: '', 
+                              selectedProductUrl: '', 
+                              default_weight: '', 
+                              dollar2krw: '', 
+                              exchange_rate: '',
+                              margin_rate: '',
+                              min_margin: '',
+                              tariff_rate: '',
+                              tariff_threshold: '', 
+                              vat_rate: '',
+                              crawling_time: '', 
+                              productOptionValues:[]
                             }, () => {console.log('update!'); console.log(this.state.selectedProductIndex); console.log(this.state.selectedMpid); this.getProductHistoryTargetsite(this.state.selectedMpid)});
                           },
                           style: {
@@ -579,7 +603,29 @@ class HistoryModal extends React.Component {
                               productTargetsiteLists: [],
                               productUploadTime: [],
                               selectedProductIndex1: null,
-                              selectedProductIndex2: null
+                              selectedProductIndex2: null,
+                              selectedProductName: '', 
+                              selectedProductPrice:  '',
+                              selectedProductMpid: '',
+                              selectedProductSpid: '',
+                              selectedProductSprice: '',
+                              selectedProductSku:  '',
+                              selectedProductStock: '', 
+                              selectedProductCompany: '', 
+                              selectedProductManufacturer: '', 
+                              selectedImageLink: '', 
+                              selectedProductUrl: '', 
+                              default_weight: '', 
+                              dollar2krw: '', 
+                              exchange_rate: '',
+                              margin_rate: '',
+                              min_margin: '',
+                              tariff_rate: '',
+                              tariff_threshold: '', 
+                              vat_rate: '',
+                              crawling_time: '', 
+                              productOptionValues:[]
+
                             }, () => {console.log('update!'); console.log(this.state.selectedProductIndex); console.log(this.state.selectedMpid); this.getProductHistoryTargetsite(this.state.selectedMpid)});
                           }
                         }
@@ -600,7 +646,6 @@ class HistoryModal extends React.Component {
                     {
                       Header: "Mpid",
                       resizable: false,
-                      sortable: false,
                       accessor: 'mpid',
                       width:100,
                       Cell: ( row ) => {
@@ -617,7 +662,6 @@ class HistoryModal extends React.Component {
                     {
                       Header: "Product",
                       resizable: false,
-                      sortable: false,
                       accessor: 'name',
                       Cell: ( row ) => {
                         return (
@@ -654,7 +698,28 @@ class HistoryModal extends React.Component {
                                 selectedProductIndex1: rowInfo.index,
                                 selectedTargetsite: rowInfo.original['targetsite'],
                                 productUploadTime: [],
-                                selectedProductIndex2: null
+                                selectedProductIndex2: null,
+                                selectedProductName: '', 
+                                selectedProductPrice:  '',
+                                selectedProductMpid: '',
+                                selectedProductSpid: '',
+                                selectedProductSprice: '',
+                                selectedProductSku:  '',
+                                selectedProductStock: '', 
+                                selectedProductCompany: '', 
+                                selectedProductManufacturer: '', 
+                                selectedImageLink: '', 
+                                selectedProductUrl: '', 
+                                default_weight: '', 
+                                dollar2krw: '', 
+                                exchange_rate: '',
+                                margin_rate: '',
+                                min_margin: '',
+                                tariff_rate: '',
+                                tariff_threshold: '', 
+                                vat_rate: '',
+                                crawling_time: '', 
+                                productOptionValues:[]
                               }, () => {console.log('update!'); console.log(this.state.selectedProductIndex1); console.log(this.state.selectedTargetsite); this.getProductHistoryTime(this.state.selectedTargetsite)});
                             },
                             style: {
@@ -669,7 +734,29 @@ class HistoryModal extends React.Component {
                                 selectedProductIndex1: rowInfo.index,
                                 selectedTargetsite: rowInfo.original['targetsite'],
                                 productUploadTime: [],
-                                selectedProductIndex2: null
+                                selectedProductIndex2: null,
+                                selectedProductName: '', 
+                                selectedProductPrice:  '',
+                                selectedProductMpid: '',
+                                selectedProductSpid: '',
+                                selectedProductSprice: '',
+                                selectedProductSku:  '',
+                                selectedProductStock: '', 
+                                selectedProductCompany: '', 
+                                selectedProductManufacturer: '', 
+                                selectedImageLink: '', 
+                                selectedProductUrl: '', 
+                                default_weight: '', 
+                                dollar2krw: '', 
+                                exchange_rate: '',
+                                margin_rate: '',
+                                min_margin: '',
+                                tariff_rate: '',
+                                tariff_threshold: '', 
+                                vat_rate: '',
+                                crawling_time: '', 
+                                productOptionValues:[]
+
                               }, () => {console.log('update!'); console.log(this.state.selectedProductIndex1); console.log(this.state.selectedTargetsite); this.getProductHistoryTime(this.state.selectedTargetsite)});
                             }
                           }
@@ -727,7 +814,28 @@ class HistoryModal extends React.Component {
                               console.log(rowInfo.original['image_url'])
                               this.setState({
                                 selectedProductIndex2: rowInfo.index,
-                                selectedUploadTime: rowInfo.original['upload_time']
+                                selectedUploadTime: rowInfo.original['upload_time'],
+                                selectedProductName: '', 
+                                selectedProductPrice:  '',
+                                selectedProductMpid: '',
+                                selectedProductSpid: '',
+                                selectedProductSprice: '',
+                                selectedProductSku:  '',
+                                selectedProductStock: '', 
+                                selectedProductCompany: '', 
+                                selectedProductManufacturer: '', 
+                                selectedImageLink: '', 
+                                selectedProductUrl: '', 
+                                default_weight: '', 
+                                dollar2krw: '', 
+                                exchange_rate: '',
+                                margin_rate: '',
+                                min_margin: '',
+                                tariff_rate: '',
+                                tariff_threshold: '', 
+                                vat_rate: '',
+                                crawling_time: '', 
+                                productOptionValues:[]
                               },() => {console.log(this.state.selectedUploadTime);this.getProductHistoryDetail(this.state.selectedUploadTime)});
                             },
                             style: {
@@ -741,7 +849,28 @@ class HistoryModal extends React.Component {
                               //console.log(rowInfo.original['image_url'])
                               this.setState({
                                 selectedProductIndex2: rowInfo.index,
-                                selectedUploadTime: rowInfo.original['upload_time']
+                                selectedUploadTime: rowInfo.original['upload_time'],
+                                selectedProductName: '', 
+                                selectedProductPrice:  '',
+                                selectedProductMpid: '',
+                                selectedProductSpid: '',
+                                selectedProductSprice: '',
+                                selectedProductSku:  '',
+                                selectedProductStock: '', 
+                                selectedProductCompany: '', 
+                                selectedProductManufacturer: '', 
+                                selectedImageLink: '', 
+                                selectedProductUrl: '', 
+                                default_weight: '', 
+                                dollar2krw: '', 
+                                exchange_rate: '',
+                                margin_rate: '',
+                                min_margin: '',
+                                tariff_rate: '',
+                                tariff_threshold: '', 
+                                vat_rate: '',
+                                crawling_time: '', 
+                                productOptionValues:[]
                               },() => {console.log(this.state.selectedUploadTime);this.getProductHistoryDetail(this.state.selectedUploadTime)});
                             }
                           }
@@ -800,11 +929,31 @@ class HistoryModal extends React.Component {
                        <label style={{marginTop:'8px', marginLeft: '15px', width:'25%'}}> Product name :</label>
                        <input readonly='readonly' name="name" class="form-control" style={{width:"70%",float:'right'}} value={this.state.selectedProductName}/>
                      </div>
+
                      <div class='row' style={{width:'100%', marginTop:'5px'}}>                      
-                      
-                       <label style={{marginTop:'8px', marginLeft: '15px',width:'25%'}}> URL :</label>
+                       <label style={{marginTop:'8px', marginLeft: '15px', width:'25%'}}> URL :</label>
                        <input readonly='readonly' name="name" class="form-control" style={{width:"70%",float:'right'}} value={this.state.selectedProductUrl}/>
                      </div>
+
+                     <div class='row' style={{width:'100%', marginTop:'5px'}}>                      
+                       <label style={{marginTop:'8px', marginLeft: '15px', width:'25%'}}> Crawling date :</label>
+                       <input readonly='readonly' name="name" class="form-control" style={{width:"70%",float:'right'}} value={this.state.crawling_time}/>
+                     </div>
+                     <div class='row' style={{width:'100%', marginTop:'5px'}}>                      
+                       <label style={{marginTop:'8px', marginLeft: '15px',width:'25%'}}> Image link :</label>
+                         <OverlayTrigger
+                           placement="right"
+                           delay={{ show: 250, hide: 400 }}
+                           overlay={
+                             <Tooltip>
+                               <Image src={this.state.selectedImageLink || ''} rounded />
+                             </Tooltip>
+                           }
+                         >
+                         <input readonly='readonly'  name="name" class="form-control" style={{width:"70%",float:'right'}} value={this.state.selectedImageLink}/>
+                         </OverlayTrigger> 
+                     </div>
+
                      <div class='row' style={{width:'100%', marginTop:'5px'}}>                      
                        <label style={{marginTop:'8px', marginLeft: '15px', width:'25%'}}> My Product ID :</label>
                        <input  readonly='readonly' name="name" class="form-control" style={{ width:'20%'}} value={this.state.selectedProductMpid}/>
@@ -826,30 +975,13 @@ class HistoryModal extends React.Component {
                        <input readonly='readonly'  name="name" class="form-control" style={{float:'right', width:'20%'}} value={this.state.selectedProductSprice}/>
                      </div>
 
-
                      <div class='row' style={{width:'100%', marginTop:'5px'}}>                      
-                       <label style={{marginTop:'8px', marginLeft: '15px',width:'25%'}}> Origin :</label>
-                       <input readonly='readonly'  name="name" class="form-control" style={{width:"70%",float:'right'}} value={this.state.selectedProductOrigin}/>
+                       <label style={{marginTop:'8px', marginLeft: '15px', width:'25%'}}> Origin :</label>
+                       <input readonly='readonly'  name="name" class="form-control" style={{width:'20%'}}value={this.state.selectedProductOrigin}/>
+                       <label style={{marginTop:'8px', float:'right', width:'26%', marginLeft:'4%'}}> Manufacturer :</label>
+                       <input readonly='readonly'  name="name" class="form-control" style={{float:'right', width:'20%'}} value={this.state.selectedProductManufacturer}/>
                      </div>
 
-                     <div class='row' style={{width:'100%', marginTop:'5px'}}>                      
-                       <label style={{marginTop:'8px', marginLeft: '15px',width:'25%'}}> Manufacturer :</label>
-                       <input readonly='readonly'  name="name" class="form-control" style={{width:"70%",float:'right'}} value={this.state.selectedProductManufacturer}/>
-                     </div>
-                     <div class='row' style={{width:'100%', marginTop:'5px'}}>                      
-                       <label style={{marginTop:'8px', marginLeft: '15px',width:'25%'}}> Image link:</label>
-                         <OverlayTrigger
-                           placement="right"
-                           delay={{ show: 250, hide: 400 }}
-                           overlay={
-                             <Tooltip>
-                               <Image src={this.state.selectedImageLink || ''} rounded />
-                             </Tooltip>
-                           }
-                         >
-                         <input readonly='readonly'  name="name" class="form-control" style={{width:"70%",float:'right'}} value={this.state.selectedImageLink}/>
-                         </OverlayTrigger> 
-                     </div>
                      
 
 

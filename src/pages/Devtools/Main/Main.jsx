@@ -388,7 +388,7 @@ class CustomLink extends React.Component {
             delay={{ show: 250, hide: 400 }}
             overlay={
               <Tooltip>
-                Check <br/>the current progress of <br/>the scheduled job
+                Check <br/>the current progress
               </Tooltip>
             }
           >
@@ -543,7 +543,7 @@ class CustomLink extends React.Component {
             delay={{ show: 250, hide: 400 }}
             overlay={
               <Tooltip>
-                Check <br/>the current progress of <br/>the scheduled job
+                Check <br/>the current progress
               </Tooltip>
             }
           >
