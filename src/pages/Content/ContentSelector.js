@@ -7,6 +7,7 @@ ContentSelector = function(options) {
 
 	// deferred response
 	this.deferredCSSSelectorResponse = $.Deferred();
+	this.deferredDocumentResponse = $.Deferred();
 
 	this.allowedElements = options.allowedElements;
 	//this.parentCSSSelector = options.parentCSSSelector.trim();
@@ -148,6 +149,16 @@ ContentSelector.prototype = {
     this.unbindElementOperationTips();
 		this.removeOperationTips();
   },
+
+  getDocument: function () {
+    
+    console.log('-----------00----------------')
+    console.log(document)
+	this.deferredDocumentResponse.resolve({
+		WebHtml: document
+	});
+  },
+
 
 	initOperationTipsGUI: function () {
     console.log('init OpeartionTips GUI')

@@ -4,6 +4,61 @@ import { Form, Button } from "tabler-react";
 import Modal from 'react-bootstrap/Modal';
 import DropdownButton from 'react-bootstrap/DropdownButton'
 import Dropdown from 'react-bootstrap/Dropdown'
+import PreviewValuesModal from "./PreviewValuesModal.react";
+import axios from 'axios'
+
+
+let g_rows_data = ''
+let g_html = ''
+let g_document = ''
+let g_preview_result = []
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  if(request['type'] == 'html'){
+      //console.log('Preview')
+      //console.log(request['html'])
+      g_html = request['html']['inner_html']
+      g_document = (new DOMParser).parseFromString(g_html, 'text/html');
+      var g_doc = (new DOMParser).parseFromString(g_html, 'text/xml');
+      g_preview_result = []
+      for (var idx in g_rows_data){
+         //console.log(g_rows_data[idx]['col_key'])
+         //console.log(g_rows_data[idx]['col_query'])
+         var element = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null).iterateNext()
+         var result = ""
+         if(element != null){
+            if (g_rows_data[idx]['col_attr'] == "alltext"){
+              //result = g_document.evaluate(g_rows_data[idx]['col_query']+'/text()', g_document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null).iterateNext()
+              result = g_document.evaluate(g_rows_data[idx]['col_query']+'/text()', g_document, null, XPathResult.STRING_TYPE, null).stringValue.trim()
+
+            }
+            else if (g_rows_data[idx]['col_attr'] == "innerHTML"){
+              result = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null).iterateNext().innerHTML
+            }
+            else if (g_rows_data[idx]['col_attr'] == "outerHTML"){
+              result = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null).iterateNext().innerHTML
+            }
+            else{
+              result = g_document.evaluate(g_rows_data[idx]['col_query']+'/@'+g_rows_data[idx]['col_attr'], g_document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null).iterateNext().value
+
+            }
+         }
+         //console.log(typeof(result))
+         //console.log(result)
+         g_preview_result.push({'key':g_rows_data[idx]['col_key'], 'value':result })
+      }
+      //console.log('------0000000-------------')
+      //console.log(g_preview_result) 
+      chrome.runtime.sendMessage({preview_result: g_preview_result}, function (response) {
+      })
+  }
+  else if(request['type'] == 'valuesscrapper_xpath'){
+      g_rows_data = request['rows_data']
+  }
+});
+
+
+
 
 export class ValuesScrapperNode extends Node {
     constructor(props){
@@ -12,10 +67,12 @@ export class ValuesScrapperNode extends Node {
         this.state = {
             modalShow:false,
             rows:[{'col_key':'name'}, {'col_key':'price'}, {'col_key':'description'}],
-            prev_rows:[]
+            prev_rows:[],
+            previewmodalShow: false,
         }
         this.updateState()
     }
+
 
     updateState(){
         if(Object.keys(this.props.node.data).length >= 1 ){
@@ -222,6 +279,39 @@ export class ValuesScrapperNode extends Node {
 		            </div>
                 </Modal.Body>
                 <Modal.Footer>
+                    <Button color="primary" action='get_document' type="button"  
+                        onClick={(obj) => {
+                                var table_rows = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[0].childNodes[1].childNodes
+                                //console.log(table_rows)
+                                var rows_data = []
+                                for(var idx in table_rows){
+                                    var row_data = {}
+                                    //console.log(table_rows[idx])
+                                    for(var idxx in table_rows[idx].childNodes){
+                                        if(typeof table_rows[idx].childNodes[idxx].childNodes != "undefined"){
+                                            if(table_rows[idx].childNodes[idxx].childNodes[0].nodeName === "INPUT"){
+                                                row_data[table_rows[idx].childNodes[idxx].childNodes[0].name] = table_rows[idx].childNodes[idxx].childNodes[0].value 
+                                            }
+                                        }
+                                    }
+                                    if(Object.keys(row_data).length !== 0){
+                                        rows_data.push(row_data)
+                                    }
+                                }
+                                this.props.node.data['rows'] = rows_data
+                                g_rows_data = rows_data
+                                chrome.runtime.sendMessage({type:'valuesscrapper_xpath', rows_data:rows_data}, function (response) {
+                                });
+                                this.setState({
+                                    rows:rows_data,
+                                    previewmodalShow:true
+                                })
+                            }
+                        }
+                    >
+                    Preview
+                    </Button>
+
                     <Button color="primary" 
                         onClick={(obj) => {
                                 var table_rows = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[0].childNodes[1].childNodes
@@ -241,7 +331,7 @@ export class ValuesScrapperNode extends Node {
                                         rows_data.push(row_data)
                                     }
                                 }
-                                console.log(rows_data)
+                                //console.log(rows_data)
                                 this.setState({
                                     rows:rows_data,
                                     modalShow:false
@@ -265,6 +355,13 @@ export class ValuesScrapperNode extends Node {
                     </Button>
                 </Modal.Footer>
             </Modal>
+            <PreviewValuesModal
+                show={this.state.previewmodalShow}
+                rows_data = {g_rows_data}
+                preview = {g_preview_result}
+                setModalShow={(s) => this.setState({previewmodalShow: s})}
+            />
+
         </div>
     );
   }

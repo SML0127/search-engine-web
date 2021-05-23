@@ -85,6 +85,9 @@ Controller.prototype = {
 				"#edit-selector Button[action=unbind-otips]": {
 					click: this.unbind_otips
 				},
+				"Button[action=get_document]": {
+					click: this.get_document
+				},
 				"#edit-selector Button[action=select-selector]": {
 					click: this.selectSelector
 				},
@@ -1005,13 +1008,11 @@ Controller.prototype = {
 
 
 	otips: function () {
-	  //console.log('Show opeartion tips')
-	  //console.log('otips in Controller')
 		var deferredOtips = this.contentScript.showOperationTips({
 			allowedElements: "*"
 		});
 		deferredOtips.done(function(result) {
-      console.log(result)
+          console.log(result)
 		}.bind(this));
 	},
 
@@ -1020,9 +1021,25 @@ Controller.prototype = {
 			allowedElements: "*"
 		});
 		deferredOtips.done(function(result) {
-      console.log(result)
+          console.log(result)
 		}.bind(this));
 	},
+
+
+	get_document: function () {
+		var deferredResponse = $.Deferred();
+		var deferred_get_document = this.contentScript.getDocument({
+			allowedElements: "*"
+		});
+        //document in this context is html of extenstion 
+
+		deferred_get_document.done(function(result) {
+		  chrome.runtime.sendMessage({type:'html', html:result}, function (response) {
+		  	console.log(response)
+		  }.bind(this));
+		}.bind(this));
+	},
+
 
 
 
