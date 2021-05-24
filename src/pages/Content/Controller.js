@@ -85,8 +85,14 @@ Controller.prototype = {
 				"#edit-selector Button[action=unbind-otips]": {
 					click: this.unbind_otips
 				},
-				"Button[action=get_document]": {
-					click: this.get_document
+				"Button[action=get_document_by_values]": {
+					click: this.get_document_by_values
+				},
+				"Button[action=get_document_by_lists]": {
+					click: this.get_document_by_lists
+				},
+				"Button[action=get_document_by_dictionaries]": {
+					click: this.get_document_by_dictionaries
 				},
 				"#edit-selector Button[action=select-selector]": {
 					click: this.selectSelector
@@ -1026,7 +1032,7 @@ Controller.prototype = {
 	},
 
 
-	get_document: function () {
+	get_document_by_values: function () {
 		var deferredResponse = $.Deferred();
 		var deferred_get_document = this.contentScript.getDocument({
 			allowedElements: "*"
@@ -1034,11 +1040,45 @@ Controller.prototype = {
         //document in this context is html of extenstion 
 
 		deferred_get_document.done(function(result) {
-		  chrome.runtime.sendMessage({type:'html', html:result}, function (response) {
+		  chrome.runtime.sendMessage({type:'html_values', html:result}, function (response) {
 		  	console.log(response)
 		  }.bind(this));
 		}.bind(this));
 	},
+
+
+	get_document_by_lists: function () {
+		var deferredResponse = $.Deferred();
+		var deferred_get_document = this.contentScript.getDocument({
+			allowedElements: "*"
+		});
+        //document in this context is html of extenstion 
+
+		deferred_get_document.done(function(result) {
+		  chrome.runtime.sendMessage({type:'html_lists', html:result}, function (response) {
+		  	console.log(response)
+		  }.bind(this));
+		}.bind(this));
+	},
+
+
+
+
+
+	get_document_by_dictionaries: function () {
+		var deferredResponse = $.Deferred();
+		var deferred_get_document = this.contentScript.getDocument({
+			allowedElements: "*"
+		});
+        //document in this context is html of extenstion 
+
+		deferred_get_document.done(function(result) {
+		  chrome.runtime.sendMessage({type:'html_dictionaries', html:result}, function (response) {
+		  	console.log(response)
+		  }.bind(this));
+		}.bind(this));
+	},
+
 
 
 

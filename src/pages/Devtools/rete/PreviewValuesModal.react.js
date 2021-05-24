@@ -4,23 +4,19 @@ import ReactTable from "react-table"
 import * as React from "react";
 import { Button } from "tabler-react";
 import Modal from 'react-bootstrap/Modal';
-import axios from 'axios'
-
-let g_html = ''
-let g_rows_data = ''
-let g_document = ''
-let g_preview_result = []
 
 
 class PreviewValuesModal extends React.Component {
     constructor(props) {
         super(props);
-        this.state = this.initState()
 
+        this.state = {
+           g_preview : []
+        }
         chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-            //console.log('111111111111111111')
-            //console.log(request)
-            this.setState({g_preview_result:request['preview_result']})
+            if(request['node'] == 'value'){
+                this.setState({g_preview:request['preview_result']})
+            }
         }.bind(this));
 
     }
@@ -31,17 +27,6 @@ class PreviewValuesModal extends React.Component {
 
     componentWillReceiveProps(nextProps) {
       if (nextProps.show == true){
-        //console.log(nextProps)
-        //var rows_data = nextProps.rows_data
-        //console.log('------------------------')
-        //console.log(g_preview_result)
-        //console.log('------------------------')
-        //
-        //console.log(this.state.g_preview_result)
-        //if(this.state.g_preview_result != g_preview_result){
-        //    console.log('--------111111111-----------')
-        //    this.setState({g_preview_result: g_preview_result})
-        //}
       }
     }
 
@@ -49,13 +34,6 @@ class PreviewValuesModal extends React.Component {
     closeModal(){
         this.props.setModalShow(false)
     }
-
-    initState() {
-        return {
-            programs_info: [],
-        }
-    }
-
 
     closeModal(){
         this.props.setModalShow(false)
@@ -80,7 +58,7 @@ class PreviewValuesModal extends React.Component {
             </Modal.Header>
             <Modal.Body>
                 <ReactTable
-                    data = {this.state.g_preview_result}
+                    data = {this.state.g_preview}
                     columns={[
                         {
                             Header: "Key",

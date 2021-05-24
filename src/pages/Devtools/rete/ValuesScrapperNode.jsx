@@ -14,12 +14,12 @@ let g_document = ''
 let g_preview_result = []
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-  if(request['type'] == 'html'){
+  if(request['type'] == 'html_values'){
       //console.log('Preview')
       //console.log(request['html'])
       g_html = request['html']['inner_html']
       g_document = (new DOMParser).parseFromString(g_html, 'text/html');
-      var g_doc = (new DOMParser).parseFromString(g_html, 'text/xml');
+      //var g_doc = (new DOMParser).parseFromString(g_html, 'text/xml');
       g_preview_result = []
       for (var idx in g_rows_data){
          //console.log(g_rows_data[idx]['col_key'])
@@ -29,7 +29,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
          if(element != null){
             if (g_rows_data[idx]['col_attr'] == "alltext"){
               //result = g_document.evaluate(g_rows_data[idx]['col_query']+'/text()', g_document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null).iterateNext()
-              result = g_document.evaluate(g_rows_data[idx]['col_query']+'/text()', g_document, null, XPathResult.STRING_TYPE, null).stringValue.trim()
+              result = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.ANY_TYPE, null).iterateNext().innerText
 
             }
             else if (g_rows_data[idx]['col_attr'] == "innerHTML"){
@@ -47,9 +47,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
          //console.log(result)
          g_preview_result.push({'key':g_rows_data[idx]['col_key'], 'value':result })
       }
-      //console.log('------0000000-------------')
-      //console.log(g_preview_result) 
-      chrome.runtime.sendMessage({preview_result: g_preview_result}, function (response) {
+      console.log( g_preview_result)
+      chrome.runtime.sendMessage({node: 'value', preview_result: g_preview_result}, function (response) {
       })
   }
   else if(request['type'] == 'valuesscrapper_xpath'){
@@ -279,7 +278,7 @@ export class ValuesScrapperNode extends Node {
 		            </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button color="primary" action='get_document' type="button"  
+                    <Button color="primary" action='get_document_by_values' type="button"  
                         onClick={(obj) => {
                                 var table_rows = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[0].childNodes[1].childNodes
                                 //console.log(table_rows)
@@ -357,8 +356,6 @@ export class ValuesScrapperNode extends Node {
             </Modal>
             <PreviewValuesModal
                 show={this.state.previewmodalShow}
-                rows_data = {g_rows_data}
-                preview = {g_preview_result}
                 setModalShow={(s) => this.setState({previewmodalShow: s})}
             />
 

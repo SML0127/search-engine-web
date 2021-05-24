@@ -4,6 +4,66 @@ import { Form, Button } from "tabler-react";
 import Modal from 'react-bootstrap/Modal';
 import DropdownButton from 'react-bootstrap/DropdownButton'
 import Dropdown from 'react-bootstrap/Dropdown'
+import PreviewListsModal from "./PreviewListsModal.react";
+
+let g_rows_data = ''
+let g_html = ''
+let g_document = ''
+let g_preview_result = []
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  if(request['type'] == 'html_lists'){
+      g_html = request['html']['inner_html']
+      g_document = (new DOMParser).parseFromString(g_html, 'text/html');
+      g_preview_result = []
+      for (var idx in g_rows_data){
+         var elements = null
+         if (g_rows_data[idx]['col_attr'] == "alltext"){
+           //elements = g_document.evaluate(g_rows_data[idx]['col_query']+'/text()', g_document, null, XPathResult.ANY_TYPE, null)
+           elements = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.ANY_TYPE, null)
+         }
+         else if (g_rows_data[idx]['col_attr'] == "innerHTML"){
+           elements = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.ANY_TYPE, null)
+         }
+         else if (g_rows_data[idx]['col_attr'] == "outerHTML"){
+           elements = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.ANY_TYPE, null)
+         }
+         else{
+           elements = g_document.evaluate(g_rows_data[idx]['col_query']+'/@'+g_rows_data[idx]['col_attr'], g_document, null, XPathResult.ANY_TYPE, null)
+         }
+         var results = []
+         if(elements != null){
+            var node = null
+            while(node = elements.iterateNext()) {
+              var result = ""
+              if (g_rows_data[idx]['col_attr'] == "alltext"){
+                result = node.innerText
+                //console.log(node.textContent)
+                //console.log(node.innerText)
+              }
+              else if (g_rows_data[idx]['col_attr'] == "innerHTML"){
+                result = node.innerHTML
+              }
+              else if (g_rows_data[idx]['col_attr'] == "outerHTML"){
+                result = node.innerHTML
+              }
+              else{
+                result = node.value
+              }
+              results.push(result);
+            }
+         }
+         //console.log(results)
+         g_preview_result.push({'key':g_rows_data[idx]['col_key'], 'value':results.toString() })
+      }
+      //console.log( g_preview_result)
+      chrome.runtime.sendMessage({node: 'list', preview_result: g_preview_result}, function (response) {
+      })
+  }
+  else if(request['type'] == 'listsscrapper_xpath'){
+      g_rows_data = request['rows_data']
+  }
+});
 
 export class ListsScrapperNode extends Node {
     constructor(props){
@@ -11,7 +71,8 @@ export class ListsScrapperNode extends Node {
         this.state = {
             modalShow:false,
             rows:[{}],
-            prev_rows:[]
+            prev_rows:[],
+            previewmodalShow: false,
         }
         this.updateState()
     }
@@ -218,6 +279,37 @@ export class ListsScrapperNode extends Node {
 		              </div>
                   </Modal.Body>
                   <Modal.Footer>
+                      <Button color="primary" action='get_document_by_lists' type="button"  
+                          onClick={(obj) => {
+                                  var table_rows = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[0].childNodes[1].childNodes
+                                  var rows_data = []
+                                  for(var idx in table_rows){
+                                      var row_data = {}
+                                      for(var idxx in table_rows[idx].childNodes){
+                                          if(typeof table_rows[idx].childNodes[idxx].childNodes != "undefined"){
+                                              if(table_rows[idx].childNodes[idxx].childNodes[0].nodeName === "INPUT"){
+                                                  row_data[table_rows[idx].childNodes[idxx].childNodes[0].name] = table_rows[idx].childNodes[idxx].childNodes[0].value 
+                                              }
+                                          }
+                                      }
+                                      if(Object.keys(row_data).length !== 0){
+                                          rows_data.push(row_data)
+                                      }
+                                  }
+                                  this.props.node.data['rows'] = rows_data
+                                  g_rows_data = rows_data
+                                  chrome.runtime.sendMessage({type:'listsscrapper_xpath', rows_data:rows_data}, function (response) {
+                                  });
+                                  this.setState({
+                                      rows:rows_data,
+                                      previewmodalShow: true
+                                  })
+                              }
+                          }
+                      >
+                      Preview
+                      </Button>
+
                       <Button color="primary" 
                           onClick={(obj) => {
                                   var table_rows = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[0].childNodes[1].childNodes
@@ -258,6 +350,10 @@ export class ListsScrapperNode extends Node {
                       </Button>
                   </Modal.Footer>
               </Modal>
+              <PreviewListsModal
+                  show={this.state.previewmodalShow}
+                  setModalShow={(s) => this.setState({previewmodalShow: s})}
+              />
           </div>
       );
     }

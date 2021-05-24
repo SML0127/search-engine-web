@@ -4,13 +4,94 @@ import { Form, Button } from "tabler-react";
 import Modal from 'react-bootstrap/Modal';
 import DropdownButton from 'react-bootstrap/DropdownButton'
 import Dropdown from 'react-bootstrap/Dropdown'
+import PreviewDictionariesModal from "./PreviewDictionariesModal.react";
+
+let g_rows_data = ''
+let g_html = ''
+let g_document = ''
+let g_preview_result = []
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  if(request['type'] == 'html_dictionaries'){
+      g_html = request['html']['inner_html']
+      g_document = (new DOMParser).parseFromString(g_html, 'text/html');
+      g_preview_result = []
+      for (var idx in g_rows_data){
+         var title = g_document.evaluate(g_rows_data[idx]['col_title'], g_document, null, XPathResult.ANY_TYPE, null).iterateNext()
+         if (title == null){
+             break;
+         }
+         else{
+            title = title.innerText
+         }
+         var elements = g_document.evaluate(g_rows_data[idx]['col_rows_query'], g_document, null, XPathResult.ANY_TYPE, null)
+         var elements_key = g_document.evaluate(g_rows_data[idx]['col_rows_query'] + g_rows_data[idx]['col_key_query'].substring(1), g_document, null, XPathResult.ANY_TYPE, null)
+         var elements_value = g_document.evaluate(g_rows_data[idx]['col_rows_query'] + g_rows_data[idx]['col_value_query'].substring(1), g_document, null, XPathResult.ANY_TYPE, null)
+         var results = {}
+         results['dictionary_title0'] = title
+         if(elements != null){
+            var result = ""
+            var result_key = ""
+            var result_value = ""
+            var results_key = []
+            var results_value = []
+            var node_key = null
+            var node_value = null
+            while(node_key = elements_key.iterateNext()) {
+               if (g_rows_data[idx]['col_value_attribute'] == "alltext"){
+                 result_key = node_key.innerText.trim()
+               }
+               else if (g_rows_data[idx]['col_value_attribute'] == "innerHTML"){
+                 result_key = node_key.innerHTML
+               }
+               else if (g_rows_data[idx]['col_value_attribute'] == "outerHTML"){
+                 result_key = node_key.innerHTML
+               }
+               else{
+                 result_key = node_key.value
+               }
+               results_key.push(result_key)
+            }
+            while(node_value = elements_value.iterateNext()) {
+               if (g_rows_data[idx]['col_value_attribute'] == "alltext"){
+                 result_value = node_value.innerText.trim()
+               }
+               else if (g_rows_data[idx]['col_value_attribute'] == "innerHTML"){
+                 result_value = node_value.innerHTML
+               }
+               else if (g_rows_data[idx]['col_value_attribute'] == "outerHTML"){
+                 result_value = node_value.innerHTML
+               }
+               else{
+                 result_value = node_value.value
+               }
+               results_value.push(result_value)
+            }
+            for (var idx in results_key){
+               results[results_key[idx]] = results_value[idx] 
+            }
+         }
+         g_preview_result.push({'dictionary': JSON.stringify(results)})
+         //g_preview_result.push({'dictionary': "tttttttttttttest"})
+      }
+      //console.log( g_preview_result)
+      chrome.runtime.sendMessage({node: 'dictionary', preview_result:g_preview_result}, function (response) {
+      })
+  }
+  else if(request['type'] == 'dictionariesscrapper_xpath'){
+      g_rows_data = request['rows_data']
+  }
+});
+
+
 
 export class DictionariesScrapperNode extends Node {
     constructor(props){
         super(props)
         this.state = {
             modalShow:false,
-            rows:[{}]
+            rows:[{}],
+            previewmodalShow: false
         }
         this.updateState() 
     }
@@ -269,6 +350,41 @@ export class DictionariesScrapperNode extends Node {
 		            </div>
                 </Modal.Body>
                 <Modal.Footer>
+                    <Button color="primary" action='get_document_by_dictionaries' type="button"  
+                        onClick={(obj) => {
+                                var table_rows = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[0].childNodes[1].childNodes
+                                var rows_data = []
+                                for(var idx in table_rows){
+                                    var row_data = {}
+                                    if(typeof table_rows[idx].childNodes != "undefined"){
+                                      for(let idxx in table_rows[idx].childNodes){
+                                        for(let idxxx in table_rows[idx].childNodes[idxx].childNodes){
+                                          if(table_rows[idx].childNodes[idxx].childNodes[idxxx].nodeName==="INPUT"){
+                                        
+                                            row_data[table_rows[idx].childNodes[idxx].childNodes[idxxx].name] = table_rows[idx].childNodes[idxx].childNodes[idxxx].value 
+                                          }
+
+                                        }
+                                      }
+                                    }
+                                    if(Object.keys(row_data).length !== 0){
+                                        rows_data.push(row_data)
+                                    }
+                                }
+
+                                this.props.node.data['rows'] = rows_data
+                                g_rows_data = rows_data
+                                chrome.runtime.sendMessage({type:'dictionariesscrapper_xpath', rows_data:rows_data}, function (response) {
+                                });
+                                this.setState({
+                                    rows:rows_data,
+                                    previewmodalShow: true
+                                })
+                            }
+                        }
+                    >
+                    Preview
+                    </Button>
                     <Button color="primary" 
                         onClick={(obj) => {
                                 var table_rows = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[0].childNodes[1].childNodes
@@ -311,6 +427,10 @@ export class DictionariesScrapperNode extends Node {
                     </Button>
                 </Modal.Footer>
               </Modal>
+              <PreviewDictionariesModal
+                  show={this.state.previewmodalShow}
+                  setModalShow={(s) => this.setState({previewmodalShow: s})}
+              />
             </div>
         );
     }

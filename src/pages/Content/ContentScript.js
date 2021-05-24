@@ -63,11 +63,8 @@ var ContentScript = {
 	getDocument: function(request) {
 		var deferredResponse = $.Deferred();
         var document_innerHTML = document.documentElement.innerHTML;
-        var document_element = document.documentElement;
         deferredResponse.resolve({
             inner_html: document_innerHTML,
-            document_html: document_element,
-            document_original: document
         });
 		return deferredResponse.promise();
 	},
