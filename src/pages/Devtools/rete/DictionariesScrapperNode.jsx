@@ -16,63 +16,65 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       g_html = request['html']['inner_html']
       g_document = (new DOMParser).parseFromString(g_html, 'text/html');
       g_preview_result = []
+      console.log(g_rows_data)
       for (var idx in g_rows_data){
-         var title = g_document.evaluate(g_rows_data[idx]['col_title'], g_document, null, XPathResult.ANY_TYPE, null).iterateNext()
-         if (title == null){
-             break;
-         }
-         else{
-            title = title.innerText
-         }
-         var elements = g_document.evaluate(g_rows_data[idx]['col_rows_query'], g_document, null, XPathResult.ANY_TYPE, null)
-         var elements_key = g_document.evaluate(g_rows_data[idx]['col_rows_query'] + g_rows_data[idx]['col_key_query'].substring(1), g_document, null, XPathResult.ANY_TYPE, null)
-         var elements_value = g_document.evaluate(g_rows_data[idx]['col_rows_query'] + g_rows_data[idx]['col_value_query'].substring(1), g_document, null, XPathResult.ANY_TYPE, null)
-         var results = {}
-         results['dictionary_title0'] = title
-         if(elements != null){
-            var result = ""
-            var result_key = ""
-            var result_value = ""
-            var results_key = []
-            var results_value = []
-            var node_key = null
-            var node_value = null
-            while(node_key = elements_key.iterateNext()) {
-               if (g_rows_data[idx]['col_value_attribute'] == "alltext"){
-                 result_key = node_key.innerText.trim()
-               }
-               else if (g_rows_data[idx]['col_value_attribute'] == "innerHTML"){
-                 result_key = node_key.innerHTML
-               }
-               else if (g_rows_data[idx]['col_value_attribute'] == "outerHTML"){
-                 result_key = node_key.innerHTML
-               }
-               else{
-                 result_key = node_key.value
-               }
-               results_key.push(result_key)
+         if(g_rows_data[idx]['col_title'].trim() != "" && g_rows_data[idx]['col_rows_query'].trim != ""  && g_rows_data[idx]['col_value_query'].trim != "" && g_rows_data[idx]['col_value_attribute'].trim != ""){
+            var title = g_document.evaluate(g_rows_data[idx]['col_title'], g_document, null, XPathResult.ANY_TYPE, null).iterateNext()
+            if (title == null){
+                break;
             }
-            while(node_value = elements_value.iterateNext()) {
-               if (g_rows_data[idx]['col_value_attribute'] == "alltext"){
-                 result_value = node_value.innerText.trim()
-               }
-               else if (g_rows_data[idx]['col_value_attribute'] == "innerHTML"){
-                 result_value = node_value.innerHTML
-               }
-               else if (g_rows_data[idx]['col_value_attribute'] == "outerHTML"){
-                 result_value = node_value.innerHTML
-               }
-               else{
-                 result_value = node_value.value
-               }
-               results_value.push(result_value)
+            else{
+               title = title.innerText
             }
-            for (var idx in results_key){
-               results[results_key[idx]] = results_value[idx] 
+            var elements = g_document.evaluate(g_rows_data[idx]['col_rows_query'], g_document, null, XPathResult.ANY_TYPE, null)
+            var elements_key = g_document.evaluate(g_rows_data[idx]['col_rows_query'] + g_rows_data[idx]['col_key_query'].substring(1), g_document, null, XPathResult.ANY_TYPE, null)
+            var elements_value = g_document.evaluate(g_rows_data[idx]['col_rows_query'] + g_rows_data[idx]['col_value_query'].substring(1), g_document, null, XPathResult.ANY_TYPE, null)
+            var results = {}
+            results['dictionary_title0'] = title
+            if(elements != null){
+               var result = ""
+               var result_key = ""
+               var result_value = ""
+               var results_key = []
+               var results_value = []
+               var node_key = null
+               var node_value = null
+               while(node_key = elements_key.iterateNext()) {
+                  if (g_rows_data[idx]['col_value_attribute'] == "alltext"){
+                    result_key = node_key.innerText.trim()
+                  }
+                  else if (g_rows_data[idx]['col_value_attribute'] == "innerHTML"){
+                    result_key = node_key.innerHTML
+                  }
+                  else if (g_rows_data[idx]['col_value_attribute'] == "outerHTML"){
+                    result_key = node_key.innerHTML
+                  }
+                  else{
+                    result_key = node_key.value
+                  }
+                  results_key.push(result_key)
+               }
+               while(node_value = elements_value.iterateNext()) {
+                  if (g_rows_data[idx]['col_value_attribute'] == "alltext"){
+                    result_value = node_value.innerText.trim()
+                  }
+                  else if (g_rows_data[idx]['col_value_attribute'] == "innerHTML"){
+                    result_value = node_value.innerHTML
+                  }
+                  else if (g_rows_data[idx]['col_value_attribute'] == "outerHTML"){
+                    result_value = node_value.innerHTML
+                  }
+                  else{
+                    result_value = node_value.value
+                  }
+                  results_value.push(result_value)
+               }
+               for (var idx in results_key){
+                  results[results_key[idx]] = results_value[idx] 
+               }
             }
+            g_preview_result.push({'dictionary': JSON.stringify(results)})
          }
-         g_preview_result.push({'dictionary': JSON.stringify(results)})
-         //g_preview_result.push({'dictionary': "tttttttttttttest"})
       }
       //console.log( g_preview_result)
       chrome.runtime.sendMessage({node: 'dictionary', preview_result:g_preview_result}, function (response) {

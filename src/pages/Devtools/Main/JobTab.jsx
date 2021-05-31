@@ -263,6 +263,7 @@ class JobTab extends React.Component {
                    for(let node in user_program['workflow']['nodes']){
                      if(user_program['workflow']['nodes'][node]['name'] == "OpenURL"){
                        user_program['workflow']['nodes'][node]['data']['url'] = obj.props.url 
+                       break;
                      }
                    }
                  }
@@ -496,6 +497,15 @@ class JobTab extends React.Component {
         g_user_program = user_program
         console.log('draw work flow')
         console.log(upid)
+        if(upid_template){
+          for(let node in user_program['workflow']['nodes']){
+            if(user_program['workflow']['nodes'][node]['name'] == "OpenURL"){
+              user_program['workflow']['nodes'][node]['data']['url'] = this.props.url 
+              break;
+            }
+          }
+        }
+
         this.setState({
           refresh:++tmp, 
           dataDB: JSON.stringify(user_program['dataDb'], null, 2), 

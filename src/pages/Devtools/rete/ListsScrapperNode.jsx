@@ -16,45 +16,48 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       g_html = request['html']['inner_html']
       g_document = (new DOMParser).parseFromString(g_html, 'text/html');
       g_preview_result = []
+      console.log(g_rows_data)
       for (var idx in g_rows_data){
-         var elements = null
-         if (g_rows_data[idx]['col_attr'] == "alltext"){
-           //elements = g_document.evaluate(g_rows_data[idx]['col_query']+'/text()', g_document, null, XPathResult.ANY_TYPE, null)
-           elements = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.ANY_TYPE, null)
-         }
-         else if (g_rows_data[idx]['col_attr'] == "innerHTML"){
-           elements = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.ANY_TYPE, null)
-         }
-         else if (g_rows_data[idx]['col_attr'] == "outerHTML"){
-           elements = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.ANY_TYPE, null)
-         }
-         else{
-           elements = g_document.evaluate(g_rows_data[idx]['col_query']+'/@'+g_rows_data[idx]['col_attr'], g_document, null, XPathResult.ANY_TYPE, null)
-         }
-         var results = []
-         if(elements != null){
-            var node = null
-            while(node = elements.iterateNext()) {
-              var result = ""
-              if (g_rows_data[idx]['col_attr'] == "alltext"){
-                result = node.innerText
-                //console.log(node.textContent)
-                //console.log(node.innerText)
-              }
-              else if (g_rows_data[idx]['col_attr'] == "innerHTML"){
-                result = node.innerHTML
-              }
-              else if (g_rows_data[idx]['col_attr'] == "outerHTML"){
-                result = node.innerHTML
-              }
-              else{
-                result = node.value
-              }
-              results.push(result);
+         if(g_rows_data[idx]['col_attr'].trim() != "" && g_rows_data[idx]['col_query'].trim != ""){
+            var elements = null
+            if (g_rows_data[idx]['col_attr'] == "alltext"){
+              //elements = g_document.evaluate(g_rows_data[idx]['col_query']+'/text()', g_document, null, XPathResult.ANY_TYPE, null)
+              elements = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.ANY_TYPE, null)
             }
+            else if (g_rows_data[idx]['col_attr'] == "innerHTML"){
+              elements = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.ANY_TYPE, null)
+            }
+            else if (g_rows_data[idx]['col_attr'] == "outerHTML"){
+              elements = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.ANY_TYPE, null)
+            }
+            else{
+              elements = g_document.evaluate(g_rows_data[idx]['col_query']+'/@'+g_rows_data[idx]['col_attr'], g_document, null, XPathResult.ANY_TYPE, null)
+            }
+            var results = []
+            if(elements != null){
+               var node = null
+               while(node = elements.iterateNext()) {
+                 var result = ""
+                 if (g_rows_data[idx]['col_attr'] == "alltext"){
+                   result = node.innerText
+                   //console.log(node.textContent)
+                   //console.log(node.innerText)
+                 }
+                 else if (g_rows_data[idx]['col_attr'] == "innerHTML"){
+                   result = node.innerHTML
+                 }
+                 else if (g_rows_data[idx]['col_attr'] == "outerHTML"){
+                   result = node.innerHTML
+                 }
+                 else{
+                   result = node.value
+                 }
+                 results.push(result);
+               }
+            }
+            //console.log(results)
+            g_preview_result.push({'key':g_rows_data[idx]['col_key'], 'value':results.toString() })
          }
-         //console.log(results)
-         g_preview_result.push({'key':g_rows_data[idx]['col_key'], 'value':results.toString() })
       }
       //console.log( g_preview_result)
       chrome.runtime.sendMessage({node: 'list', preview_result: g_preview_result}, function (response) {

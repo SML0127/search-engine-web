@@ -4,6 +4,86 @@ import { Form, Button } from "tabler-react";
 import Modal from 'react-bootstrap/Modal';
 import Tooltip from 'react-bootstrap/Tooltip'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import PreviewMatrixOptionModal from "./PreviewMatrixOptionModal.react";
+
+
+let g_rows_data = ''
+let g_html = ''
+let g_document = ''
+let g_preview_result = []
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  if(request['type'] == 'html_matrix_option'){
+      g_html = request['html']['inner_html']
+      g_document = (new DOMParser).parseFromString(g_html, 'text/html');
+      
+
+      //g_rows_data['option_name_query'] // //td[position() mod 2 = 1]/span[@class='inventory_title']
+      //g_rows_data['option_x_value_query'] // //tr[1]/td[@class='inventory_choice_name']//span
+      //g_rows_data['option_y_value_query'] // //tr[position()>1]/td[@class='inventory_choice_name']//span
+      //g_rows_data['option_matrix_row_wise_value_query'] // //td[@class='inventory']/span[@class='inventory_soldout'] | //input[@name='inventory_id']
+      var elements_option_names = g_document.evaluate(g_rows_data['option_name_query'], g_document, null, XPathResult.ANY_TYPE, null)
+      var option_col_values = g_document.evaluate(g_rows_data['option_x_value_query'], g_document, null, XPathResult.ANY_TYPE, null)
+      var option_row_values = g_document.evaluate(g_rows_data['option_y_value_query'], g_document, null, XPathResult.ANY_TYPE, null)
+      var option_matrix_values = g_document.evaluate(g_rows_data['option_matrix_row_wise_value_query'], g_document, null, XPathResult.ANY_TYPE, null)
+
+      var node_option_name = null
+      var option_names = []
+      while(node_option_name = elements_option_names.iterateNext()) {
+         var option_name = node_option_name.innerText.trim()
+         option_names.push(option_name)
+      }
+      var node_option_col_value = null
+      var option_col_values_array = []
+      while(node_option_col_value = option_col_values.iterateNext()) {
+         var option_value = node_option_col_value.innerText.trim()
+         option_col_values_array.push(option_value)
+      }
+
+      var node_option_row_value = null
+      var option_row_values_array = []
+      while(node_option_row_value = option_row_values.iterateNext()) {
+         var option_value = node_option_row_value.innerText.trim()
+         option_row_values_array.push(option_value)
+      }
+
+      var node_option_matrix_value = null
+      var option_matrix_values_array = []
+      while(node_option_matrix_value = option_matrix_values.iterateNext()) {
+         var option_value = node_option_matrix_value.innerText.trim()
+         option_matrix_values_array.push(option_value)
+      }
+
+      //console.log(option_names)
+      //console.log(option_col_values_array)
+      //console.log(option_row_values_array)
+      //console.log(option_matrix_values_array)
+
+      var results = {}
+      if (option_names.length > 0){
+         results['option_names'] = option_names
+      }
+      if (option_row_values_array.length > 0){
+         results['option_row_values_array'] = option_row_values_array
+      }
+      if (option_col_values_array.length > 0){
+         results['option_col_values_array'] = option_col_values_array
+      }
+      if (option_matrix_values_array.length > 0){
+         results['option_matrix_values'] = option_matrix_values_array
+      }
+
+      //console.log(results)
+      chrome.runtime.sendMessage({node: 'option_matrix', preview_result: JSON.stringify(results, undefined, 4)}, function (response) {
+      })
+  }
+  else if(request['type'] == 'matrixoptionscrapper_xpath'){
+      g_rows_data = request['rows_data']
+  }
+});
+
+
+
 
 export class OptionMatrixScrapperNode extends Node {
     constructor(props){
@@ -11,8 +91,10 @@ export class OptionMatrixScrapperNode extends Node {
         this.state = {
             modalShow:false,
             option_name_query:"",
-            option_dropdown_query:"",
-            option_value_query:""
+            option_x_value_query:"",
+            option_y_value_query:"",
+            option_matrix_row_wise_value_query: "",
+            previewmodalShow: false,
         }
         this.updateState()
     }
@@ -138,6 +220,32 @@ export class OptionMatrixScrapperNode extends Node {
 
             </Modal.Body>
             <Modal.Footer>
+                <Button color="primary" action='get_document_by_option_matrix' type="button"  
+                    onClick={(obj) => {
+                            var input_option_name_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[0].childNodes[1]['value']
+                            var input_option_x_value_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[1].childNodes[1]['value']
+                            var input_option_y_value_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[2].childNodes[1]['value']
+                            var input_option_matrix_row_wise_value_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[1]['value']
+                            this.props.node.data['option_name_query'] = input_option_name_query
+                            this.props.node.data['option_x_value_query'] = input_option_x_value_query
+                            this.props.node.data['option_y_value_query'] = input_option_y_value_query
+                            this.props.node.data['option_matrix_row_wise_value_query'] = input_option_matrix_row_wise_value_query
+                            var rows_data = {'option_name_query': input_option_name_query, 'option_x_value_query': input_option_x_value_query, 'option_y_value_query':input_option_y_value_query, "option_matrix_row_wise_value_query": input_option_matrix_row_wise_value_query }
+                            g_rows_data = rows_data
+                            chrome.runtime.sendMessage({type:'matrixoptionscrapper_xpath', rows_data:rows_data}, function (response) {
+                            });
+                            this.setState({
+                                option_name_query: input_option_name_query, 
+                                option_x_value_query: input_option_x_value_query, 
+                                option_y_value_query: input_option_y_value_query,
+                                option_matrix_row_wise_value_query: input_option_matrix_row_wise_value_query, 
+                                previewmodalShow:true
+                            })
+                        }
+                    }
+                >
+                Preview
+                </Button>
                 <Button color="primary" 
                     onClick={(obj) => {
                             var input_option_name_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[0].childNodes[1]['value']
@@ -164,6 +272,10 @@ export class OptionMatrixScrapperNode extends Node {
                 </Button>
             </Modal.Footer>
         </Modal>
+        <PreviewMatrixOptionModal
+            show={this.state.previewmodalShow}
+            setModalShow={(s) => this.setState({previewmodalShow: s})}
+        />
         </div>
         </div>
     );

@@ -15,39 +15,42 @@ let g_preview_result = []
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if(request['type'] == 'html_values'){
-      //console.log('Preview')
-      //console.log(request['html'])
       g_html = request['html']['inner_html']
       g_document = (new DOMParser).parseFromString(g_html, 'text/html');
-      //var g_doc = (new DOMParser).parseFromString(g_html, 'text/xml');
+      
       g_preview_result = []
+      console.log(g_rows_data)
       for (var idx in g_rows_data){
-         //console.log(g_rows_data[idx]['col_key'])
-         //console.log(g_rows_data[idx]['col_query'])
-         var element = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null).iterateNext()
-         var result = ""
-         if(element != null){
-            if (g_rows_data[idx]['col_attr'] == "alltext"){
-              //result = g_document.evaluate(g_rows_data[idx]['col_query']+'/text()', g_document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null).iterateNext()
-              result = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.ANY_TYPE, null).iterateNext().innerText
-
-            }
-            else if (g_rows_data[idx]['col_attr'] == "innerHTML"){
-              result = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null).iterateNext().innerHTML
-            }
-            else if (g_rows_data[idx]['col_attr'] == "outerHTML"){
-              result = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null).iterateNext().innerHTML
+         if(g_rows_data[idx]['col_attr'].trim() != "" && g_rows_data[idx]['col_query'].trim != ""){
+            var result = ""
+            if (g_rows_data[idx]['col_attr'] == "Default Value(constant)"){
+               result = g_rows_data[idx]['col_query']
             }
             else{
-              result = g_document.evaluate(g_rows_data[idx]['col_query']+'/@'+g_rows_data[idx]['col_attr'], g_document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null).iterateNext().value
+               var element = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null).iterateNext()
+               if(element != null){
+                  if (g_rows_data[idx]['col_attr'] == "alltext"){
+                    //result = g_document.evaluate(g_rows_data[idx]['col_query']+'/text()', g_document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null).iterateNext()
+                    result = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.ANY_TYPE, null).iterateNext().innerText
 
+                  }
+                  else if (g_rows_data[idx]['col_attr'] == "innerHTML"){
+                    result = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null).iterateNext().innerHTML
+                  }
+                  else if (g_rows_data[idx]['col_attr'] == "outerHTML"){
+                    result = g_document.evaluate(g_rows_data[idx]['col_query'], g_document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null).iterateNext().innerHTML
+                  }
+                  else{
+                    result = g_document.evaluate(g_rows_data[idx]['col_query']+'/@'+g_rows_data[idx]['col_attr'], g_document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null).iterateNext().value
+
+                  }
+               }
             }
+            console.log(result)
+            g_preview_result.push({'key':g_rows_data[idx]['col_key'], 'value':result })
          }
-         //console.log(typeof(result))
-         //console.log(result)
-         g_preview_result.push({'key':g_rows_data[idx]['col_key'], 'value':result })
       }
-      console.log( g_preview_result)
+      //console.log( g_preview_result)
       chrome.runtime.sendMessage({node: 'value', preview_result: g_preview_result}, function (response) {
       })
   }
@@ -237,6 +240,7 @@ export class ValuesScrapperNode extends Node {
                                           <Dropdown.Item onSelect={()=>{this.handleChangeAttr(idx,"href")}}>href</Dropdown.Item>
                                           <Dropdown.Item onSelect={()=>{this.handleChangeAttr(idx,"innerHTML")}}>innerHTML</Dropdown.Item>
                                           <Dropdown.Item onSelect={()=>{this.handleChangeAttr(idx,"outerHTML")}}>outerHTML</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeAttr(idx,"Default Value(constant)")}}>Default Value(constant)</Dropdown.Item>
                                         </DropdownButton>
                                     </td>
                                     <td style = {{width:'18%'}}>

@@ -94,6 +94,12 @@ Controller.prototype = {
 				"Button[action=get_document_by_dictionaries]": {
 					click: this.get_document_by_dictionaries
 				},
+				"Button[action=get_document_by_option_list]": {
+					click: this.get_document_by_option_list
+				},
+				"Button[action=get_document_by_option_matrix]": {
+					click: this.get_document_by_option_matrix
+				},
 				"#edit-selector Button[action=select-selector]": {
 					click: this.selectSelector
 				},
@@ -1080,8 +1086,35 @@ Controller.prototype = {
 	},
 
 
+	get_document_by_option_list: function () {
+		var deferredResponse = $.Deferred();
+		var deferred_get_document = this.contentScript.getDocument({
+			allowedElements: "*"
+		});
+        //document in this context is html of extenstion 
+
+		deferred_get_document.done(function(result) {
+		  chrome.runtime.sendMessage({type:'html_list_option', html:result}, function (response) {
+		  	console.log(response)
+		  }.bind(this));
+		}.bind(this));
+	},
 
 
+
+	get_document_by_option_matrix: function () {
+		var deferredResponse = $.Deferred();
+		var deferred_get_document = this.contentScript.getDocument({
+			allowedElements: "*"
+		});
+        //document in this context is html of extenstion 
+
+		deferred_get_document.done(function(result) {
+		  chrome.runtime.sendMessage({type:'html_matrix_option', html:result}, function (response) {
+		  	console.log(response)
+		  }.bind(this));
+		}.bind(this));
+	},
 
 
 

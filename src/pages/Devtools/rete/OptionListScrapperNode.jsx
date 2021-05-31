@@ -4,6 +4,53 @@ import { Form, Button } from "tabler-react";
 import Modal from 'react-bootstrap/Modal';
 import Tooltip from 'react-bootstrap/Tooltip'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import PreviewListOptionModal from "./PreviewListOptionModal.react";
+
+
+let g_rows_data = ''
+let g_html = ''
+let g_document = ''
+let g_preview_result = []
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  if(request['type'] == 'html_list_option'){
+      g_html = request['html']['inner_html']
+      g_document = (new DOMParser).parseFromString(g_html, 'text/html');
+
+      var elements_option_names = g_document.evaluate(g_rows_data['option_name_query'], g_document, null, XPathResult.ANY_TYPE, null)
+      var elements_dropdown = g_document.evaluate(g_rows_data['option_dropdown_query'], g_document, null, XPathResult.ANY_TYPE, null)
+
+      var node_option_name = null
+      var option_names = []
+      while(node_option_name = elements_option_names.iterateNext()) {
+         var option_name = node_option_name.innerText.trim()
+         option_names.push(option_name)
+      }
+
+      var node_dropdown = null
+      var option_dropdown_values = [] 
+      while(node_dropdown = elements_dropdown.iterateNext()) {
+         var option_dropdown_html = (new DOMParser).parseFromString(node_dropdown.innerHTML, 'text/html');
+         var elements_dropdown_value = option_dropdown_html.evaluate('/'+g_rows_data['option_value_query'].substring(1), option_dropdown_html, null, XPathResult.ANY_TYPE, null)
+         var node_dropdown_value = null
+         var option_values = [] 
+         while(node_dropdown_value = elements_dropdown_value.iterateNext()) {
+            var option_dropdown_value = node_dropdown_value.innerText.trim()
+            option_values.push(option_dropdown_value)
+         }
+         option_dropdown_values.push(option_values)
+      }
+      var results = {}
+      for (var idx in option_names){
+         results[option_names[idx]] = option_dropdown_values[idx] 
+      }
+      chrome.runtime.sendMessage({node: 'option_list', preview_result: JSON.stringify(results,undefined, 4)}, function (response) {
+      })
+  }
+  else if(request['type'] == 'listoptionscrapper_xpath'){
+      g_rows_data = request['rows_data']
+  }
+});
 
 export class OptionListScrapperNode extends Node {
     constructor(props){
@@ -12,7 +59,8 @@ export class OptionListScrapperNode extends Node {
             modalShow:false,
             option_name_query:"",
             option_dropdown_query:"",
-            option_value_query:""
+            option_value_query:"",
+            previewmodalShow: false,
         }
         this.updateState()
     }
@@ -128,6 +176,31 @@ export class OptionListScrapperNode extends Node {
 
             </Modal.Body>
             <Modal.Footer>
+                <Button color="primary" action='get_document_by_option_list' type="button"  
+                    onClick={(obj) => {
+                            var input_option_name_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[0].childNodes[1]['value']
+                            var input_option_dropdown_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[1].childNodes[1]['value']
+                            var input_option_value_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[2].childNodes[1]['value']
+                            
+                            this.props.node.data['option_name_query'] = input_option_name_query
+                            this.props.node.data['option_dropdown_query'] = input_option_dropdown_query
+                            this.props.node.data['option_value_query'] = input_option_value_query
+                            var rows_data = {'option_name_query': input_option_name_query, 'option_dropdown_query': input_option_dropdown_query, 'option_value_query':input_option_value_query }
+                            g_rows_data = rows_data
+                            chrome.runtime.sendMessage({type:'listoptionscrapper_xpath', rows_data:rows_data}, function (response) {
+                            });
+                            this.setState({
+                                option_name_query: input_option_name_query, 
+                                option_dropdown_query: input_option_dropdown_query, 
+                                option_value_query: input_option_value_query,
+                                previewmodalShow: true
+                            })
+                        }
+                    }
+                >
+                Preview
+                </Button>
+
                 <Button color="primary" 
                     onClick={(obj) => {
                             var input_option_name_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[0].childNodes[1]['value']
@@ -152,6 +225,10 @@ export class OptionListScrapperNode extends Node {
                 </Button>
             </Modal.Footer>
         </Modal>
+        <PreviewListOptionModal
+            show={this.state.previewmodalShow}
+            setModalShow={(s) => this.setState({previewmodalShow: s})}
+        />
         </div>
         </div>
     );
