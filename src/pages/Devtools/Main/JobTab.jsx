@@ -25,6 +25,7 @@ import EditableTree from '../TreeView/components/tree';
 import LoadProgramModal from "./LoadProgramModal.react";
 import ErrorModal from "./ErrorModal.react";
 import DataModal from "./DataModal.react";
+import CrawledHistoryModal from "./CrawledHistoryModal.react";
 import ErrorMysiteModal from "./ErrorMysiteModal.react";
 import ErrorTargetsiteModal from "./ErrorTargetsiteModal.react";
 import SaveProgramModal from "./SaveProgramModal.react";
@@ -1119,16 +1120,27 @@ class JobTab extends React.Component {
 
 
                   <label style={{paddingTop:'1%', paddingLeft:'1%', fontWeight:'bold'}}> Crawling history
-                    <img
-                      src={refreshIcon}
-                      width="20"
-                      height="20"
-                      onClick={() =>
-                        this.refreshList()
-                      }
-                      style = {{cursor:'pointer', marginLeft:'0.5%', marginBottom:'0.2%' }}
-                    />
+
                   </label> 
+                  <Button 
+                    color="secondary"
+                    style = {{float:'center',  textTransform: 'capitalize', marginLeft:'0.5%'}}
+                    onClick={() => {
+                          this.setState({crawledHistoryModalShow: true})
+                        }
+                    }
+                  >
+                  Show All Cralwed Data 
+                  </Button>
+                  <img
+                    src={refreshIcon}
+                    width="20"
+                    height="20"
+                    onClick={() =>
+                      this.refreshList()
+                    }
+                    style = {{cursor:'pointer', marginLeft:'1%', marginBottom:'0.2%' }}
+                  />
                   <ReactTable
                       data = {items}
                       columns={[
@@ -1743,6 +1755,11 @@ class JobTab extends React.Component {
                       updateProgram= {this.updateProgram}
                       setModalShow={(s) => this.setState({updateUserProgramModalShow: s})}
                   />
+                  <CrawledHistoryModal
+                      show={this.state.crawledHistoryModalShow}
+                      JobId = {this.props.jobId}
+                      setModalShow={(s) => this.setState({crawledHistoryModalShow: s})}
+                  />
                   </Card>
                 </Grid.Col> 
               </Grid.Row>
@@ -1762,16 +1779,26 @@ class JobTab extends React.Component {
                     title=""
                 >
                   <label style={{paddingTop:'1%', paddingLeft:'1%', fontWeight:'bold'}}> Crawling history 
-                    <img
-                      src={refreshIcon}
-                      width="20"
-                      height="20"
-                      onClick={() =>
-                        this.refreshList()
-                      }
-                      style = {{cursor:'pointer', marginLeft:'0.5%', marginBottom:'0.2%' }}
-                    />
                   </label> 
+                  <Button 
+                    color="secondary"
+                    style = {{float:'center',  textTransform: 'capitalize', marginLeft:'0.5%'}}
+                    onClick={() => {
+                          this.setState({crawledHistoryModalShow: true})
+                        }
+                    }
+                  >
+                  Show All Cralwed Data 
+                  </Button>
+                  <img
+                    src={refreshIcon}
+                    width="20"
+                    height="20"
+                    onClick={() =>
+                      this.refreshList()
+                    }
+                    style = {{cursor:'pointer', marginLeft:'1%', marginBottom:'0.2%' }}
+                  />
                   <ReactTable
                       data = {items}
                       columns={[
@@ -2386,6 +2413,11 @@ class JobTab extends React.Component {
                       show={this.state.updateUserProgramModalShow}
                       updateProgram= {this.updateProgram}
                       setModalShow={(s) => this.setState({updateUserProgramModalShow: s})}
+                  />
+                  <CrawledHistoryModal
+                      show={this.state.crawledHistoryModalShow}
+                      JobId = {this.props.jobId}
+                      setModalShow={(s) => this.setState({crawledHistoryModalShow: s})}
                   />
                   </Card>
                 </Grid.Col> 

@@ -158,7 +158,7 @@ class HistoryModal extends React.Component {
           console.log(productLists)
           var mpid_name_dict = {}
           for(var idx in productLists){
-            var mpid = productLists[idx][0]
+            var mpid = parseInt(productLists[idx][0])
             var name = productLists[idx][1]['product_name']
             if (name != null){
               mpid_name_dict[mpid] = name
@@ -168,7 +168,7 @@ class HistoryModal extends React.Component {
           var num = 1
           for (var key in mpid_name_dict) {
             if (mpid_name_dict.hasOwnProperty(key)) {
-              res.push( {'num':num, 'mpid':key, 'name':mpid_name_dict[key] } );
+              res.push( {'num':num, 'mpid':parseInt(key), 'name':mpid_name_dict[key] } );
               num = num + 1
             }
           }

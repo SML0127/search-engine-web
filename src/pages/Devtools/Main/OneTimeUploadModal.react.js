@@ -51,7 +51,7 @@ class OneTimeUploadModal extends React.Component {
     updateTargetsite(){
       const obj = this;
       axios.post(setting_server.DRIVER_UTIL_SERVER+'/api/driver/', {
-        req_type: "update_targetsite",
+        req_type: "update_targetsite_test",
         job_id: obj.props.JobId,
       })
       .then(function (response) {

@@ -534,6 +534,7 @@ class RegisterTargetSiteAndPricingInfoModal extends React.Component {
             targetsite_id: tid
         })
         .then(function (resultData) {
+            console.log(resultData)
         })
         .catch(function (error) {
             console.log(error);
