@@ -105,7 +105,18 @@ class CrawledHistoryModal extends React.Component {
              const execution_id = row[0];
              const crawled_time = row[1]; 
              const node_id = row[2]; 
-             return {num: index+1, execution_id: execution_id, crawled_time: crawled_time, node_id: node_id };
+             if (row[3] == "Valid"){
+               const invalid = ""; 
+               return {num: index+1, execution_id: execution_id, crawled_time: crawled_time, node_id: node_id, invalid: invalid};
+             }
+             else if (row[3] == "Inalid"){
+               const invalid = "Invalid page"; 
+               return {num: index+1, execution_id: execution_id, crawled_time: crawled_time, node_id: node_id, invalid: invalid};
+             }
+             else{
+               const invalid = "Fail to crawling"; 
+               return {num: index+1, execution_id: execution_id, crawled_time: crawled_time, node_id: node_id, invalid: invalid};
+             }
            });
            
            obj.setState({productCrawledTime: productCrawledTime});
@@ -129,6 +140,10 @@ class CrawledHistoryModal extends React.Component {
       .then(function (response) {
         if (response['data']['success'] == true) {
           let productDetail = response['data']['result'];
+          console.log(productDetail.length)
+          if (productDetail.length == 1){
+          
+          }
           productDetail = productDetail.map(function(row, index){
             const key = row[0] 
             if(typeof(row[1]) == 'object'){
@@ -333,6 +348,22 @@ class CrawledHistoryModal extends React.Component {
                     resizable: false,
                     accessor: "execution_id",
                     width:100,
+                    Cell: ( row ) => {
+                      return (
+                        <div
+                          style={{
+                            textAlign:"center",
+                            paddingTop:"4px",
+                          }}
+                        > {row.value} </div>
+                      )
+                    }
+                  },
+                  {
+                    Header: "",
+                    resizable: false,
+                    accessor: "invalid",
+                    width:150,
                     Cell: ( row ) => {
                       return (
                         <div
