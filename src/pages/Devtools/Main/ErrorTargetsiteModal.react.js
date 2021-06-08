@@ -59,7 +59,12 @@ class ErrorTargetsiteModal extends React.Component {
           let mpids = []
           let err_msgs = []
           for(var idx in res){
-            mpids.push(res[idx][1])
+            if (res[idx][1] == -1 ||res[idx][1] == '-1'){
+              mpids.push("General Error (in set-up, before upload)")
+            }
+            else{
+              mpids.push(res[idx][1])
+            }
             err_msgs.push(res[idx][2])
           } 
           obj.setState({
