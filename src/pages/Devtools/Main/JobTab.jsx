@@ -260,7 +260,7 @@ class JobTab extends React.Component {
                  let user_program = result
                  let tmp = obj.state.refresh
                  let url_node_id 
-                 if(response['data']['is_template']){
+                 if(response['data']['is_template'] == "True" || response['data']['is_template'] == true ){
                    for(let node in user_program['workflow']['nodes']){
                      if(user_program['workflow']['nodes'][node]['name'] == "OpenURL"){
                        user_program['workflow']['nodes'][node]['data']['url'] = obj.props.url 
@@ -271,10 +271,9 @@ class JobTab extends React.Component {
                  g_user_program = user_program
                  //console.log(g_user_program) 
                  let url = user_program['ops'][0]['url']
-                 
                  if (url != null){
                    // only for chrome extension
-                   obj.updateChromeTab(obj.props.url)
+                   obj.updateChromeTab(url)
                  }
                  else{
                    obj.updateChromeTab(obj.props.url)
