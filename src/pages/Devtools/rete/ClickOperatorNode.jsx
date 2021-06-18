@@ -51,6 +51,7 @@ export class ClickOperatorNode extends Node {
         const item = {
           'col_delay':5,
           'col_query':'',
+          'col_check_query':'',
           'col_repeat':''
         };
         this.setState({
@@ -132,9 +133,10 @@ export class ClickOperatorNode extends Node {
                     >
                         <thead>
                             <tr>
-                                <th className="text-center"> XPath </th>
-                                <th className="text-center"> DELAY </th>
-                                <th className="text-center"> REPEAT </th>
+                                <th className="text-center" > XPath </th>
+                                <th className="text-center" > Check XPath </th>
+                                <th className="text-center" style={{width:"10%"}} > DELAY </th>
+                                <th className="text-center" style={{width:"15%"}} > REPEAT </th>
                                 <th />
                             </tr>
                         </thead>
@@ -146,6 +148,15 @@ export class ClickOperatorNode extends Node {
                                             type="text"
                                             name="col_query"
                                             value={this.state.rows[idx].col_query}
+                                            onChange={this.handleChange(idx)}
+                                            className="form-control"
+                                        />
+                                    </td>
+                                    <td>
+                                        <input
+                                            type="text"
+                                            name="col_check_query"
+                                            value={this.state.rows[idx].col_check_query}
                                             onChange={this.handleChange(idx)}
                                             className="form-control"
                                         />
@@ -163,7 +174,7 @@ export class ClickOperatorNode extends Node {
                                       <input
                                           type="text"
                                           name="col_repeat"
-                                          style={{width:"82%", display:"inline"}}
+                                          style={{width:"60%", display:"inline"}}
                                           value={this.state.rows[idx].col_repeat}
                                           className="form-control"
                                           readonly="readonly"

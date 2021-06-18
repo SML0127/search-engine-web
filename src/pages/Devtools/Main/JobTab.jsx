@@ -316,8 +316,8 @@ class JobTab extends React.Component {
     }
 
     createUserProgram(open_url, zipcode_url, open_url_id, nodeIds, operator, edges, options, node_of_workflow, BFSIteratorNodeIds, workflow){
-        var program_name = "Test 1"
-        var queue_name = "real_queue"
+        var program_name = "crawling script"
+        var queue_name = setting_server.CRAWLING_QUEUE
         var id = 0
 
         // Create Props
@@ -835,6 +835,7 @@ class JobTab extends React.Component {
                 for(var idxClickOp in options['rows']){
                   var rowClickOp = {
                       "query": options['rows'][idxClickOp]['col_query'],
+                      "check_query": options['rows'][idxClickOp]['col_check_query'],
                       "delay": options['rows'][idxClickOp]['col_delay'],
                       "repeat": options['rows'][idxClickOp]['col_repeat'],
                   }
@@ -1220,7 +1221,7 @@ class JobTab extends React.Component {
                               }
                           },
                           {
-                              Header: "# of crawled product (# of total)",
+                              Header: "# crawled / # fail / # invalid / # ALL",
                               resizable: false,
                               accessor: "6",
                               Cell: ( row ) => {
@@ -1243,7 +1244,7 @@ class JobTab extends React.Component {
                                                   paddingTop:"4px",
                                                   paddingLeft:"12px"
                                               }}
-                                          > {row.value} ({row.original[7]}) </div>
+                                          > {row.value} / {row.original[7]} / {row.original[8]} / {row.original[9]} </div>
                                       )
                                   }
                               }
@@ -1878,7 +1879,7 @@ class JobTab extends React.Component {
                               }
                           },
                           {
-                              Header: "# of crawled product",
+                              Header: "# crawled / # fail / # invalid / # ALL",
                               resizable: false,
                               accessor: "6",
                               Cell: ( row ) => {
@@ -1901,7 +1902,7 @@ class JobTab extends React.Component {
                                                   paddingTop:"4px",
                                                   paddingLeft:"12px"
                                               }}
-                                          > {row.value} </div>
+                                          > {row.value} / {row.original[7]} / {row.original[8]} / {row.original[9]} </div>
                                       )
                                   }
                               }
