@@ -175,6 +175,22 @@ class JobTab extends React.Component {
       }
     }
 
+    updateUrl(url){
+        var obj = this;
+        axios.post(setting_server.DB_SERVER+'/api/db/job', {
+            req_type: "set_url",
+            job_id: obj.props.jobId,
+            url: url
+        })
+        .then(function (response) {
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+
+    }
+
+
     runDriver(){
       const obj = this;
       if (obj.state.upid_template <= 0){
@@ -267,6 +283,9 @@ class JobTab extends React.Component {
                        break;
                      }
                    }
+                 }
+                 else{
+                   obj.updateUrl(user_program['ops'][0]['url'])
                  }
                  g_user_program = user_program
                  //console.log(g_user_program) 
@@ -532,8 +551,6 @@ class JobTab extends React.Component {
     //drawOperator(editor){
     //  editor.addNode(this.state.)
     //}
-
-
     saveProgram(site, category, projectId){
 
         var obj = this;

@@ -796,6 +796,7 @@ export default class Main extends React.Component {
   handleTabSelect(e, key, url) {
     this.setState({selectedTab: key});
     if (url instanceof Array){
+    console.log(url)
       if (url[url.length - 1]['props']['url'] != null){
         chrome.tabs.update({url: url[url.length - 1]['props']['url'], 'active': true}, function(tab) {
           //smlee
