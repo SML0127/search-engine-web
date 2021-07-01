@@ -264,7 +264,6 @@ class HistoryModal extends React.Component {
         console.log(response)
         if (response['data']['success'] == true) {
           let productDetail = response['data']['result'];
-          console.log(productDetail)
 
           let productOptionValues = []
           for (var key in productDetail['option_value']){
@@ -274,15 +273,13 @@ class HistoryModal extends React.Component {
           }
           console.log(productOptionValues)
           obj.setState({
-              selectedProductName: productDetail['p_name'],
+              selectedProductName: productDetail['name'],
               selectedProductPrice: productDetail['price'],
               selectedProductMpid: productDetail['mpid'],
-              selectedProductSpid: productDetail['spid'],
-              selectedProductSprice: productDetail['price'],
-              selectedProductSku: productDetail['sku'],
+              selectedProductSpid: productDetail['source_site_product_id'],
               selectedProductStock: productDetail['stock'],
-              selectedProductCompany: productDetail['company'],
-              selectedProductManufacturer: productDetail['brand'],
+              selectedProductWeight: productDetail['weight'],
+              selectedProductBrand: productDetail['brand'],
               selectedImageLink: productDetail['image_url'],
               selectedProductUrl: productDetail['url'],
               default_weight: productDetail['default_weight'],
@@ -570,9 +567,7 @@ class HistoryModal extends React.Component {
                               selectedProductMpid: '',
                               selectedProductSpid: '',
                               selectedProductSprice: '',
-                              selectedProductSku:  '',
                               selectedProductStock: '', 
-                              selectedProductCompany: '', 
                               selectedProductManufacturer: '', 
                               selectedImageLink: '', 
                               selectedProductUrl: '', 
@@ -609,9 +604,7 @@ class HistoryModal extends React.Component {
                               selectedProductMpid: '',
                               selectedProductSpid: '',
                               selectedProductSprice: '',
-                              selectedProductSku:  '',
                               selectedProductStock: '', 
-                              selectedProductCompany: '', 
                               selectedProductManufacturer: '', 
                               selectedImageLink: '', 
                               selectedProductUrl: '', 
@@ -704,9 +697,7 @@ class HistoryModal extends React.Component {
                                 selectedProductMpid: '',
                                 selectedProductSpid: '',
                                 selectedProductSprice: '',
-                                selectedProductSku:  '',
                                 selectedProductStock: '', 
-                                selectedProductCompany: '', 
                                 selectedProductManufacturer: '', 
                                 selectedImageLink: '', 
                                 selectedProductUrl: '', 
@@ -740,9 +731,7 @@ class HistoryModal extends React.Component {
                                 selectedProductMpid: '',
                                 selectedProductSpid: '',
                                 selectedProductSprice: '',
-                                selectedProductSku:  '',
                                 selectedProductStock: '', 
-                                selectedProductCompany: '', 
                                 selectedProductManufacturer: '', 
                                 selectedImageLink: '', 
                                 selectedProductUrl: '', 
@@ -817,12 +806,11 @@ class HistoryModal extends React.Component {
                                 selectedUploadTime: rowInfo.original['upload_time'],
                                 selectedProductName: '', 
                                 selectedProductPrice:  '',
+                                selectedProductCurrency: '',
                                 selectedProductMpid: '',
                                 selectedProductSpid: '',
                                 selectedProductSprice: '',
-                                selectedProductSku:  '',
                                 selectedProductStock: '', 
-                                selectedProductCompany: '', 
                                 selectedProductManufacturer: '', 
                                 selectedImageLink: '', 
                                 selectedProductUrl: '', 
@@ -852,12 +840,12 @@ class HistoryModal extends React.Component {
                                 selectedUploadTime: rowInfo.original['upload_time'],
                                 selectedProductName: '', 
                                 selectedProductPrice:  '',
+                                selectedProductCurrency: '',
                                 selectedProductMpid: '',
                                 selectedProductSpid: '',
                                 selectedProductSprice: '',
                                 selectedProductSku:  '',
                                 selectedProductStock: '', 
-                                selectedProductCompany: '', 
                                 selectedProductManufacturer: '', 
                                 selectedImageLink: '', 
                                 selectedProductUrl: '', 
@@ -969,17 +957,17 @@ class HistoryModal extends React.Component {
                      </div>
 
                      <div class='row' style={{width:'100%', marginTop:'5px'}}>                      
-                       <label style={{marginTop:'8px', marginLeft: '15px', width:'25%'}}> Original price :</label>
+                       <label style={{marginTop:'8px', marginLeft: '15px', width:'25%'}}> Price :</label>
                        <input readonly='readonly'  name="name" class="form-control" style={{width:'20%'}}value={this.state.selectedProductPrice}/>
-                       <label style={{marginTop:'8px', float:'right', width:'26%', marginLeft:'4%'}}> Selling price :</label>
-                       <input readonly='readonly'  name="name" class="form-control" style={{float:'right', width:'20%'}} value={this.state.selectedProductSprice}/>
+                       <label style={{marginTop:'8px', float:'right', width:'26%', marginLeft:'4%'}}> Currency :</label>
+                       <input readonly='readonly'  name="name" class="form-control" style={{float:'right', width:'20%'}} value={this.state.selectedProductCurrency}/>
                      </div>
 
                      <div class='row' style={{width:'100%', marginTop:'5px'}}>                      
-                       <label style={{marginTop:'8px', marginLeft: '15px', width:'25%'}}> Origin :</label>
-                       <input readonly='readonly'  name="name" class="form-control" style={{width:'20%'}}value={this.state.selectedProductOrigin}/>
+                       <label style={{marginTop:'8px', marginLeft: '15px', width:'25%'}}> Weight :</label>
+                       <input readonly='readonly'  name="name" class="form-control" style={{width:'20%'}}value={this.state.selectedProductWeight}/>
                        <label style={{marginTop:'8px', float:'right', width:'26%', marginLeft:'4%'}}> Manufacturer :</label>
-                       <input readonly='readonly'  name="name" class="form-control" style={{float:'right', width:'20%'}} value={this.state.selectedProductManufacturer}/>
+                       <input readonly='readonly'  name="name" class="form-control" style={{float:'right', width:'20%'}} value={this.state.selectedProductBrand}/>
                      </div>
 
                      

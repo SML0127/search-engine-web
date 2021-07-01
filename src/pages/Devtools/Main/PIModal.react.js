@@ -263,7 +263,6 @@ class PIModal extends React.Component {
     }
 
 
-//create table products (id serial primary key, user_id varchar(50),job_id integer, name varchar(1024), product_id varchar(1024), my_product_id varchar(1024), product_url varchar(1024), brand varchar(1024), sku  varchar(1024), price integer, list_price integer, origin  varchar(1024), manufacturer  varchar(1024), status integer);
   getProductList(userId, statu = -1 ){
       //console.log('get product list')
       const obj = this;
@@ -275,27 +274,33 @@ class PIModal extends React.Component {
         statu: statu
       })
       .then(function (response) {
+        console.log(response)
         if( Object.keys(response['data']['result']).length  == 0){
            obj.setState({productLists: [], productOptionValues: [], productDescriptions: []});
            return;
         }
         if (response['data']['success'] == true) {
           let productLists = response['data']['result'];
+          
           productLists = productLists.map(function(row, index){
+            // mpid, name, url, price, shpiping_price, brand, weight, shipping_weight, dimension_weight, source_site_product_id, status, image_url, currency ,num_options, num_images
             const id = row[0] == 'None'? '':row[0];
             const name = row[1] == 'None'? '':row[1];
-            const pid = row[2] == 'None'? '':String(row[2]).padStart(6, '0');
-            const mpid = row[2] == 'None'? '':String(row[2]).padStart(6, '0');
-            const purl = row[3] == 'None'? '':row[3];
-            const brand = '';
-            const sku = row[4] == 'None'? '':row[4];
-            const price = row[5];
-            const list_price = row[6];
-            const origin = row[7] == 'None'? '':row[7];
-            const statu = row[8] == 'None'? '':row[8];
-            const manufacturer = row[9] == 'None'? '':row[9];
-            const image_url = row[10] == 'None'? '':row[10];
-            return {num: index+1, id:id, name:name, pid:pid, mpid:mpid, purl:purl, brand:brand, sku:sku, price:price, list_price:list_price, origin: origin, manufacturer: manufacturer, statu:statu, image_url:image_url, boxChecked: false, min_margin: 0, margin_rate: 0, min_price: 0, shipping_cost: 0};
+            const pid = row[0] == 'None'? '':row[0]
+            const mpid = pid
+            const purl = row[2] == 'None'? '':row[2];
+            const price = row[3] == 'None'? '':row[3];
+            const shpiping_price = row[4] == 'None'? '':row[4];
+            const brand = row[5] == 'None'? '':row[5];
+            const weight = row[6] == 'None'? '':row[6];
+            const shipping_weight = row[7] == 'None'? '':row[7];
+            const dimension_weight = row[8] == 'None'? '':row[8];
+            const source_site_product_id = row[9] == 'None'? '':row[9];
+            const statu = row[10] == 'None'? '':row[10];
+            const image_url = row[11] == 'None'? '':row[11];
+            const currency = row[12] == 'None'? '':row[12];
+            const stock = row[13] == 'None'? '':row[13];
+            return {num: index+1, id:id, name:name, pid:pid, mpid:mpid, purl:purl, price:price, shpiping_price:shpiping_price, brand:brand, weight:weight, shipping_weight:shipping_weight, dimension_weight: dimension_weight, source_site_product_id: source_site_product_id, statu:statu, image_url:image_url, currency:currency, stock:stock, boxChecked: false, min_margin: 0, margin_rate: 0, min_price: 0, shipping_cost: 0};
           });
           //console.log(productLists)
           obj.setState({productLists: productLists});
@@ -633,6 +638,7 @@ class PIModal extends React.Component {
                         return {
                           onClick: (e) => {
                             //console.log(rowInfo.original['image_url'])
+                            //mpid, name, url, price, shpiping_price, brand, weight, shipping_weight, dimension_weight, source_site_product_id, status, image_url,
                             this.setState({
                               selectedProductIndex: rowInfo.index,
                               selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
@@ -640,12 +646,15 @@ class PIModal extends React.Component {
                               selectedProductUrl: rowInfo.original['purl'] != null ? rowInfo.original['purl'] : '',
                               selectedProductPid: rowInfo.original['pid'] != null ? rowInfo.original['pid'] : '',
                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
-                              selectedProductSku: rowInfo.original['sku'] != null ? rowInfo.original['sku'] : '',
                               selectedProductBrand: rowInfo.original['brand'] != null ? rowInfo.original['brand'] : '',
                               selectedProductPrice: rowInfo.original['price'] != null ? rowInfo.original['price'] : '',
-                              selectedProductSprice: rowInfo.original['list_price'] != null ? rowInfo.original['list_price'] : '',
-                              selectedProductOrigin: rowInfo.original['origin'] != null ? rowInfo.original['origin'] : '',
-                              selectedProductManufacturer: rowInfo.original['manufacturer'] != null ? rowInfo.original['manufacturer'] : '',
+                              selectedProductCurrency: rowInfo.original['currency'] != null ? rowInfo.original['currency'] : '',
+                              selectedProductStock: rowInfo.original['stock'] != null ? rowInfo.original['stock'] : '',
+                              selectedProductShippingPrice: rowInfo.original['shipping_price'] != null ? rowInfo.original['shipping_price'] : '',
+                              selectedProductWeight: rowInfo.original['weight'] != null ? rowInfo.original['weight'] : '',
+                              selectedProductShippingWeight: rowInfo.original['shipping_weight'] != null ? rowInfo.original['shipping_weight'] : '',
+                              selectedProductDemensionWeight: rowInfo.original['dimension_weight'] != null ? rowInfo.original['dimension_weight'] : '',
+                              selectedProductSpid: rowInfo.original['source_site_product_id'] != null ? rowInfo.original['source_site_product_id'] : '',
                               selectedImageLink: rowInfo.original['image_url'] != null ? rowInfo.original['image_url'] : '',
                               selectedProductStatu: rowInfo.original['statu'] != null ? rowInfo.original['status'] : '',
                               selectedMinMargin: rowInfo.original['min_margin'] != null ? rowInfo.original['min_margin'] : '',
@@ -670,12 +679,15 @@ class PIModal extends React.Component {
                               selectedProductUrl: rowInfo.original['purl'] != null ? rowInfo.original['purl'] : '',
                               selectedProductPid: rowInfo.original['pid'] != null ? rowInfo.original['pid'] : '',
                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
-                              selectedProductSku: rowInfo.original['sku'] != null ? rowInfo.original['sku'] : '',
                               selectedProductBrand: rowInfo.original['brand'] != null ? rowInfo.original['brand'] : '',
                               selectedProductPrice: rowInfo.original['price'] != null ? rowInfo.original['price'] : '',
-                              selectedProductSprice: rowInfo.original['list_price'] != null ? rowInfo.original['list_price'] : '',
-                              selectedProductOrigin: rowInfo.original['origin'] != null ? rowInfo.original['origin'] : '',
-                              selectedProductManufacturer: rowInfo.original['manufacturer'] != null ? rowInfo.original['manufacturer'] : '',
+                              selectedProductShippingPrice: rowInfo.original['shipping_price'] != null ? rowInfo.original['shipping_price'] : '',
+                              selectedProductWeight: rowInfo.original['weight'] != null ? rowInfo.original['weight'] : '',
+                              selectedProductShippingWeight: rowInfo.original['shipping_weight'] != null ? rowInfo.original['shipping_weight'] : '',
+                              selectedProductDemensionWeight: rowInfo.original['dimension_weight'] != null ? rowInfo.original['dimension_weight'] : '',
+                              selectedProductSpid: rowInfo.original['source_site_product_id'] != null ? rowInfo.original['source_site_product_id'] : '',
+                              selectedProductCurrency: rowInfo.original['currency'] != null ? rowInfo.original['currency'] : '',
+                              selectedProductStock: rowInfo.original['stock'] != null ? rowInfo.original['stock'] : '',
                               selectedImageLink: rowInfo.original['image_url'] != null ? rowInfo.original['image_url'] : '',
                               selectedProductStatu: rowInfo.original['statu'] != null ? rowInfo.original['status'] : '',
                               selectedMinMargin: rowInfo.original['min_margin'] != null ? rowInfo.original['min_margin'] : '',
@@ -789,7 +801,7 @@ class PIModal extends React.Component {
                       resizable: false,
                       sortable: false,
                       width: 150,
-                      accessor: "pid",
+                      accessor: "mpid",
                       Cell: ( row ) => {
                         if (row.original.statu == 1){ // updatd
                           return (
@@ -922,26 +934,26 @@ class PIModal extends React.Component {
                      <div class='row' style={{width:'100%', marginTop:'5px'}}>                      
                        <label style={{marginTop:'8px', marginLeft: '15px', width:'25%'}}> Brand :</label>
                        <input readonly='readonly'  name="name" class="form-control" style={{width:'20%'}} value={this.state.selectedProductBrand}/>
-                       <label style={{marginTop:'8px',float:'right', width:'26%', marginLeft:'4%'}}> SKU :</label>
-                       <input readonly='readonly'  name="name" class="form-control" style={{float:'right', width:'20%'}} value={this.state.selectedProductSku}/>
+                       <label style={{marginTop:'8px',float:'right', width:'26%', marginLeft:'4%'}}> Stock :</label>
+                       <input readonly='readonly'  name="name" class="form-control" style={{float:'right', width:'20%'}} value={this.state.selectedProductStock}/>
                      </div>
 
                      <div class='row' style={{width:'100%', marginTop:'5px'}}>                      
-                       <label style={{marginTop:'8px', marginLeft: '15px', width:'25%'}}> Original price :</label>
-                       <input readonly='readonly'  name="name" class="form-control" style={{width:'20%'}}value={this.state.selectedProductPrice}/>
-                       <label style={{marginTop:'8px', float:'right', width:'26%', marginLeft:'4%'}}> Selling price :</label>
-                       <input readonly='readonly'  name="name" class="form-control" style={{float:'right', width:'20%'}} value={this.state.selectedProductSprice}/>
+                       <label style={{marginTop:'8px', marginLeft: '15px', width:'25%'}}> Price :</label>
+                       <input readonly='readonly'  name="name" class="form-control" style={{width:'20%'}} value={this.state.selectedProductPrice}/>
+                       <label style={{marginTop:'8px', float:'right', width:'26%', marginLeft:'4%'}}> Currency :</label>
+                       <input readonly='readonly'  name="name" class="form-control" style={{float:'right', width:'20%'}} value={this.state.selectedProductCurrency}/>
                      </div>
 
 
                      <div class='row' style={{width:'100%', marginTop:'5px'}}>                      
-                       <label style={{marginTop:'8px', marginLeft: '15px',width:'25%'}}> Origin :</label>
-                       <input readonly='readonly'  name="name" class="form-control" style={{width:"70%",float:'right'}} value={this.state.selectedProductOrigin}/>
+                       <label style={{marginTop:'8px', marginLeft: '15px',width:'25%'}}> Weight :</label>
+                       <input readonly='readonly'  name="name" class="form-control" style={{width:"70%",float:'right'}} value={this.state.selectedProductWeight}/>
                      </div>
 
                      <div class='row' style={{width:'100%', marginTop:'5px'}}>                      
                        <label style={{marginTop:'8px', marginLeft: '15px',width:'25%'}}> Manufacturer :</label>
-                       <input readonly='readonly'  name="name" class="form-control" style={{width:"70%",float:'right'}} value={this.state.selectedProductManufacturer}/>
+                       <input readonly='readonly'  name="name" class="form-control" style={{width:"70%",float:'right'}} value={this.state.selectedProductBrand}/>
                      </div>
                      <div class='row' style={{width:'100%', marginTop:'5px'}}>                      
                        <label style={{marginTop:'8px', marginLeft: '15px',width:'25%'}}> Image link:</label>

@@ -105,7 +105,6 @@ class VMModal extends React.Component {
     }
 
 
-//create table products (id serial primary key, user_id varchar(50),job_id integer, name varchar(1024), product_id varchar(1024), my_product_id varchar(1024), product_url varchar(1024), brand varchar(1024), sku  varchar(1024), price integer, selling_price integer, origin  varchar(1024), manufacturer  varchar(1024), status integer);
   getProductList(userId, statu = -1 ){
       const obj = this;
       //console.log(userId, obj.props.JobId, statu)
@@ -125,20 +124,22 @@ class VMModal extends React.Component {
         if (response['data']['success'] == true) {
           let productLists = response['data']['result'];
           productLists = productLists.map(function(row, index){
+            // mpid, name, url, price, shpiping_price, brand, weight, shipping_weight, dimension_weight, source_site_product_id, status, image_url, num_options, num_images
             const id = row[0] == 'None'? '':row[0];
             const name = row[1] == 'None'? '':row[1];
-            const pid = row[2] == 'None'? '':String(row[2]).padStart(6, '0');
-            const mpid = row[2] == 'None'? '':String(row[2]).padStart(6, '0');
-            const purl = row[3] == 'None'? '':row[3];
-            const brand = '';
-            const sku = row[4] == 'None'? '':row[4];
-            const price = row[5];
-            const selling_price = row[6];
-            const origin = row[7] == 'None'? '':row[7];
-            const statu = row[8] == 'None'? '':row[8];
-            const manufacturer = row[9] == 'None'? '':row[9];
-            const image_url = row[10] == 'None'? '':row[10];
-            return {num: index+1, id:id, name:name, pid:pid, mpid:mpid, purl:purl, brand:brand, sku:sku, price:price, selling_price:selling_price, origin: origin, manufacturer: manufacturer, statu:statu, image_url:image_url, boxChecked: false};
+            const pid = row[0] == 'None'? '':row[0]
+            const mpid = pid
+            const purl = row[2] == 'None'? '':row[2];
+            const price = row[3] == 'None'? '':row[3];
+            const shpiping_price = row[4] == 'None'? '':row[4];
+            const brand = row[5] == 'None'? '':row[5];
+            const weight = row[6] == 'None'? '':row[6];
+            const shipping_weight = row[7] == 'None'? '':row[7];
+            const dimension_weight = row[8] == 'None'? '':row[8];
+            const source_site_product_id = row[9] == 'None'? '':row[9];
+            const statu = row[10] == 'None'? '':row[10];
+            const image_url = row[11] == 'None'? '':row[11];
+            return {num: index+1, id:id, name:name, mpid:mpid, purl:purl, price:price, shpiping_price:shpiping_price, brand:brand, weight:weight, shipping_weight:shipping_weight, dimension_weight: dimension_weight, source_site_product_id: source_site_product_id, statu:statu, image_url:image_url, boxChecked: false};
           });
           obj.setState({productLists: productLists});
         } else {
@@ -266,13 +267,6 @@ class VMModal extends React.Component {
                               selectedProductUrl: rowInfo.original['purl'],
                               selectedProductPid: rowInfo.original['pid'],
                               selectedProductMpid: rowInfo.original['mpid'],
-                              selectedProductSku: rowInfo.original['sku'],
-                              selectedProductBrand: rowInfo.original['brand'],
-                              selectedProductPrice: rowInfo.original['price'],
-                              selectedProductSprice: rowInfo.original['selling_price'],
-                              selectedProductOrigin: rowInfo.original['origin'],
-                              selectedProductManufacturer: rowInfo.original['manufacturer'],
-                              selectedProductStatu: rowInfo.original['statu']
                             });
                           },
                           style: {
@@ -290,13 +284,6 @@ class VMModal extends React.Component {
                               selectedProductUrl: rowInfo.original['purl'],
                               selectedProductPid: rowInfo.original['pid'],
                               selectedProductMpid: rowInfo.original['mpid'],
-                              selectedProductSku: rowInfo.original['sku'],
-                              selectedProductBrand: rowInfo.original['brand'],
-                              selectedProductPrice: rowInfo.original['price'],
-                              selectedProductSprice: rowInfo.original['selling_price'],
-                              selectedProductOrigin: rowInfo.original['origin'],
-                              selectedProductManufacturer: rowInfo.original['manufacturer'],
-                              selectedProductStatu: rowInfo.original['statu']
                             }, () => {console.log('update!'); console.log(this.state.selectedProductId)});
                           }
                         }
@@ -313,13 +300,6 @@ class VMModal extends React.Component {
                               selectedProductUrl: rowInfo.original['purl'],
                               selectedProductPid: rowInfo.original['pid'],
                               selectedProductMpid: rowInfo.original['mpid'],
-                              selectedProductSku: rowInfo.original['sku'],
-                              selectedProductBrand: rowInfo.original['brand'],
-                              selectedProductPrice: rowInfo.original['price'],
-                              selectedProductSprice: rowInfo.original['selling_price'],
-                              selectedProductOrigin: rowInfo.original['origin'],
-                              selectedProductManufacturer: rowInfo.original['manufacturer'],
-                              selectedProductStatu: rowInfo.original['statu']
                             }, () => {console.log('update!'); console.log(this.state.selectedProductId)});
                           }
                         }
@@ -334,13 +314,6 @@ class VMModal extends React.Component {
                               selectedProductUrl: rowInfo.original['purl'],
                               selectedProductPid: rowInfo.original['pid'],
                               selectedProductMpid: rowInfo.original['mpid'],
-                              selectedProductSku: rowInfo.original['sku'],
-                              selectedProductBrand: rowInfo.original['brand'],
-                              selectedProductPrice: rowInfo.original['price'],
-                              selectedProductSprice: rowInfo.original['selling_price'],
-                              selectedProductOrigin: rowInfo.original['origin'],
-                              selectedProductManufacturer: rowInfo.original['manufacturer'],
-                              selectedProductStatu: rowInfo.original['statu']
                             }, () => {console.log('update!'); console.log(this.state.selectedProductId)});
                           }
                         }
@@ -384,7 +357,7 @@ class VMModal extends React.Component {
                     {
                       Header: "Product ID",
                       resizable: false,
-                      accessor: "pid",
+                      accessor: "mpid",
                       Cell: ( row ) => {
                         return (
                           <div
