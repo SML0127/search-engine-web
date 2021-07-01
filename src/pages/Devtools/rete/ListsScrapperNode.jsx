@@ -101,6 +101,14 @@ export class ListsScrapperNode extends Node {
         this.setState({ rows: rows })
     };
 
+     
+    handleChangeKey(idx, value) {
+      const rows = [...this.state.rows];
+      rows[idx]['col_key'] =  value
+      this.setState({ rows: rows })
+    };    
+   
+
 
     handleChangeAttr(idx, value) {
       const rows = [...this.state.rows];
@@ -204,15 +212,19 @@ export class ListsScrapperNode extends Node {
                           <tbody>
                               {this.state.rows.map((item, idx) => (
                                   <tr id="addr0" key={idx}>
-                                      <td style = {{width:'12%'}}>
+                                      <td style = {{width:'18%'}}>
                                           <input
                                               type="text"
                                               name="col_key"
+                                              readonly='readonly'
                                               value={this.state.rows[idx]['col_key']}
                                               onChange={this.handleChange(idx)}
                                               className="form-control"
-                                              style={{height:'33px'}}
+                                              style={{height:'33px', width:'68%', display:"inline"}}
                                           />
+                                          <DropdownButton id="dropdown-basic-secondary" title="Key" style={{paddingLeft: "5px", width:"15%", display:"inline"}} >
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"images")}}>images</Dropdown.Item>
+                                        </DropdownButton>
                                       </td>
                                       <td style = {{width:'40%'}}>
                                           <input

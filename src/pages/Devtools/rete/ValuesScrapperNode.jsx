@@ -97,7 +97,13 @@ export class ValuesScrapperNode extends Node {
         rows[idx][name] = value
         this.setState({ rows: rows })
     };
-    
+     
+    handleChangeKey(idx, value) {
+      const rows = [...this.state.rows];
+      rows[idx]['col_key'] =  value
+      this.setState({ rows: rows })
+    };    
+   
     
     handleChangeAttr(idx, value) {
       const rows = [...this.state.rows];
@@ -203,15 +209,31 @@ export class ValuesScrapperNode extends Node {
                         <tbody>
                             {this.state.rows.map((item, idx) => (
                                 <tr id="addr0" key={idx}>
-                                    <td style = {{width:'12%'}}>
+                                    <td style = {{width:'18%'}}>
                                         <input
                                             type="text"
                                             name="col_key"
+                                            readonly='readonly'
                                             value={this.state.rows[idx]['col_key']}
                                             onChange={this.handleChange(idx)}
                                             className="form-control"
-                                            style={{height:'33px'}}
+                                            style={{height:'33px', width:'68%', display:"inline"}}
                                         />
+                                        <DropdownButton id="dropdown-basic-secondary" title="Key" style={{paddingLeft: "5px", width:"15%", display:"inline"}} >
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"name")}}>Name</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"price")}}>Price</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"shipping_price")}}>Shipping Price</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"bundle_price")}}>Bundle Price</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"stock")}}>Stock</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"brand")}}>Brand</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"source_site_product_id")}}>Source Site Product Id</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"description")}}>Description</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"description_rendered")}}>Description (HTML)</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"weight")}}>Weight</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"shipping_weight")}}>Shipping Weight</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"dimension_weight")}}>Dimension Weight</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"location")}}>Location</Dropdown.Item>
+                                        </DropdownButton>
                                     </td>
                                     <td style = {{width:'40%'}}>
                                         <input

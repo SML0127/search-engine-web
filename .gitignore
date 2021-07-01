@@ -1,2 +1,5 @@
 *.zip
 build
+*.swp
+*.swo
+node_modules/.cache/*
