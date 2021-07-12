@@ -619,6 +619,7 @@ class Tree extends Component {
                     <DropdownButton id="dropdown-basic-secondary" title="Key" style={{paddingLeft: "5px", width:"15%", display:"inline"}} >
                       <Dropdown.Item onSelect={()=>{this.handleChangeTKey("name")}}>name</Dropdown.Item>
                       <Dropdown.Item onSelect={()=>{this.handleChangeTKey("description")}}>description</Dropdown.Item>
+                      <Dropdown.Item onSelect={()=>{this.handleChangeTKey("option")}}>option</Dropdown.Item>
                     </DropdownButton>
                     <Button color="primary" style = {{marginLeft: '10px', width:'20%'}} 
                       onClick={() => {

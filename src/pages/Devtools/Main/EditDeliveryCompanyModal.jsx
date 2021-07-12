@@ -14,7 +14,6 @@ class EditDeliveryCompanyModal extends React.Component {
     constructor(props) {
       super(props);
       this.state = {
-        country: '',
         deliveryCompanies: [],
         selectedShippingFeeIndex: null,
         selectedShippingFeeId: null,
@@ -22,7 +21,7 @@ class EditDeliveryCompanyModal extends React.Component {
         selectedShippingFeeMaxKg:null,
         selectedShippingFee:null,
         countryOptions: '',
-        country: 'US',
+        country: 'USD',
         shippingFees: [],
       };
       this.handleFileLoad = this.handleFileLoad.bind(this)
@@ -32,24 +31,24 @@ class EditDeliveryCompanyModal extends React.Component {
     }
     
     updateCountry(event) {
-      console.log(event.target.value)
       this.setState({country: event.target.value},()=> {this.getShippingFee()});
     }
 
     getCountryOptions() {
       let userId = this.props.userId;
       const obj = this;
-      axios.post(setting_server.DB_SERVER+'/api/db/delivery', {
-        req_type: "get_delivery_countries",
+      axios.post(setting_server.DB_SERVER+'/api/db/exchangerate', {
+        req_type: "get_exchange_rate",
         user_id: userId
       })
       .then(function (response) {
         if (response['data']['success'] === true) {
-          let countryOptions = response['data']['result']
-              .map((code) => <option value={code}>{code}</option>);
+          let countryOptions = Object.keys(response['data']['result'][0][0])
+              .map((code) => <option value={code}>{code.slice(0,2)}</option>);
           obj.setState({
-            countryOptions: countryOptions
+            countryOptions: countryOptions,
           });
+
           obj.getShippingFee()
         } else {
           console.log('getCountryOptions Failed');
@@ -65,14 +64,14 @@ class EditDeliveryCompanyModal extends React.Component {
     addShippingFees(data){
       let userId = this.props.userId;
       let cid = this.props.selectedDeliveryCompanyId;
-      console.log(this.state.country)
       const obj = this;
+      console.log(obj.state.country.slice(0,2))
       axios.post(setting_server.DB_SERVER+'/api/db/shippingfee', {
         req_type: "add_shipping_fees",
         user_id: userId,
         company_id: cid,
         fee_array: JSON.stringify(data),
-        country: obj.state.country
+        country: obj.state.country.slice(0,2)
       })
       .then(function (response) {
         if (response['data']['success'] == true) {
@@ -158,7 +157,7 @@ class EditDeliveryCompanyModal extends React.Component {
       axios.post(setting_server.DB_SERVER+'/api/db/shippingfee', {
         req_type: "delete_shipping_fee",
         id: sid,
-        country: obj.state.country
+        country: obj.state.country.slice(0,2)
       })
       .then(function (response) {
         console.log(response)
@@ -186,7 +185,7 @@ class EditDeliveryCompanyModal extends React.Component {
         min_kg: min_kg,
         max_kg: max_kg,
         fee: fee,
-        country: obj.state.country
+        country: obj.state.country.slice(0,2)
       })
       .then(function (response) {
         console.log(response)
@@ -212,7 +211,7 @@ class EditDeliveryCompanyModal extends React.Component {
         req_type: "get_shipping_fee",
         user_id: userId,
         company_id: cid,
-        country: obj.state.country
+        country: obj.state.country.slice(0,2)
       })
       .then(function (response) {
         if (response['data']['success'] == true) {
