@@ -4,6 +4,8 @@ import Calendar from "react-calendar"
 import TreeNode from "../config-category-tree-node";
 import AddButton from "../add-button";
 import ControlPanel from "../control-panel";
+import DropdownButton from 'react-bootstrap/DropdownButton'
+import Dropdown from 'react-bootstrap/Dropdown'
 import TextView from "../text-view";
 import "./tree.css";
 import {Button} from "tabler-react"
@@ -33,7 +35,17 @@ class Tree extends Component {
         this.onTextChange = this.onTextChange.bind(this);
         this.nodesToString = this.nodesToString.bind(this);
     }
+     
+    handleChangeKey(value) {
+      this.setState({ inputKey: value })
+    };    
+      
+    handleChangeTKey(value) {
+      this.setState({ inputTKey: value })
+    };    
+   
 
+  
 
     onTodoChange(key,value){
       this.setState({
@@ -65,6 +77,7 @@ class Tree extends Component {
       let curUrl = window.location.href;
       this.getMySiteCategoryTree()
       this.getCompareKey()
+      this.getTranslateKey()
     }
 
     closeModal(modal) {
@@ -110,6 +123,67 @@ class Tree extends Component {
           console.log(error);
       });
     }
+
+    getTranslateKey(){
+      let jobId = this.props.jobId
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/mysite', {
+          req_type: "get_translate_key",
+          job_id: jobId
+      })
+      .then(function (response) {
+         if (response['data']['success'] == true) {
+           let translate_keys = response['data']['result'];
+           translate_keys = translate_keys.map(function(row, index){
+             const id = row[0];
+             const key_name = row[1];
+             return {num: index+1, id: id, key_name: key_name};
+           });
+           obj.setState({translate_keys: translate_keys, selectedMySiteTKeyIndex: null});
+         } else {
+           console.log('getRegisteredTargetSites Failed');
+         }
+      })
+      .catch(function (error) {
+          console.log(error);
+      });
+    }
+
+
+    addTranslateKey(){
+      let jobId = this.props.jobId
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/mysite', {
+          req_type: "add_translate_key",
+          job_id: jobId,
+          key_name: obj.state.inputTKey
+      })
+      .then(function (resultData) {
+          console.log(resultData);
+          obj.getTranslateKey()
+      })
+      .catch(function (error) {
+          console.log(error);
+      });
+    }
+
+    deleteTranslateKey(){
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/mysite', {
+          req_type: "delete_translate_key",
+          key_id: obj.state.selectedMySiteTKeyId
+      })
+      .then(function (resultData) {
+          console.log(resultData);
+          obj.getTranslateKey()
+          obj.setState({selectedMySiteTKeyIndex : '', selectedMySiteTKeyId: '', selectedMySiteTKeylabel: ''})
+      })
+      .catch(function (error) {
+          console.log(error);
+      });
+    }
+
+
 
     addCompareKey(){
       let jobId = this.props.jobId
@@ -378,7 +452,7 @@ class Tree extends Component {
                         Update
                     </Button>
                   </div>
-                  <ul className="Nodes" style={{marginTop:"5px",overflow:'auto',width:'100%',maxHeight:'165px',minHeight:'165px'}}>
+                  <ul className="Nodes" style={{marginTop:"5px",overflow:'auto',width:'100%',maxHeight:'340px',minHeight:'340px'}}>
                     { nodes.map((nodeProps) => {
                       const { id, ...others } = nodeProps;
                       return (
@@ -446,18 +520,23 @@ class Tree extends Component {
                         }
                       },
                     ]}
-                    minRows={5}
+                    minRows={3}
                     defaultPageSize={30}
                     showPagination ={false}
                     bordered = {false} 
                     style={{
-                      height: "270px"
+                      height: "150px"
                     }}
                     className="-striped -highlight"
                   />
-                  <div class='row' style={{marginLeft:'36%',width:'75%', marginTop:'20px',float:'right'}}>
-                    <label style={{marginTop:'8px', width:'20%'}}> Key :</label>
-                    <input class="form-control" style={{width:"32%"}} value={this.state.inputKey} onChange={e => this.onTodoChange('inputKey',e.target.value)} />
+                  <div class='row' style={{marginLeft:'10%',width:'100%', marginTop:'20px',float:'right'}}>
+                    <input class="form-control" readonly='readonly' style={{width:"32%"}} value={this.state.inputKey} onChange={e => this.onTodoChange('inputKey',e.target.value)} />
+                    <DropdownButton id="dropdown-basic-secondary" title="Key" style={{paddingLeft: "5px", width:"15%", display:"inline"}} >
+                      <Dropdown.Item onSelect={()=>{this.handleChangeKey("name")}}>name</Dropdown.Item>
+                      <Dropdown.Item onSelect={()=>{this.handleChangeKey("price")}}>price</Dropdown.Item>
+                      <Dropdown.Item onSelect={()=>{this.handleChangeKey("url")}}>url</Dropdown.Item>
+                      <Dropdown.Item onSelect={()=>{this.handleChangeKey("description")}}>description</Dropdown.Item>
+                    </DropdownButton>
                     <Button color="primary" style = {{marginLeft: '10px', width:'20%'}} 
                       onClick={() => {
                         this.addCompareKey()
@@ -474,7 +553,90 @@ class Tree extends Component {
                     >
                       Delete
                     </Button>
-                 </div>
+                  </div>
+                  <div class='row' style={{width:'100%', marginTop:'5px'}}></div>
+                  <label for="name"  style={{display: "flex",justifyContent: "center",alignItems: "center", fontWeight: "bold", fontSize:'20px'}}> Translate Key</label>
+                  <ReactTable
+                    data = {this.state.translate_keys}
+                    getTdProps={(state, rowInfo, column, instance) => {
+                      if (rowInfo) {
+                        if(this.state.selectedMySiteTKeyIndex !== null){ // When you click a row not at first.
+                          return {
+                            onClick: (e) => {
+                              this.setState({
+                                selectedMySiteTKeyIndex: rowInfo.index,
+                                selectedMySiteTKeyId: rowInfo.original['id'],
+                                selectedMySiteTKeyLabel: rowInfo.original['key_name'],
+                              });
+                            },
+                            style: {
+                              background: rowInfo.index === this.state.selectedMySiteTKeyIndex ? '#00ACFF' : null
+                            }
+                          }
+                        }
+                        else { // When you click a row at first.
+                          return {
+                            onClick: (e) => {
+                              this.setState({
+                                selectedMySiteTKeyIndex: rowInfo.index,
+                                selectedMySiteTKeyId: rowInfo.original['id'],
+                                selectedMySiteTKeyLabel: rowInfo.original['key_name'],
+                              }, () => {console.log('update!'); console.log(this.state.selectedMySiteTKeyId)});
+                            }
+                          }
+                        }
+                      }
+                      return{}
+                    }}
+                    columns={[
+                      {
+                        Header: "Key",
+                        resizable: false,
+                        accessor: "key_name",
+                        Cell: ( row ) => {
+                          return (
+                            <div
+                              style={{
+                                textAlign:"center",
+                                paddingTop:"4px"
+                              }}
+                            > {row.value} </div>
+                          )
+                        }
+                      },
+                    ]}
+                    minRows={3}
+                    defaultPageSize={30}
+                    showPagination ={false}
+                    bordered = {false} 
+                    style={{
+                      height: "150px"
+                    }}
+                    className="-striped -highlight"
+                  />
+                  <div class='row' style={{marginLeft:'10%',width:'100%', marginTop:'20px',float:'right'}}>
+                    <input class="form-control" readonly='readonly' style={{width:"32%"}} value={this.state.inputTKey} onChange={e => this.onTodoChange('inputTKey',e.target.value)} />
+                    <DropdownButton id="dropdown-basic-secondary" title="Key" style={{paddingLeft: "5px", width:"15%", display:"inline"}} >
+                      <Dropdown.Item onSelect={()=>{this.handleChangeTKey("name")}}>name</Dropdown.Item>
+                      <Dropdown.Item onSelect={()=>{this.handleChangeTKey("description")}}>description</Dropdown.Item>
+                    </DropdownButton>
+                    <Button color="primary" style = {{marginLeft: '10px', width:'20%'}} 
+                      onClick={() => {
+                        this.addTranslateKey()
+                      }}
+                    >
+                      Add
+                    </Button>
+                    <Button
+                      color="secondary" 
+                      style = {{marginLeft: '10px', width:'20%'}}
+                      onClick={() => {
+                        this.deleteTranslateKey()
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                </div>
                <Modal isOpen={this.state.confirm_modal} toggle={this.closeModal.bind(this, 'confirm_modal')}>
                 <ModalHeader toggle={this.closeModal.bind(this, 'confirm_modal')}>
