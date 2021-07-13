@@ -114,6 +114,13 @@ export class DictionariesScrapperNode extends Node {
         }
     }
 
+    handleChangeKey(idx, value) {
+      const rows = [...this.state.rows];
+      rows[idx]['col_key'] =  value
+      this.setState({ rows: rows })
+    };    
+
+
     handleChangeValueAttr(idx, value) {
       const rows = [...this.state.rows];
       rows[idx]['col_value_attribute'] =  value
@@ -231,11 +238,19 @@ export class DictionariesScrapperNode extends Node {
                                       <input
                                           type="text"
                                           name="col_key"
-                                          style={{width:"80%", display:"inline"}}
+                                          readonly='readonly'
+                                          style={{width:"73%", display:"inline", height:'33px', paddingTop:'1px'}}
                                           value={this.state.rows[idx]['col_key']}
                                           onChange={this.handleChange(idx)}
                                           className="form-control"
                                       />
+                                      <DropdownButton id="dropdown-basic-secondary" title="Attr" style={{paddingLeft: "5px", paddingTop:"1px", width:"15%", display:"inline"}} >
+                                        <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"description_dictionary1")}}>Description Dictionary1</Dropdown.Item>
+                                        <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"description_dictionary2")}}>Description Dictionary2</Dropdown.Item>
+                                        <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"description_dictionary3")}}>Description Dictionary3</Dropdown.Item>
+                                        <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"description_dictionary4")}}>Description Dictionary4</Dropdown.Item>
+                                        <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"description_dictionary5")}}>Description Dictionary5</Dropdown.Item>
+                                      </DropdownButton>
                                       <p/>
                                       <label style={{width:"13%"}}> 
                                         Title XPath : 

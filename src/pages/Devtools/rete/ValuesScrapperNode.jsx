@@ -229,6 +229,10 @@ export class ValuesScrapperNode extends Node {
                                           <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"source_site_product_id")}}>Source Site Product Id</Dropdown.Item>
                                           <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"description")}}>Description</Dropdown.Item>
                                           <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"description_rendered")}}>Description (HTML)</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"description1")}}>Description1</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"description1_rendered")}}>Description1 (HTML)</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"description2")}}>Description2</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"description2_rendered")}}>Description2 (HTML)</Dropdown.Item>
                                           <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"weight")}}>Weight</Dropdown.Item>
                                           <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"shipping_weight")}}>Shipping Weight</Dropdown.Item>
                                           <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"dimension_weight")}}>Dimension Weight</Dropdown.Item>
