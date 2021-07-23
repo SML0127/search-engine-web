@@ -32,7 +32,6 @@ class LoginForm extends React.Component {
       if(resultData['data']['success'] === true) {
         const auth = resultData['data']['auth'];
      
-        console.log(auth);
         if (auth === true) {
           if ( resultData['data']['is_dev'] == true){
             this.state.userId = resultData['data']['normal_user_id']

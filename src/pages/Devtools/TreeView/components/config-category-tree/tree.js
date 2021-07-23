@@ -63,7 +63,8 @@ class Tree extends Component {
         selected_category_title: "",
         id: "",
         inputKey: "",
-        selectedMySiteKeyId: ""
+        selectedMySiteKeyId: "",
+        mysite_columns: '',
       }
     }
 
@@ -78,6 +79,7 @@ class Tree extends Component {
       this.getMySiteCategoryTree()
       this.getCompareKey()
       this.getTranslateKey()
+      this.getMysiteColumns()
     }
 
     closeModal(modal) {
@@ -97,6 +99,32 @@ class Tree extends Component {
         this.showModal('confirm_modal',id)
       }
     }
+
+    getMysiteColumns(){
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/mysite', {
+        req_type: "get_column_name",
+      })
+      .then(function (response) {
+        if (response['data']['success'] == true) {
+          let mysite_columns = response['data']['result']
+            .map((code) => <option onSelect={()=>{obj.handleChangeKey(code)}} value={code}>{code.replaceAll('_', ' ')}</option>);
+            //  .map((code) =><Dropdown.Item onSelect={()=>{obj.handleChangeKey(code)}}>{code.replaceAll('_', ' ')}</Dropdown.Item>);
+                      
+          obj.setState({
+            mysite_columns: mysite_columns,
+          });
+          //obj.setState({ curExchangeRate:response['data']['result'][0][0], updateTime:response['data']['result'][0][1]});
+          
+        } else {
+          console.log('Failed to update exchange rate');
+        }
+      })
+      .catch(function (error){
+        console.log(error);
+      });
+    }
+
 
 
     getCompareKey(){
@@ -531,12 +559,17 @@ class Tree extends Component {
                   />
                   <div class='row' style={{marginLeft:'10%',width:'100%', marginTop:'20px',float:'right'}}>
                     <input class="form-control" readonly='readonly' style={{width:"32%"}} value={this.state.inputKey} onChange={e => this.onTodoChange('inputKey',e.target.value)} />
-                    <DropdownButton id="dropdown-basic-secondary" title="Key" style={{paddingLeft: "5px", width:"15%", display:"inline"}} >
-                      <Dropdown.Item onSelect={()=>{this.handleChangeKey("name")}}>name</Dropdown.Item>
-                      <Dropdown.Item onSelect={()=>{this.handleChangeKey("price")}}>price</Dropdown.Item>
-                      <Dropdown.Item onSelect={()=>{this.handleChangeKey("url")}}>url</Dropdown.Item>
-                      <Dropdown.Item onSelect={()=>{this.handleChangeKey("description")}}>description</Dropdown.Item>
-                    </DropdownButton>
+
+                    <select
+                      class="form-control"
+                      style={{paddingLeft: "3px", width:"22%", display:"inline", float: 'right'}}
+                      value={this.state.inputKey}
+                      onChange={e => this.onTodoChange('inputKey',e.target.value)}
+                    >
+                      <option value="" disabled selected>Select Key</option>
+                      {this.state.mysite_columns}
+                    </select>
+
                     <Button color="primary" style = {{marginLeft: '10px', width:'20%'}} 
                       onClick={() => {
                         this.addCompareKey()
@@ -616,11 +649,19 @@ class Tree extends Component {
                   />
                   <div class='row' style={{marginLeft:'10%',width:'100%', marginTop:'20px',float:'right'}}>
                     <input class="form-control" readonly='readonly' style={{width:"32%"}} value={this.state.inputTKey} onChange={e => this.onTodoChange('inputTKey',e.target.value)} />
-                    <DropdownButton id="dropdown-basic-secondary" title="Key" style={{paddingLeft: "5px", width:"15%", display:"inline"}} >
-                      <Dropdown.Item onSelect={()=>{this.handleChangeTKey("name")}}>name</Dropdown.Item>
-                      <Dropdown.Item onSelect={()=>{this.handleChangeTKey("description")}}>description</Dropdown.Item>
-                      <Dropdown.Item onSelect={()=>{this.handleChangeTKey("option")}}>option</Dropdown.Item>
-                    </DropdownButton>
+
+                    <select
+                      class="form-control"
+                      style={{paddingLeft: "3px", width:"22%", display:"inline", float: 'right'}}
+                      value={this.state.inputTKey}
+                      onChange={e => this.onTodoChange('inputTKey',e.target.value)}
+                    >
+                      <option value="" disabled selected>Select Key</option>
+                      <option onSelect={()=>{this.handleChangeTKey("name")}} value="name">name</option>
+                      <option onSelect={()=>{this.handleChangeTKey("description")}} value="description">description</option>
+                      <option onSelect={()=>{this.handleChangeTKey("option")}} value="option">option</option>
+                    </select>
+
                     <Button color="primary" style = {{marginLeft: '10px', width:'20%'}} 
                       onClick={() => {
                         this.addTranslateKey()

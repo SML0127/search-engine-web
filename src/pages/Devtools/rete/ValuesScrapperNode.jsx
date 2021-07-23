@@ -223,6 +223,7 @@ export class ValuesScrapperNode extends Node {
                                           <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"name")}}>Name</Dropdown.Item>
                                           <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"price")}}>Price</Dropdown.Item>
                                           <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"shipping_price")}}>Shipping Price</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"shipping_price1")}}>Shipping Price1</Dropdown.Item>
                                           <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"bundle_price")}}>Bundle Price</Dropdown.Item>
                                           <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"stock")}}>Stock</Dropdown.Item>
                                           <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"brand")}}>Brand</Dropdown.Item>
@@ -235,7 +236,9 @@ export class ValuesScrapperNode extends Node {
                                           <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"description2_rendered")}}>Description2 (HTML)</Dropdown.Item>
                                           <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"weight")}}>Weight</Dropdown.Item>
                                           <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"shipping_weight")}}>Shipping Weight</Dropdown.Item>
-                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"dimension_weight")}}>Dimension Weight</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"package_weight")}}>Package Weight</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"dimension")}}>Dimension</Dropdown.Item>
+                                          <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"package_dimension")}}>Package Dimension</Dropdown.Item>
                                           <Dropdown.Item onSelect={()=>{this.handleChangeKey(idx,"location")}}>Location</Dropdown.Item>
                                         </DropdownButton>
                                     </td>
