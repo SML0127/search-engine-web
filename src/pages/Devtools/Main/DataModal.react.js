@@ -63,10 +63,14 @@ class DataModal extends React.Component {
           console.log(res)
           let node_id_options = Object.keys(res)
               .map((nid) => <option value={nid}>{res[nid][0][1]}</option>);
+          console.log(Object.keys(res)[0])
+          g_var_nodeId = Object.keys(res)[0]
           obj.setState({
             node_id_options: node_id_options,
-            items: res
+            items: res,
+            node_id_idx: Object.keys(res)[0]
           });
+          
         } else {
           //console.log(resultData);
         }
