@@ -260,10 +260,10 @@ class PIModal extends React.Component {
       .catch(function (error){
         console.log(error);
       });
-    }
+   } 
 
 
-  getProductList(userId, statu = -1 ){
+  getProductList(userId, statu = -1){
       //console.log('get product list')
       const obj = this;
       //console.log(userId, obj.props.JobId, statu)
@@ -283,7 +283,7 @@ class PIModal extends React.Component {
           let productLists = response['data']['result'];
           
           productLists = productLists.map(function(row, index){
-            // mpid, name, url, price, shpiping_price, brand, weight, shipping_weight, dimension_weight, source_site_product_id, status, image_url, currency ,num_options, num_images
+            // mpid, name, url, price, shipping_price, brand, weight, shipping_weight, shipping_price1, source_site_product_id, status, image_url, currency, stock, num_options, num_images
             const id = row[0] == 'None'? '':row[0];
             const name = row[1] == 'None'? '':row[1];
             const pid = row[0] == 'None'? '':row[0]
@@ -294,13 +294,13 @@ class PIModal extends React.Component {
             const brand = row[5] == 'None'? '':row[5];
             const weight = row[6] == 'None'? '':row[6];
             const shipping_weight = row[7] == 'None'? '':row[7];
-            const dimension_weight = row[8] == 'None'? '':row[8];
+            const shipping_price1 = row[8] == 'None'? '':row[8];
             const source_site_product_id = row[9] == 'None'? '':row[9];
             const statu = row[10] == 'None'? '':row[10];
             const image_url = row[11] == 'None'? '':row[11];
             const currency = row[12] == 'None'? '':row[12];
             const stock = row[13] == 'None'? '':row[13];
-            return {num: index+1, id:id, name:name, pid:pid, mpid:mpid, purl:purl, price:price, shpiping_price:shpiping_price, brand:brand, weight:weight, shipping_weight:shipping_weight, dimension_weight: dimension_weight, source_site_product_id: source_site_product_id, statu:statu, image_url:image_url, currency:currency, stock:stock, boxChecked: false, min_margin: 0, margin_rate: 0, min_price: 0, shipping_cost: 0};
+            return {num: index+1, id:id, name:name, pid:pid, mpid:mpid, purl:purl, price:price, shpiping_price:shpiping_price, brand:brand, weight:weight, shipping_weight:shipping_weight, shipping_price1: shipping_price1, source_site_product_id: source_site_product_id, statu:statu, image_url:image_url, currency:currency, stock:stock, boxChecked: false, min_margin: 0, margin_rate: 0, min_price: 0, shipping_cost: 0};
           });
           //console.log(productLists)
           obj.setState({productLists: productLists});
@@ -638,7 +638,7 @@ class PIModal extends React.Component {
                         return {
                           onClick: (e) => {
                             //console.log(rowInfo.original['image_url'])
-                            //mpid, name, url, price, shpiping_price, brand, weight, shipping_weight, dimension_weight, source_site_product_id, status, image_url,
+                            //mpid, name, url, price, shpiping_price, brand, weight, shipping_weight, shipping_price1, source_site_product_id, status, image_url,
                             this.setState({
                               selectedProductIndex: rowInfo.index,
                               selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
@@ -653,7 +653,7 @@ class PIModal extends React.Component {
                               selectedProductShippingPrice: rowInfo.original['shipping_price'] != null ? rowInfo.original['shipping_price'] : '',
                               selectedProductWeight: rowInfo.original['weight'] != null ? rowInfo.original['weight'] : '',
                               selectedProductShippingWeight: rowInfo.original['shipping_weight'] != null ? rowInfo.original['shipping_weight'] : '',
-                              selectedProductDemensionWeight: rowInfo.original['dimension_weight'] != null ? rowInfo.original['dimension_weight'] : '',
+                              selectedProductShippingPrice1: rowInfo.original['shipping_price1'] != null ? rowInfo.original['shipping_price1'] : '',
                               selectedProductSpid: rowInfo.original['source_site_product_id'] != null ? rowInfo.original['source_site_product_id'] : '',
                               selectedImageLink: rowInfo.original['image_url'] != null ? rowInfo.original['image_url'] : '',
                               selectedProductStatu: rowInfo.original['statu'] != null ? rowInfo.original['status'] : '',
@@ -684,7 +684,7 @@ class PIModal extends React.Component {
                               selectedProductShippingPrice: rowInfo.original['shipping_price'] != null ? rowInfo.original['shipping_price'] : '',
                               selectedProductWeight: rowInfo.original['weight'] != null ? rowInfo.original['weight'] : '',
                               selectedProductShippingWeight: rowInfo.original['shipping_weight'] != null ? rowInfo.original['shipping_weight'] : '',
-                              selectedProductDemensionWeight: rowInfo.original['dimension_weight'] != null ? rowInfo.original['dimension_weight'] : '',
+                              selectedProductShippingPrice1: rowInfo.original['shipping_price1'] != null ? rowInfo.original['shipping_price1'] : '',
                               selectedProductSpid: rowInfo.original['source_site_product_id'] != null ? rowInfo.original['source_site_product_id'] : '',
                               selectedProductCurrency: rowInfo.original['currency'] != null ? rowInfo.original['currency'] : '',
                               selectedProductStock: rowInfo.original['stock'] != null ? rowInfo.original['stock'] : '',
