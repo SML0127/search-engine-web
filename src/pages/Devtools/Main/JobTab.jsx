@@ -749,6 +749,7 @@ class JobTab extends React.Component {
                   "option_name_query": options['option_name_query'],
                   "option_dropdown_query": options['option_dropdown_query'],
                   "option_value_query": options['option_value_query'],
+                  "option_attr": options['option_attr'],
                 }
                 this.removeEmpty(op)
                 break;

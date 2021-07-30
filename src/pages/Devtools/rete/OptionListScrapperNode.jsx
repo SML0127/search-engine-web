@@ -31,14 +31,38 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       var option_dropdown_values = [] 
       while(node_dropdown = elements_dropdown.iterateNext()) {
          var option_dropdown_html = (new DOMParser).parseFromString(node_dropdown.innerHTML, 'text/html');
-         var elements_dropdown_value = option_dropdown_html.evaluate('/'+g_rows_data['option_value_query'].substring(1), option_dropdown_html, null, XPathResult.ANY_TYPE, null)
-         var node_dropdown_value = null
-         var option_values = [] 
-         while(node_dropdown_value = elements_dropdown_value.iterateNext()) {
-            var option_dropdown_value = node_dropdown_value.innerText.trim()
-            option_values.push(option_dropdown_value)
+         if (g_rows_data['option_attr'] == 'alltext' || g_rows_data['option_attr'].trim() == ''){
+            var elements_dropdown_value = option_dropdown_html.evaluate('/'+g_rows_data['option_value_query'].substring(1), option_dropdown_html, null, XPathResult.ANY_TYPE, null)
+            var node_dropdown_value = null
+            var option_values = [] 
+            while(node_dropdown_value = elements_dropdown_value.iterateNext()) {
+               var option_dropdown_value = node_dropdown_value.innerText.trim()
+               option_values.push(option_dropdown_value)
+            }
+            option_dropdown_values.push(option_values)
          }
-         option_dropdown_values.push(option_values)
+         else if (g_rows_data['option_attr'] == "innerHTML" || g_rows_data['option_attr'] == "outerHTML"){
+            var elements_dropdown_value = option_dropdown_html.evaluate(g_rows_data['option_value_query'], g_document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+            var node_dropdown_value = null
+            var option_values = [] 
+            while(node_dropdown_value = elements_dropdown_value.iterateNext()) {
+               var option_dropdown_value = node_dropdown_value.innerHTML.trim()
+               option_values.push(option_dropdown_value)
+               console.log(option_dropdown_value)
+            }
+            option_dropdown_values.push(option_values)
+         }
+         else{
+            var elements_dropdown_value = option_dropdown_html.evaluate(g_rows_data['option_value_query'] + '/@'+g_rows_data['option_attr'], g_document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+            var node_dropdown_value = null
+            var option_values = [] 
+            while(node_dropdown_value = elements_dropdown_value.iterateNext()) {
+               var option_dropdown_value = node_dropdown_value.value
+               option_values.push(option_dropdown_value)
+               console.log(option_dropdown_value)
+            }
+            option_dropdown_values.push(option_values)
+         }
       }
       var results = {}
       for (var idx in option_names){
@@ -60,6 +84,7 @@ export class OptionListScrapperNode extends Node {
             option_name_query:"",
             option_dropdown_query:"",
             option_value_query:"",
+            option_attr:"alltext",
             previewmodalShow: false,
         }
         this.updateState()
@@ -72,6 +97,7 @@ export class OptionListScrapperNode extends Node {
             this.state.option_name_query = this.props.node.data['option_name_query']
             this.state.option_dropdown_query = this.props.node.data['option_dropdown_query']
             this.state.option_value_query = this.props.node.data['option_value_query']
+            this.state.option_attr = this.props.node.data['option_attr']
         }
     }
 
@@ -166,6 +192,16 @@ export class OptionListScrapperNode extends Node {
                     defaultValue={this.state.option_value_query}
                 />
               </div>
+              <div class = 'row' style={{width:'100%'}}>
+                <label style={{width:'25%', marginTop:'5px', paddingLeft:'2%'}}>
+                  Attribute
+                </label>
+                <Form.Textarea
+                    row={2}
+                    style={{width:'72%', height:'30px', marginLeft:'3%', textAlign:'right', overflow:'hidden'}}
+                    defaultValue={this.state.option_attr}
+                />
+              </div>
               <p/>
               <div id="edit-selector" style={{float:"right", width:'100%'}}>
 
@@ -181,11 +217,13 @@ export class OptionListScrapperNode extends Node {
                             var input_option_name_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[0].childNodes[1]['value']
                             var input_option_dropdown_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[1].childNodes[1]['value']
                             var input_option_value_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[2].childNodes[1]['value']
+                            var input_option_attr = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[1]['value']
                             
                             this.props.node.data['option_name_query'] = input_option_name_query
                             this.props.node.data['option_dropdown_query'] = input_option_dropdown_query
                             this.props.node.data['option_value_query'] = input_option_value_query
-                            var rows_data = {'option_name_query': input_option_name_query, 'option_dropdown_query': input_option_dropdown_query, 'option_value_query':input_option_value_query }
+                            this.props.node.data['option_attr'] = input_option_attr
+                            var rows_data = {'option_name_query': input_option_name_query, 'option_dropdown_query': input_option_dropdown_query, 'option_value_query':input_option_value_query, 'option_attr':input_option_attr }
                             g_rows_data = rows_data
                             chrome.runtime.sendMessage({type:'listoptionscrapper_xpath', rows_data:rows_data}, function (response) {
                             });
@@ -193,6 +231,7 @@ export class OptionListScrapperNode extends Node {
                                 option_name_query: input_option_name_query, 
                                 option_dropdown_query: input_option_dropdown_query, 
                                 option_value_query: input_option_value_query,
+                                option_attr: input_option_attr,
                                 previewmodalShow: true
                             })
                         }
@@ -206,10 +245,12 @@ export class OptionListScrapperNode extends Node {
                             var input_option_name_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[0].childNodes[1]['value']
                             var input_option_dropdown_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[1].childNodes[1]['value']
                             var input_option_value_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[2].childNodes[1]['value']
-                            this.setState({option_name_query: input_option_name_query, option_dropdown_query: input_option_dropdown_query, option_value_query: input_option_value_query, modalShow:false})
+                            var input_option_attr = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[1]['value']
+                            this.setState({'option_name_query': input_option_name_query, 'option_dropdown_query': input_option_dropdown_query, 'option_value_query': input_option_value_query, 'option_attr': input_option_attr, modalShow:false})
                             this.props.node.data['option_name_query'] = input_option_name_query
                             this.props.node.data['option_dropdown_query'] = input_option_dropdown_query
                             this.props.node.data['option_value_query'] = input_option_value_query
+                            this.props.node.data['option_attr'] = input_option_attr
                         }
                     }
                 >
