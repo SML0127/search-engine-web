@@ -26,6 +26,7 @@ import LoadProgramModal from "./LoadProgramModal.react";
 import ErrorModal from "./ErrorModal.react";
 import DataModal from "./DataModal.react";
 import CrawledHistoryModal from "./CrawledHistoryModal.react";
+import CrawledModal from "./CrawledModal.react";
 import ErrorMysiteModal from "./ErrorMysiteModal.react";
 import ErrorTargetsiteModal from "./ErrorTargetsiteModal.react";
 import SaveProgramModal from "./SaveProgramModal.react";
@@ -750,6 +751,7 @@ class JobTab extends React.Component {
                   "option_dropdown_query": options['option_dropdown_query'],
                   "option_value_query": options['option_value_query'],
                   "option_attr": options['option_attr'],
+                  "option_essential": options['option_essential'],
                 }
                 this.removeEmpty(op)
                 break;
@@ -1296,6 +1298,7 @@ class JobTab extends React.Component {
                                              color="secondary"
                                              style = {{float:'center',  textTransform: 'capitalize'}}
                                              onClick={() => {
+                                                   this.state.execId = row.value
                                                    this.setState({execId: row.value, errmodalShow: true})
                                                  }
                                              }
@@ -1336,7 +1339,8 @@ class JobTab extends React.Component {
                                              color="secondary"
                                              style = {{float:'center',  textTransform: 'capitalize'}}
                                              onClick={() => {
-                                                   this.setState({execId: row.value, dataShow: true})
+                                                   this.state.execId = row.value
+                                                   this.setState({execId: row.value, crawledModalShow: true})
                                                  }
                                              }
                                            >
@@ -1756,6 +1760,7 @@ class JobTab extends React.Component {
                   <DataModal
                       show={this.state.dataShow}
                       execId= {this.state.execId}
+                      JobId = {this.props.jobId}
                       setModalShow={(s) => this.setState({dataShow: s})}
                   />
                   <ErrorMysiteModal
@@ -1777,6 +1782,12 @@ class JobTab extends React.Component {
                       show={this.state.crawledHistoryModalShow}
                       JobId = {this.props.jobId}
                       setModalShow={(s) => this.setState({crawledHistoryModalShow: s})}
+                  />
+                  <CrawledModal
+                      show={this.state.crawledModalShow}
+                      JobId = {this.props.jobId}
+                      execId= {this.state.execId}
+                      setModalShow={(s) => this.setState({crawledModalShow: s})}
                   />
                   </Card>
                 </Grid.Col> 
@@ -1954,6 +1965,7 @@ class JobTab extends React.Component {
                                              color="secondary"
                                              style = {{float:'center',  textTransform: 'capitalize'}}
                                              onClick={() => {
+                                                   this.state.execId = row.value
                                                    this.setState({execId: row.value, errmodalShow: true})
                                                  }
                                              }
@@ -1994,6 +2006,7 @@ class JobTab extends React.Component {
                                              color="secondary"
                                              style = {{float:'center',  textTransform: 'capitalize'}}
                                              onClick={() => {
+                                                   this.state.execId = row.value
                                                    this.setState({execId: row.value, dataShow: true})
                                                    console.log(this.state)
                                                  }
@@ -2415,6 +2428,7 @@ class JobTab extends React.Component {
                   <DataModal
                       show={this.state.dataShow}
                       execId= {this.state.execId}
+                      JobId = {this.props.jobId}
                       setModalShow={(s) => this.setState({dataShow: s})}
                   />
                   <ErrorMysiteModal
@@ -2436,6 +2450,12 @@ class JobTab extends React.Component {
                       show={this.state.crawledHistoryModalShow}
                       JobId = {this.props.jobId}
                       setModalShow={(s) => this.setState({crawledHistoryModalShow: s})}
+                  />
+                  <CrawledModal
+                      show={this.state.crawledModalShow}
+                      JobId = {this.props.jobId}
+                      execId= {this.state.execId}
+                      setModalShow={(s) => this.setState({crawledModalShow: s})}
                   />
                   </Card>
                 </Grid.Col> 

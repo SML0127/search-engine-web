@@ -5,6 +5,8 @@ import Modal from 'react-bootstrap/Modal';
 import Tooltip from 'react-bootstrap/Tooltip'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import PreviewListOptionModal from "./PreviewListOptionModal.react";
+import DropdownButton from 'react-bootstrap/DropdownButton'
+import Dropdown from 'react-bootstrap/Dropdown'
 
 
 let g_rows_data = ''
@@ -86,6 +88,7 @@ export class OptionListScrapperNode extends Node {
             option_value_query:"",
             option_attr:"alltext",
             previewmodalShow: false,
+            essential:'False'
         }
         this.updateState()
     }
@@ -98,9 +101,14 @@ export class OptionListScrapperNode extends Node {
             this.state.option_dropdown_query = this.props.node.data['option_dropdown_query']
             this.state.option_value_query = this.props.node.data['option_value_query']
             this.state.option_attr = this.props.node.data['option_attr']
+            this.state.option_essential = this.props.node.data['option_essential']
         }
     }
 
+    handleChangeDropdown(value) {
+      this.setState({ essential: value })
+    };                                                                
+ 
 
   render() {
     const { node, bindSocket} = this.props;
@@ -202,13 +210,33 @@ export class OptionListScrapperNode extends Node {
                     defaultValue={this.state.option_attr}
                 />
               </div>
+              <div class = 'row' style={{width:'100%'}}>
+                <label style={{width:'25%', marginTop:'5px', paddingLeft:'2%'}}>
+                  Essential
+                </label>
+                <input
+                    type="text"
+                    name="essential"
+                    style={{width:"68%", display:"inline", height:'33px', paddingTop:'1px', marginLeft:'3%'}}
+                    value={this.state.essential}
+                    className="form-control"
+                    readonly="readonly"
+                />
+
+                <DropdownButton id="dropdown-basic-secondary" title="T/F" style={{paddingLeft: "5px", paddingTop:"1px", width:"3%", display:"inline"}} >
+                  <Dropdown.Item onSelect={()=>{this.handleChangeDropdown("True")}}>True</Dropdown.Item>
+                  <Dropdown.Item onSelect={()=>{this.handleChangeDropdown("False")}}>False</Dropdown.Item>
+                </DropdownButton>
+
+
+              </div>
               <p/>
               <div id="edit-selector" style={{float:"right", width:'100%'}}>
 
-		            	 <Button color="secondary" action='select-selector' type="button"  style={{marginLeft:'90%', width:'10%'}}>
-                    Get XPath
-                  </Button>
-		          </div>
+		        <Button color="secondary" action='select-selector' type="button"  style={{marginLeft:'90%', width:'10%'}}>
+                  Get XPath
+                </Button>
+		      </div>
 
             </Modal.Body>
             <Modal.Footer>
@@ -218,12 +246,14 @@ export class OptionListScrapperNode extends Node {
                             var input_option_dropdown_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[1].childNodes[1]['value']
                             var input_option_value_query = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[2].childNodes[1]['value']
                             var input_option_attr = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[1]['value']
+                            var input_option_essential = obj.currentTarget.parentNode.parentNode.childNodes[1].childNodes[4].childNodes[1]['value']
                             
                             this.props.node.data['option_name_query'] = input_option_name_query
                             this.props.node.data['option_dropdown_query'] = input_option_dropdown_query
                             this.props.node.data['option_value_query'] = input_option_value_query
                             this.props.node.data['option_attr'] = input_option_attr
-                            var rows_data = {'option_name_query': input_option_name_query, 'option_dropdown_query': input_option_dropdown_query, 'option_value_query':input_option_value_query, 'option_attr':input_option_attr }
+                            this.props.node.data['option_essential'] = input_option_essential
+                            var rows_data = {'option_name_query': input_option_name_query, 'option_dropdown_query': input_option_dropdown_query, 'option_value_query':input_option_value_query, 'option_attr':input_option_attr, 'option_essential': input_option_essential }
                             g_rows_data = rows_data
                             chrome.runtime.sendMessage({type:'listoptionscrapper_xpath', rows_data:rows_data}, function (response) {
                             });
@@ -232,6 +262,7 @@ export class OptionListScrapperNode extends Node {
                                 option_dropdown_query: input_option_dropdown_query, 
                                 option_value_query: input_option_value_query,
                                 option_attr: input_option_attr,
+                                option_essential: input_option_essential,
                                 previewmodalShow: true
                             })
                         }

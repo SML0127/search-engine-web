@@ -216,7 +216,6 @@ export class ListsScrapperNode extends Node {
                                           <input
                                               type="text"
                                               name="col_key"
-                                              readonly='readonly'
                                               value={this.state.rows[idx]['col_key']}
                                               onChange={this.handleChange(idx)}
                                               className="form-control"
