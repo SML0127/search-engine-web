@@ -27,6 +27,7 @@ import ErrorModal from "./ErrorModal.react";
 import DataModal from "./DataModal.react";
 import CrawledHistoryModal from "./CrawledHistoryModal.react";
 import CrawledModal from "./CrawledModal.react";
+import CrawledPage from "./CrawledPage.react";
 import ErrorMysiteModal from "./ErrorMysiteModal.react";
 import ErrorTargetsiteModal from "./ErrorTargetsiteModal.react";
 import SaveProgramModal from "./SaveProgramModal.react";
@@ -36,6 +37,7 @@ import axios from 'axios'
 import setting_server from '../setting_server';
 import refreshIcon from './refresh.png';
 import schedule from 'node-schedule'
+import Image from 'react-bootstrap/Image'
 window.React = React;
 
 
@@ -649,7 +651,7 @@ class JobTab extends React.Component {
         if(resultData['data']['success'] == true) {
           let executions = resultData['data']['executions'];
           obj.setState({
-              items: executions
+              items: executions,
           });
         } else {
         }
@@ -1001,10 +1003,13 @@ class JobTab extends React.Component {
        }
    }
 
+    
+
     render() {
         const {items} = this.state;
         const {mysite_items} = this.state;
         const {targetsite_items} = this.state;
+        const err_msg = this.state.err_msg
 
         if(this.props.is_dev == true){
           return (
@@ -1137,7 +1142,10 @@ class JobTab extends React.Component {
                     }}
                     title=""
                 >
-
+       
+                  <CrawledPage
+                    JobId = {this.props.jobId}
+                  />
 
                   <label style={{paddingTop:'1%', paddingLeft:'1%', fontWeight:'bold'}}> Crawling history
 
@@ -1265,47 +1273,6 @@ class JobTab extends React.Component {
                                                   paddingLeft:"12px"
                                               }}
                                           > {row.value} / {row.original[7]} / {row.original[8]} / {row.original[9]} </div>
-                                      )
-                                  }
-                              }
-                          },
-                          {
-                              Header: "Error Message",
-                              resizable: false,
-                              accessor: "0",
-                              Cell: ( row ) => {
-                                  if (row.value == null){
-                                      return (
-                                          <div
-                                              style={{
-                                                  textAlign:"center",
-                                                  paddingTop:"4px",
-                                                  paddingLeft:"15px"
-                                              }}
-                                          > - </div>
-                                      )
-                                  }
-                                  else{
-                                      return (
-                                          <div
-                                              style={{
-                                                  textAlign:"center",
-                                                  paddingTop:"4px",
-                                                  paddingLeft:"12px"
-                                              }}
-                                          > 
-                                           <Button 
-                                             color="secondary"
-                                             style = {{float:'center',  textTransform: 'capitalize'}}
-                                             onClick={() => {
-                                                   this.state.execId = row.value
-                                                   this.setState({execId: row.value, errmodalShow: true})
-                                                 }
-                                             }
-                                           >
-                                           Show
-                                           </Button>
-                                          </div>
                                       )
                                   }
                               }
@@ -1807,6 +1774,11 @@ class JobTab extends React.Component {
                     }}
                     title=""
                 >
+
+                  <CrawledPage
+                    JobId = {this.props.jobId}
+                  />
+
                   <label style={{paddingTop:'1%', paddingLeft:'1%', fontWeight:'bold'}}> Crawling history 
                   </label> 
                   <Button 

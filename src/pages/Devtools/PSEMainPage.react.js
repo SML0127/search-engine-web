@@ -1,9 +1,4 @@
 import React from "react";
-//import HomeTab from "./MainTab/HomeTab.react";
-//import Executions from "./MainTab/ExecutionTab.react";
-//import ProgramRun from "./MainTab/ProgramRun.react";
-//import ExecutionsPage from "./LogAndRerunPage/ExecutionsPage.react";
-//import RunPage from "./RunPage/ProgramInfo.react";
 import "tabler-react/dist/Tabler.css";
 import jQuery from "jquery";
 import { Button } from "tabler-react";
