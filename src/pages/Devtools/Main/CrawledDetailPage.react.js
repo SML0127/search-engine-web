@@ -40,12 +40,9 @@ class CrawledDetailPage. extends React.Component {
     }
     
 
-    //componentWillReceiveProps(nextProps) {
-    //  g_var_execId = nextProps.execId;
-    //  this.state = this.initState()
-    //  this.getProductName();
-    //
-    //}
+    componentWillReceiveProps(nextProps) {
+    
+    }
 
     initState() {
       return {

@@ -191,7 +191,7 @@ class CrawledProductDetailPage extends React.Component {
                   <div class='col-sm-6'>
                     <div class='row' style={{width:'100%'}}>                      
                       <label style={{marginTop:'8px', marginLeft: '15px', width:'25%'}}> 자체 상품번호:</label>
-                      <input readonly='readonly' name="name" class="form-control" style={{width:"70%",float:'right'}} value={this.state.selectedProductMpid}/>
+                      <input readonly='readonly' name="name" class="form-control" style={{width:"70%",float:'right'}} value={this.props.selectedProductMpid}/>
                     </div>
 
                     <div class='row' style={{width:'100%'}}>                      

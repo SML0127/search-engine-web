@@ -17,10 +17,12 @@ import {
 import Tooltip from 'react-bootstrap/Tooltip'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Image from 'react-bootstrap/Image'
+import ProgressBar from 'react-bootstrap/ProgressBar'
 import setting_server from '../setting_server';
 import { Tabs } from 'react-simple-tabs-component'
 import CrawledProductDetailPage from './CrawledProductDetailPage.react.js'
 import CrawledSummaryPage from './CrawledSummaryPage.react.js'
+import refreshIcon from './refresh.png';
 
 var g_var_execId = -1
 class CrawledPage extends React.Component {
@@ -38,6 +40,7 @@ class CrawledPage extends React.Component {
     
     componentDidMount(){
       this.state = this.initState()
+      this.get_latest_progress()
       this.getProductName();
       this.getSummary()
     }
@@ -163,7 +166,34 @@ class CrawledPage extends React.Component {
         console.log(error);
       });
     }
+
+
+
+    get_latest_progress(){
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/executions', {
+        req_type: "get_latest_progress",
+        job_id: obj.props.JobId,
+      })
+      .then(function (response) {
+        if (response['data']['success'] == true) {
+          obj.setState({
+            current_detail_num: response['data']['result'][0],
+            expected_detail_num: response['data']['result'][1], 
+            progress_detail: parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100
+          })
+          console.log(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100)
+        } 
+      })
+      .catch(function (error){
+        console.log(error);
+      });
+    }
  
+
+
+
+
 
     getProductErrorDetail(selectedNodeId){
       const obj = this;
@@ -454,6 +484,24 @@ class CrawledPage extends React.Component {
         const TabDetail = () => {
           return (
                 <div>
+                  <label style={{width:'100%', fontWeight:'Bold', fontSize:'20px', textAlign:'center'}}>
+                    진행 상황 ({this.state.current_detail_num} / {this.state.expected_detail_num})
+                   <img
+                      src={refreshIcon}
+                      width="20"
+                      height="20"
+                      onClick={() =>
+                        this.get_latest_progress()
+                      }
+                      style = {{cursor:'pointer', marginBottom:'0.2%', marginLeft:'0.2%'}}
+                    />
+                  </label>
+                  <ProgressBar animated style={{width:'98%', height:'30px', marginLeft:"1%"}} now={this.state.progress_detail} label={`${this.state.progress_detail}%`} />
+                      
+                      
+
+                  <div class='row' style ={{marginTop:'1.5%', width:'100%'}}/>
+
                   <ReactTable
                     data = {this.state.productLists}
                     getTdProps={(state, rowInfo, column, instance) => {
@@ -668,19 +716,19 @@ class CrawledPage extends React.Component {
 
         const tabs = [
           {
-            label: 'Summary 페이지 수행 결과',
-            Component: TabSummary
-          },
-          {
-            label: 'Product 페이지 수행 결과', 
+            label: '(Crawling) Product 페이지 수행', 
             Component: TabDetail
           },
           {
-            label: 'My site upload / update 수행 결과', 
+            label: '(Crawling) Summary 페이지 수행',
+            Component: TabSummary
+          },
+          {
+            label: 'My site upload / update 수행', 
             Component: (<div></div>)
           },
           {
-            label: 'Target site upload / updatet 수행 결과', 
+            label: 'Target site upload / updatet 수행', 
             Component: (<div></div>)
           }
         ]
