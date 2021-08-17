@@ -60,7 +60,10 @@ class CrawledPage extends React.Component {
         selectedProductIndex: null,
         selectedProductIndex1: null,
         err_msg: '',
-        err_msg_summary: ''
+        err_msg_summary: '',
+        expected_detail_num: 0,
+        current_detail_num: 0,
+        progress_detail: 0
       }
     }
 
@@ -177,12 +180,14 @@ class CrawledPage extends React.Component {
       })
       .then(function (response) {
         if (response['data']['success'] == true) {
+          console.log(response)
           obj.setState({
             current_detail_num: response['data']['result'][0],
             expected_detail_num: response['data']['result'][1], 
-            progress_detail: parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100
+            progress_detail: isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ) ? 0 : (parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 )
           })
-          console.log(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100)
+          console.log(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 )
+          console.log(isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ))
         } 
       })
       .catch(function (error){
