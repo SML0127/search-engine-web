@@ -28,7 +28,7 @@ import refreshIcon from './refresh.png';
 import CrawledModal from "./CrawledModal.react";
 
 var g_var_execId = -1
-class CrawledPage extends React.Component {
+class JobSubTabPage extends React.Component {
 
     constructor(props) {
         super(props);
@@ -45,6 +45,7 @@ class CrawledPage extends React.Component {
       this.state = this.initState()
       this.get_latest_progress()
       this.get_latest_progress_mysite()
+      this.get_latest_progress_targetsite()
       this.getProductName();
       this.getSummary()
       this.refreshList();
@@ -236,6 +237,30 @@ class CrawledPage extends React.Component {
             current_my_num: response['data']['result'][0],
             expected_my_num: response['data']['result'][1], 
             progress_my: isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ) ? 0 : (parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 )
+          })
+        } 
+      })
+      .catch(function (error){
+        console.log(error);
+      });
+    }
+ 
+
+
+
+    get_latest_progress_targetsite(){
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/targetsite', {
+        req_type: "get_latest_progress",
+        job_id: obj.props.JobId,
+      })
+      .then(function (response) {
+        if (response['data']['success'] == true) {
+          console.log(response)
+          obj.setState({
+            current_target_num: response['data']['result'][0],
+            expected_target_num: response['data']['result'][1], 
+            progress_target: isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ) ? 0 : (parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 )
           })
         } 
       })
@@ -1115,7 +1140,7 @@ class CrawledPage extends React.Component {
                       width="20"
                       height="20"
                       onClick={() =>
-                        this.get_latest_progress()
+                        this.get_latest_progress_mysite()
                       }
                       style = {{cursor:'pointer', marginBottom:'0.2%', marginLeft:'0.2%'}}
                     />
@@ -1135,18 +1160,18 @@ class CrawledPage extends React.Component {
           return (
                 <div>
                   <label style={{width:'100%', fontWeight:'Bold', fontSize:'20px', textAlign:'center'}}>
-                    진행 상황 ({this.state.current_detail_num} / {this.state.expected_detail_num})
+                    진행 상황 ({this.state.current_target_num} / {this.state.expected_target_num})
                    <img
                       src={refreshIcon}
                       width="20"
                       height="20"
                       onClick={() =>
-                        this.get_latest_progress()
+                        this.get_latest_progress_targetsite()
                       }
                       style = {{cursor:'pointer', marginBottom:'0.2%', marginLeft:'0.2%'}}
                     />
                   </label>
-                  <ProgressBar animated style={{width:'98%', height:'30px', marginLeft:"1%"}} now={this.state.progress_detail} label={`${this.state.progress_detail}%`} />
+                  <ProgressBar animated style={{width:'98%', height:'30px', marginLeft:"1%"}} now={this.state.progress_target} label={`${this.state.progress_detail}%`} />
 
                   <div class='row' style ={{marginTop:'1.5%', width:'100%'}}/>
 
@@ -1193,4 +1218,4 @@ class CrawledPage extends React.Component {
         )
     }
 }
-export default CrawledPage;
+export default JobSubTabPage;
