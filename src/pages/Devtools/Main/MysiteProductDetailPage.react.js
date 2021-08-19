@@ -38,6 +38,7 @@ class MysiteProductDetailPage extends React.Component {
 
     componentDidMount(){
       this.state = this.initState()
+      this.getSmhid()
       this.getProductList()
       this.refreshMsiteList();
       //if(this.props.isError == false){
@@ -110,7 +111,53 @@ class MysiteProductDetailPage extends React.Component {
         console.log(error);
       });
     }
- 
+  
+    getErrMsg() {
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/mysite', {
+        req_type: "get_err_msg_mpid",
+        sm_history_id: obj.state.smhid,
+        mpid: obj.state.selectedProductMpid
+      })
+      .then(function (resultData) {
+        if(resultData['data']['success'] == true) {
+          let res = resultData['data']['result'];
+          console.log(res)
+          obj.setState({
+            err_msg: res[2],
+          });
+
+        } else {
+          //console.log(resultData);
+        }
+      })
+      .catch(function (error) {
+          console.log(error);
+      });
+    }
+
+
+    getSmhid() {
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/mysite', {
+        req_type: "get_smhid",
+        job_id: obj.props.JobId
+      })
+      .then(function (resultData) {
+        if(resultData['data']['success'] == true) {
+          let res = resultData['data']['result'];
+          obj.setState({
+            smhid: res
+          });
+        } else {
+        }
+      })
+      .catch(function (error) {
+          console.log(error);
+      });
+    }
+
+
 
 
     refreshMsiteList() {
@@ -136,25 +183,6 @@ class MysiteProductDetailPage extends React.Component {
       //obj.createNotification('History');
     }
 
-
-
-     getProductErrorDetail(selectedNodeId){
-       const obj = this;
-       axios.post(setting_server.DB_SERVER+'/api/db/task', {
-         req_type: "get_failed_task_detail",
-         node_id: selectedNodeId
-       })
-       .then(function (response) {
-         if (response['data']['success'] == true) {
-           obj.setState({err_msg: response['data']['result']})
-         } else {
-           obj.setState({err_msg: '에러 메세지를 가져오는데 실패하였습니다'})
-         }
-       })
-       .catch(function (error){
-         console.log(error);
-       });
-     }
  
   getProductDescription(){
       const obj = this;
@@ -208,23 +236,31 @@ class MysiteProductDetailPage extends React.Component {
           
           productLists = productLists.map(function(row, index){
             // mpid, name, url, price, shipping_price, brand, weight, shipping_weight, shipping_price1, source_site_product_id, status, image_url, currency, stock, num_options, num_images
-            const id = row[0] == 'None'? '':row[0];
-            const name = row[1] == 'None'? '':row[1];
-            const pid = row[0] == 'None'? '':row[0]
-            const mpid = pid
-            const purl = row[2] == 'None'? '':row[2];
-            const price = row[3] == 'None'? '':row[3];
-            const shpiping_price = row[4] == 'None'? '':row[4];
-            const brand = row[5] == 'None'? '':row[5];
-            const weight = row[6] == 'None'? '':row[6];
-            const shipping_weight = row[7] == 'None'? '':row[7];
-            const shipping_price1 = row[8] == 'None'? '':row[8];
-            const source_site_product_id = row[9] == 'None'? '':row[9];
-            const statu = row[10] == 'None'? '':row[10];
-            const image_url = row[11] == 'None'? '':row[11];
-            const currency = row[12] == 'None'? '':row[12];
-            const stock = row[13] == 'None'? '':row[13];
-            return {num: index+1, id:id, name:name, pid:pid, mpid:mpid, purl:purl, price:price, shpiping_price:shpiping_price, brand:brand, weight:weight, shipping_weight:shipping_weight, shipping_price1: shipping_price1, source_site_product_id: source_site_product_id, statu:statu, image_url:image_url, currency:currency, stock:stock, min_margin: 0, margin_rate: 0, min_price: 0, shipping_cost: 0};
+            if (row[2] == -1 || row[2] == '-1'){
+              const mpid = row[0]
+              const node_id = row[1]
+              const name = row[3]
+              return {num: index+1, mpid: mpid, node_id: node_id, name:name, is_fail: true};
+            }
+            else{
+              const id = row[0] == 'None'? '':row[0];
+              const name = row[1] == 'None'? '':row[1];
+              const pid = row[0] == 'None'? '':row[0]
+              const mpid = pid
+              const purl = row[2] == 'None'? '':row[2];
+              const price = row[3] == 'None'? '':row[3];
+              const shpiping_price = row[4] == 'None'? '':row[4];
+              const brand = row[5] == 'None'? '':row[5];
+              const weight = row[6] == 'None'? '':row[6];
+              const shipping_weight = row[7] == 'None'? '':row[7];
+              const shipping_price1 = row[8] == 'None'? '':row[8];
+              const source_site_product_id = row[9] == 'None'? '':row[9];
+              const statu = row[10] == 'None'? '':row[10];
+              const image_url = row[11] == 'None'? '':row[11];
+              const currency = row[12] == 'None'? '':row[12];
+              const stock = row[13] == 'None'? '':row[13];
+              return {num: index+1, id:id, name:name, pid:pid, mpid:mpid, purl:purl, price:price, shpiping_price:shpiping_price, brand:brand, weight:weight, shipping_weight:shipping_weight, shipping_price1: shipping_price1, source_site_product_id: source_site_product_id, statu:statu, image_url:image_url, currency:currency, stock:stock, min_margin: 0, margin_rate: 0, min_price: 0, shipping_cost: 0, is_fail: false};
+            }
           });
           //console.log(productLists)
           obj.setState({productLists: productLists});
@@ -247,6 +283,234 @@ class MysiteProductDetailPage extends React.Component {
         if(err_msg != ''){
           return (
             <div>
+               <ReactTable
+                 data = {this.state.productLists}
+                 getTdProps={(state, rowInfo, column, instance) => {
+                   if(rowInfo){
+                     if(this.state.selectedProductIndex !== null){ 
+                       if(rowInfo.index == this.state.selectedProductIndex){
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
+                               selectedProductName: rowInfo.original['name'] != null ? rowInfo.original['name'] : '',
+                               selectedProductUrl: rowInfo.original['purl'] != null ? rowInfo.original['purl'] : '',
+                               selectedProductPid: rowInfo.original['pid'] != null ? rowInfo.original['pid'] : '',
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
+                               selectedProductBrand: rowInfo.original['brand'] != null ? rowInfo.original['brand'] : '',
+                               selectedProductPrice: rowInfo.original['price'] != null ? rowInfo.original['price'] : '',
+                               selectedProductCurrency: rowInfo.original['currency'] != null ? rowInfo.original['currency'] : '',
+                               selectedProductStock: rowInfo.original['stock'] != null ? rowInfo.original['stock'] : '',
+                               selectedProductShippingPrice: rowInfo.original['shipping_price'] != null ? rowInfo.original['shipping_price'] : '',
+                               selectedProductWeight: rowInfo.original['weight'] != null ? rowInfo.original['weight'] : '',
+                               selectedProductShippingWeight: rowInfo.original['shipping_weight'] != null ? rowInfo.original['shipping_weight'] : '',
+                               selectedProductShippingPrice1: rowInfo.original['shipping_price1'] != null ? rowInfo.original['shipping_price1'] : '',
+                               selectedProductSpid: rowInfo.original['source_site_product_id'] != null ? rowInfo.original['source_site_product_id'] : '',
+                               selectedProductImage: rowInfo.original['image_url'] != null ? rowInfo.original['image_url'] : '',
+                               selectedProductStatu: rowInfo.original['statu'] != null ? rowInfo.original['status'] : '',
+                               selectedMinMargin: rowInfo.original['min_margin'] != null ? rowInfo.original['min_margin'] : '',
+                               selectedMarginRate: rowInfo.original['margin_rate'] != null ? rowInfo.original['margin_rate'] : '',
+                               selectedMinPrice: rowInfo.original['min_price'] != null ? rowInfo.original['min_price'] : '',
+                               selectedShippingCost: rowInfo.original['shipping_cost'] != null ? rowInfo.original['shipping_cost'] : '',
+                               err_msg: ''
+                             },() => {console.log(this.state.selectedProductId);this.getProductDescription(); this.getProductOptions(); });
+                           },
+                           style: {
+                             background: '#00ACFF'
+                           }
+                         }
+                       }
+                       else if(rowInfo.original['is_fail'] == true){
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
+                               selectedProductNodeId: rowInfo.original['node_id'] != null ? rowInfo.original['node_id'] : '',
+                               
+                             }, () => {console.log('is_fail = true'); this.getErrMsg();});
+                           },
+                           style: {
+                             background: '#FF919C'
+                           }
+                         }
+                       }
+                       else{
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
+                               selectedProductName: rowInfo.original['name'] != null ? rowInfo.original['name'] : '',
+                               selectedProductUrl: rowInfo.original['purl'] != null ? rowInfo.original['purl'] : '',
+                               selectedProductPid: rowInfo.original['pid'] != null ? rowInfo.original['pid'] : '',
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
+                               selectedProductBrand: rowInfo.original['brand'] != null ? rowInfo.original['brand'] : '',
+                               selectedProductPrice: rowInfo.original['price'] != null ? rowInfo.original['price'] : '',
+                               selectedProductCurrency: rowInfo.original['currency'] != null ? rowInfo.original['currency'] : '',
+                               selectedProductStock: rowInfo.original['stock'] != null ? rowInfo.original['stock'] : '',
+                               selectedProductShippingPrice: rowInfo.original['shipping_price'] != null ? rowInfo.original['shipping_price'] : '',
+                               selectedProductWeight: rowInfo.original['weight'] != null ? rowInfo.original['weight'] : '',
+                               selectedProductShippingWeight: rowInfo.original['shipping_weight'] != null ? rowInfo.original['shipping_weight'] : '',
+                               selectedProductShippingPrice1: rowInfo.original['shipping_price1'] != null ? rowInfo.original['shipping_price1'] : '',
+                               selectedProductSpid: rowInfo.original['source_site_product_id'] != null ? rowInfo.original['source_site_product_id'] : '',
+                               selectedProductImage: rowInfo.original['image_url'] != null ? rowInfo.original['image_url'] : '',
+                               selectedProductStatu: rowInfo.original['statu'] != null ? rowInfo.original['status'] : '',
+                               selectedMinMargin: rowInfo.original['min_margin'] != null ? rowInfo.original['min_margin'] : '',
+                               selectedMarginRate: rowInfo.original['margin_rate'] != null ? rowInfo.original['margin_rate'] : '',
+                               selectedMinPrice: rowInfo.original['min_price'] != null ? rowInfo.original['min_price'] : '',
+                               selectedShippingCost: rowInfo.original['shipping_cost'] != null ? rowInfo.original['shipping_cost'] : '',
+                               err_msg: ''
+                             },() => {console.log(this.state.selectedProductId);this.getProductDescription(); this.getProductOptions(); });
+                           },
+                         }
+                       }
+                     }
+                     else{
+                       if(rowInfo.original['is_fail'] == true){
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
+                               selectedProductNodeId: rowInfo.original['node_id'] != null ? rowInfo.original['node_id'] : '',
+                               selectedProductName: rowInfo.original['name'] != null ? rowInfo.original['name'] : '',
+                               
+                             }, () => {console.log('is_fail = true'); this.getErrMsg()});
+                           },
+                           style: {
+                             background: '#FF919C'
+                           }
+                         }
+                       }
+                       else{
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
+                               selectedProductName: rowInfo.original['name'] != null ? rowInfo.original['name'] : '',
+                               selectedProductUrl: rowInfo.original['purl'] != null ? rowInfo.original['purl'] : '',
+                               selectedProductPid: rowInfo.original['pid'] != null ? rowInfo.original['pid'] : '',
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
+                               selectedProductBrand: rowInfo.original['brand'] != null ? rowInfo.original['brand'] : '',
+                               selectedProductPrice: rowInfo.original['price'] != null ? rowInfo.original['price'] : '',
+                               selectedProductCurrency: rowInfo.original['currency'] != null ? rowInfo.original['currency'] : '',
+                               selectedProductStock: rowInfo.original['stock'] != null ? rowInfo.original['stock'] : '',
+                               selectedProductShippingPrice: rowInfo.original['shipping_price'] != null ? rowInfo.original['shipping_price'] : '',
+                               selectedProductWeight: rowInfo.original['weight'] != null ? rowInfo.original['weight'] : '',
+                               selectedProductShippingWeight: rowInfo.original['shipping_weight'] != null ? rowInfo.original['shipping_weight'] : '',
+                               selectedProductShippingPrice1: rowInfo.original['shipping_price1'] != null ? rowInfo.original['shipping_price1'] : '',
+                               selectedProductSpid: rowInfo.original['source_site_product_id'] != null ? rowInfo.original['source_site_product_id'] : '',
+                               selectedProductImage: rowInfo.original['image_url'] != null ? rowInfo.original['image_url'] : '',
+                               selectedProductStatu: rowInfo.original['statu'] != null ? rowInfo.original['status'] : '',
+                               selectedMinMargin: rowInfo.original['min_margin'] != null ? rowInfo.original['min_margin'] : '',
+                               selectedMarginRate: rowInfo.original['margin_rate'] != null ? rowInfo.original['margin_rate'] : '',
+                               selectedMinPrice: rowInfo.original['min_price'] != null ? rowInfo.original['min_price'] : '',
+                               selectedShippingCost: rowInfo.original['shipping_cost'] != null ? rowInfo.original['shipping_cost'] : '',
+                               err_msg: ''
+                             },() => {console.log(this.state.selectedProductId);this.getProductDescription(); this.getProductOptions(); });
+                           },
+                         }
+                       }
+                     }
+                   }
+                   else{
+                     return {
+                     }
+                   }
+                 }}
+                 columns={[
+                   {
+                     Header: "No.",
+                     resizable: false,
+                     width: 70,
+                     accessor: "num",
+                     Cell: ( row ) => {
+                       return (
+                         <div
+                           style={{
+                             textAlign:"center",
+                             paddingTop:"4px",
+                           }}
+                         > {row.value} </div>
+                       )
+                     
+                     }
+                   },
+                   {
+                     Header: "자체 상품코드",
+                     resizable: false,
+                     width: 150,
+                     accessor: "mpid",
+                     Cell: ( row ) => {
+                       return (
+                         <div
+                           style={{
+                             textAlign:"center",
+                             paddingTop:"4px",
+                           }}
+                         > {row.value} </div>
+                       )
+                     }
+                   },
+                   {
+                     Header: "상품명",
+                     resizable: false,
+                     accessor: "name",
+                     Cell: ( row ) => {
+                       return (
+                         <div
+                           style={{
+                             textAlign:"center",
+                             paddingTop:"4px",
+                           }}
+                         > {row.value} </div>
+                       )
+                     }
+                   },
+                   {
+                     Header: "성공 / 실패",
+                     resizable: false,
+                     accessor: "is_fail",
+                     width: 100,
+                     Cell: ( row ) => {
+                       if (row.value == true) {
+                         return (
+                           <div
+                             style={{
+                               textAlign:"center",
+                               paddingTop:"4px",
+                             }}
+                           > X </div>
+                         )
+                       }
+                       else{
+                         return (
+                           <div
+                             style={{
+                               textAlign:"center",
+                               paddingTop:"4px",
+                             }}
+                           > O </div>
+                         )
+                       }
+                     }
+                   }
+                 ]}
+                 minRows={5}
+                 showPagination ={false}
+                 defaultPageSize={100000}
+                 bordered = {false} 
+                 style={{
+                   height: "350px"
+                 }}
+
+                 className="-striped -highlight"
+               />
+              <div style={{marginTop:'30px', width:'100%'}}>
+              </div>
               <div class='row' style ={{marginTop:'1.5%', width:'100%'}}>
               </div>
               <Form.Textarea
@@ -256,6 +520,180 @@ class MysiteProductDetailPage extends React.Component {
                   value={err_msg}
                   wrap="off"
               />
+
+              <label style={{paddingTop:'1%', paddingLeft:'1%', fontWeight:'bold'}}> My site 업로드 / 업데이트 이력 
+                <img
+                  src={refreshIcon}
+                  width="20"
+                  height="20"
+                  onClick={() =>
+                    this.refreshMsiteList()
+                  }
+                  style = {{cursor:'pointer', marginLeft:'0.5%', marginBottom:'0.2%' }}
+                />
+              </label> 
+              <ReactTable
+                data = {mysite_items}
+                columns={[
+                    {
+                        Header: "Msite vm ID",
+                        width: 150,
+                        resizable: false,
+                        accessor: "0",
+                        Cell: ( row ) => {
+                            return (
+                                <div
+                                  style={{
+                                      textAlign:"center",
+                                      paddingTop:"4px"
+                                  }}
+                                > {row.value} </div>
+                            )
+                        }
+
+
+                    },
+                    {
+                        Header: "Start Time",
+                        resizable: false,
+                        accessor: "2",
+                        Cell: ( row ) => {
+                            if (row.value == null){
+                                return (
+                                    <div
+                                        style={{
+                                            textAlign:"center",
+                                            paddingTop:"4px",
+                                            paddingLeft:"15px"
+                                        }}
+                                    > - </div>
+                                )
+                            }
+                            else{
+                                return (
+                                    <div
+                                        style={{
+                                            textAlign:"center",
+                                            paddingTop:"4px",
+                                            paddingLeft:"12px"
+                                        }}
+                                    > {row.value} </div>
+                                )
+                            }
+                        }
+                    },
+                    {
+                        Header: "Finish Time",
+                        resizable: false,
+                        accessor: "3",
+                        Cell: ( row ) => {
+                            if (row.value == null){
+                                return (
+                                    <div
+                                        style={{
+                                            textAlign:"center",
+                                            paddingTop:"4px",
+                                            paddingLeft:"15px"
+                                        }}
+                                    > - </div>
+                                )
+                            }
+                            else{
+                                return (
+                                    <div
+                                        style={{
+                                            textAlign:"center",
+                                            paddingTop:"4px",
+                                            paddingLeft:"12px"
+                                        }}
+                                    > {row.value} </div>
+                                )
+                            }
+                        }
+                    },
+                    {
+                        Header: "Crawling ID",
+                        resizable: false,
+                        accessor: "1",
+                        Cell: ( row ) => {
+                            if (row.value == null){
+                                return (
+                                    <div
+                                        style={{
+                                            textAlign:"center",
+                                            paddingTop:"4px",
+                                            paddingLeft:"15px"
+                                        }}
+                                    > - </div>
+                                )
+                            }
+                            else{
+                                return (
+                                    <div
+                                        style={{
+                                            textAlign:"center",
+                                            paddingTop:"4px",
+                                            paddingLeft:"12px"
+                                        }}
+                                    > {row.value} </div>
+                                )
+                            }
+                        }
+                    },
+                    {
+                        Header: "Error Message",
+                        resizable: false,
+                        accessor: "0",
+                        Cell: ( row ) => {
+                            if (row.value == null){
+                                return (
+                                    <div
+                                        style={{
+                                            textAlign:"center",
+                                            paddingTop:"4px",
+                                            paddingLeft:"15px"
+                                        }}
+                                    > - </div>
+                                )
+                            }
+                            else{
+                                return (
+                                    <div
+                                        style={{
+                                            textAlign:"center",
+                                            paddingTop:"4px",
+                                            paddingLeft:"12px"
+                                        }}
+                                    > 
+                                     <Button 
+                                       color="secondary"
+                                       style = {{float:'center',  textTransform: 'capitalize'}}
+                                       onClick={() => {
+                                             console.log(row.value)
+                                             this.setState({smhistoryId: row.value, errmysitemodalShow: true})
+                                             console.log(this.state)
+                                           }
+                                       }
+                                     >
+                                     Show
+                                     </Button>
+                                    </div>
+                                )
+                            }
+                        }
+                    }
+                ]}
+                minRows={5}
+                defaultPageSize={1000}
+                showPagination ={false}
+                bordered = {false} 
+                style={{
+                    height: "250px"
+                }}
+                className="-striped -highlight"
+              />
+
+
             </div>
           );
         }
@@ -266,79 +704,138 @@ class MysiteProductDetailPage extends React.Component {
                  data = {this.state.productLists}
                  getTdProps={(state, rowInfo, column, instance) => {
                    if(rowInfo){
-                     if(this.state.selectedProductIndex !== null){ // When you click a row not at first.
-                       return {
-                         onClick: (e) => {
-                           this.setState({
-                             selectedProductIndex: rowInfo.index,
-                             selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
-                             selectedProductName: rowInfo.original['name'] != null ? rowInfo.original['name'] : '',
-                             selectedProductUrl: rowInfo.original['purl'] != null ? rowInfo.original['purl'] : '',
-                             selectedProductPid: rowInfo.original['pid'] != null ? rowInfo.original['pid'] : '',
-                             selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
-                             selectedProductBrand: rowInfo.original['brand'] != null ? rowInfo.original['brand'] : '',
-                             selectedProductPrice: rowInfo.original['price'] != null ? rowInfo.original['price'] : '',
-                             selectedProductCurrency: rowInfo.original['currency'] != null ? rowInfo.original['currency'] : '',
-                             selectedProductStock: rowInfo.original['stock'] != null ? rowInfo.original['stock'] : '',
-                             selectedProductShippingPrice: rowInfo.original['shipping_price'] != null ? rowInfo.original['shipping_price'] : '',
-                             selectedProductWeight: rowInfo.original['weight'] != null ? rowInfo.original['weight'] : '',
-                             selectedProductShippingWeight: rowInfo.original['shipping_weight'] != null ? rowInfo.original['shipping_weight'] : '',
-                             selectedProductShippingPrice1: rowInfo.original['shipping_price1'] != null ? rowInfo.original['shipping_price1'] : '',
-                             selectedProductSpid: rowInfo.original['source_site_product_id'] != null ? rowInfo.original['source_site_product_id'] : '',
-                             selectedProductImage: rowInfo.original['image_url'] != null ? rowInfo.original['image_url'] : '',
-                             selectedProductStatu: rowInfo.original['statu'] != null ? rowInfo.original['status'] : '',
-                             selectedMinMargin: rowInfo.original['min_margin'] != null ? rowInfo.original['min_margin'] : '',
-                             selectedMarginRate: rowInfo.original['margin_rate'] != null ? rowInfo.original['margin_rate'] : '',
-                             selectedMinPrice: rowInfo.original['min_price'] != null ? rowInfo.original['min_price'] : '',
-                             selectedShippingCost: rowInfo.original['shipping_cost'] != null ? rowInfo.original['shipping_cost'] : ''
-                           },() => {console.log(this.state.selectedProductId);this.getProductDescription(); this.getProductOptions(); });
-                         },
-                         style: {
-                           background: rowInfo.index === this.state.selectedProductIndex ? '#00ACFF' : null
+                     if(this.state.selectedProductIndex !== null){ 
+                       if(rowInfo.index == this.state.selectedProductIndex){
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
+                               selectedProductName: rowInfo.original['name'] != null ? rowInfo.original['name'] : '',
+                               selectedProductUrl: rowInfo.original['purl'] != null ? rowInfo.original['purl'] : '',
+                               selectedProductPid: rowInfo.original['pid'] != null ? rowInfo.original['pid'] : '',
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
+                               selectedProductBrand: rowInfo.original['brand'] != null ? rowInfo.original['brand'] : '',
+                               selectedProductPrice: rowInfo.original['price'] != null ? rowInfo.original['price'] : '',
+                               selectedProductCurrency: rowInfo.original['currency'] != null ? rowInfo.original['currency'] : '',
+                               selectedProductStock: rowInfo.original['stock'] != null ? rowInfo.original['stock'] : '',
+                               selectedProductShippingPrice: rowInfo.original['shipping_price'] != null ? rowInfo.original['shipping_price'] : '',
+                               selectedProductWeight: rowInfo.original['weight'] != null ? rowInfo.original['weight'] : '',
+                               selectedProductShippingWeight: rowInfo.original['shipping_weight'] != null ? rowInfo.original['shipping_weight'] : '',
+                               selectedProductShippingPrice1: rowInfo.original['shipping_price1'] != null ? rowInfo.original['shipping_price1'] : '',
+                               selectedProductSpid: rowInfo.original['source_site_product_id'] != null ? rowInfo.original['source_site_product_id'] : '',
+                               selectedProductImage: rowInfo.original['image_url'] != null ? rowInfo.original['image_url'] : '',
+                               selectedProductStatu: rowInfo.original['statu'] != null ? rowInfo.original['status'] : '',
+                               selectedMinMargin: rowInfo.original['min_margin'] != null ? rowInfo.original['min_margin'] : '',
+                               selectedMarginRate: rowInfo.original['margin_rate'] != null ? rowInfo.original['margin_rate'] : '',
+                               selectedMinPrice: rowInfo.original['min_price'] != null ? rowInfo.original['min_price'] : '',
+                               selectedShippingCost: rowInfo.original['shipping_cost'] != null ? rowInfo.original['shipping_cost'] : '',
+                               err_msg: ""
+                             },() => {console.log(this.state.selectedProductId);this.getProductDescription(); this.getProductOptions(); });
+                           },
+                           style: {
+                             background: '#00ACFF'
+                           }
+                         }
+                       }
+                       else if(rowInfo.original['is_fail'] == true){
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
+                               selectedProductNodeId: rowInfo.original['node_id'] != null ? rowInfo.original['node_id'] : '',
+                               
+                             }, () => {console.log('is_fail = true'); this.getErrMsg();});
+                           },
+                           style: {
+                             background: '#FF919C'
+                           }
+                         }
+                       }
+                       else{
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
+                               selectedProductName: rowInfo.original['name'] != null ? rowInfo.original['name'] : '',
+                               selectedProductUrl: rowInfo.original['purl'] != null ? rowInfo.original['purl'] : '',
+                               selectedProductPid: rowInfo.original['pid'] != null ? rowInfo.original['pid'] : '',
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
+                               selectedProductBrand: rowInfo.original['brand'] != null ? rowInfo.original['brand'] : '',
+                               selectedProductPrice: rowInfo.original['price'] != null ? rowInfo.original['price'] : '',
+                               selectedProductCurrency: rowInfo.original['currency'] != null ? rowInfo.original['currency'] : '',
+                               selectedProductStock: rowInfo.original['stock'] != null ? rowInfo.original['stock'] : '',
+                               selectedProductShippingPrice: rowInfo.original['shipping_price'] != null ? rowInfo.original['shipping_price'] : '',
+                               selectedProductWeight: rowInfo.original['weight'] != null ? rowInfo.original['weight'] : '',
+                               selectedProductShippingWeight: rowInfo.original['shipping_weight'] != null ? rowInfo.original['shipping_weight'] : '',
+                               selectedProductShippingPrice1: rowInfo.original['shipping_price1'] != null ? rowInfo.original['shipping_price1'] : '',
+                               selectedProductSpid: rowInfo.original['source_site_product_id'] != null ? rowInfo.original['source_site_product_id'] : '',
+                               selectedProductImage: rowInfo.original['image_url'] != null ? rowInfo.original['image_url'] : '',
+                               selectedProductStatu: rowInfo.original['statu'] != null ? rowInfo.original['status'] : '',
+                               selectedMinMargin: rowInfo.original['min_margin'] != null ? rowInfo.original['min_margin'] : '',
+                               selectedMarginRate: rowInfo.original['margin_rate'] != null ? rowInfo.original['margin_rate'] : '',
+                               selectedMinPrice: rowInfo.original['min_price'] != null ? rowInfo.original['min_price'] : '',
+                               selectedShippingCost: rowInfo.original['shipping_cost'] != null ? rowInfo.original['shipping_cost'] : '',
+                               err_msg: ""
+                             },() => {console.log(this.state.selectedProductId);this.getProductDescription(); this.getProductOptions(); });
+                           },
                          }
                        }
                      }
-                     else { // When you click a row at first.
-                       return {
-                         onClick: (e) => {
-                           this.setState({
-                             selectedProductIndex: rowInfo.index,
-                             selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
-                             selectedProductName: rowInfo.original['name'] != null ? rowInfo.original['name'] : '',
-                             selectedProductUrl: rowInfo.original['purl'] != null ? rowInfo.original['purl'] : '',
-                             selectedProductPid: rowInfo.original['pid'] != null ? rowInfo.original['pid'] : '',
-                             selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
-                             selectedProductBrand: rowInfo.original['brand'] != null ? rowInfo.original['brand'] : '',
-                             selectedProductPrice: rowInfo.original['price'] != null ? rowInfo.original['price'] : '',
-                             selectedProductShippingPrice: rowInfo.original['shipping_price'] != null ? rowInfo.original['shipping_price'] : '',
-                             selectedProductWeight: rowInfo.original['weight'] != null ? rowInfo.original['weight'] : '',
-                             selectedProductShippingWeight: rowInfo.original['shipping_weight'] != null ? rowInfo.original['shipping_weight'] : '',
-                             selectedProductShippingPrice1: rowInfo.original['shipping_price1'] != null ? rowInfo.original['shipping_price1'] : '',
-                             selectedProductSpid: rowInfo.original['source_site_product_id'] != null ? rowInfo.original['source_site_product_id'] : '',
-                             selectedProductCurrency: rowInfo.original['currency'] != null ? rowInfo.original['currency'] : '',
-                             selectedProductStock: rowInfo.original['stock'] != null ? rowInfo.original['stock'] : '',
-                             selectedProductImage: rowInfo.original['image_url'] != null ? rowInfo.original['image_url'] : '',
-                             selectedProductStatu: rowInfo.original['statu'] != null ? rowInfo.original['status'] : '',
-                             selectedMinMargin: rowInfo.original['min_margin'] != null ? rowInfo.original['min_margin'] : '',
-                             selectedMarginRate: rowInfo.original['margin_rate'] != null ? rowInfo.original['margin_rate'] : '',
-                             selectedMinPrice: rowInfo.original['min_price'] != null ? rowInfo.original['min_price'] : '',
-                             selectedShippingCost: rowInfo.original['shipping_cost'] != null ? rowInfo.original['shipping_cost'] : ''
-                           }, () => {console.log('update!');this.getProductDescription(); this.getProductOptions(); console.log(this.state.selectedProductId)});
+                     else{
+                       if(rowInfo.original['is_fail'] == true){
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
+                               selectedProductNodeId: rowInfo.original['node_id'] != null ? rowInfo.original['node_id'] : '',
+                               selectedProductName: rowInfo.original['name'] != null ? rowInfo.original['name'] : '',
+                               
+                             }, () => {console.log('is_fail = true'); this.getErrMsg();});
+                           },
+                           style: {
+                             background: '#FF919C'
+                           }
+                         }
+                       }
+                       else{
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
+                               selectedProductName: rowInfo.original['name'] != null ? rowInfo.original['name'] : '',
+                               selectedProductUrl: rowInfo.original['purl'] != null ? rowInfo.original['purl'] : '',
+                               selectedProductPid: rowInfo.original['pid'] != null ? rowInfo.original['pid'] : '',
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
+                               selectedProductBrand: rowInfo.original['brand'] != null ? rowInfo.original['brand'] : '',
+                               selectedProductPrice: rowInfo.original['price'] != null ? rowInfo.original['price'] : '',
+                               selectedProductCurrency: rowInfo.original['currency'] != null ? rowInfo.original['currency'] : '',
+                               selectedProductStock: rowInfo.original['stock'] != null ? rowInfo.original['stock'] : '',
+                               selectedProductShippingPrice: rowInfo.original['shipping_price'] != null ? rowInfo.original['shipping_price'] : '',
+                               selectedProductWeight: rowInfo.original['weight'] != null ? rowInfo.original['weight'] : '',
+                               selectedProductShippingWeight: rowInfo.original['shipping_weight'] != null ? rowInfo.original['shipping_weight'] : '',
+                               selectedProductShippingPrice1: rowInfo.original['shipping_price1'] != null ? rowInfo.original['shipping_price1'] : '',
+                               selectedProductSpid: rowInfo.original['source_site_product_id'] != null ? rowInfo.original['source_site_product_id'] : '',
+                               selectedProductImage: rowInfo.original['image_url'] != null ? rowInfo.original['image_url'] : '',
+                               selectedProductStatu: rowInfo.original['statu'] != null ? rowInfo.original['status'] : '',
+                               selectedMinMargin: rowInfo.original['min_margin'] != null ? rowInfo.original['min_margin'] : '',
+                               selectedMarginRate: rowInfo.original['margin_rate'] != null ? rowInfo.original['margin_rate'] : '',
+                               selectedMinPrice: rowInfo.original['min_price'] != null ? rowInfo.original['min_price'] : '',
+                               selectedShippingCost: rowInfo.original['shipping_cost'] != null ? rowInfo.original['shipping_cost'] : '',
+                               err_msg: ''
+                             },() => {console.log(this.state.selectedProductId);this.getProductDescription(); this.getProductOptions(); });
+                           },
                          }
                        }
                      }
                    }
                    else{
-                     if(this.state.selectedProductIndex !== null){ // When you click a row not at first.
-                       return {
-                       }
+                     return {
                      }
-                     else { // When you click a row at first.
-                       return {
-                       }
-                     }
-
-
                    }
                  }}
                  columns={[
@@ -348,49 +845,15 @@ class MysiteProductDetailPage extends React.Component {
                      width: 70,
                      accessor: "num",
                      Cell: ( row ) => {
-                       if (row.original.statu == 1){ // updatd
-                         return (
-                           <div
-                             style={{
-                               textAlign:"center",
-                               paddingTop:"4px",
-                               color:'green'
-                             }}
-                           > {row.value} </div>
-                         )
-                       }
-                       else if(row.original.statu == 2){ // New
-                         return (
-                           <div
-                             style={{
-                               textAlign:"center",
-                               paddingTop:"4px",
-                               color:'blue'
-                             }}
-                           > {row.value} </div>
-                         )
-                       }
-                       else if(row.original.statu == 3){ // Deleted
-                         return (
-                           <div
-                             style={{
-                               textAlign:"center",
-                               paddingTop:"4px",
-                               color: 'gray'
-                             }}
-                           > {row.value} </div>
-                         )
-                       }
-                       else{
-                         return (
-                           <div
-                             style={{
-                               textAlign:"center",
-                               paddingTop:"4px",
-                             }}
-                           > {row.value} </div>
-                         )
-                       }
+                       return (
+                         <div
+                           style={{
+                             textAlign:"center",
+                             paddingTop:"4px",
+                           }}
+                         > {row.value} </div>
+                       )
+                     
                      }
                    },
                    {
@@ -399,49 +862,14 @@ class MysiteProductDetailPage extends React.Component {
                      width: 150,
                      accessor: "mpid",
                      Cell: ( row ) => {
-                       if (row.original.statu == 1){ // updatd
-                         return (
-                           <div
-                             style={{
-                               textAlign:"center",
-                               paddingTop:"4px",
-                               color:'green'
-                             }}
-                           > {row.value} </div>
-                         )
-                       }
-                       else if(row.original.statu == 2){ // New
-                         return (
-                           <div
-                             style={{
-                               textAlign:"center",
-                               paddingTop:"4px",
-                               color:'blue'
-                             }}
-                           > {row.value} </div>
-                         )
-                       }
-                       else if(row.original.statu == 3){ // Deleted
-                         return (
-                           <div
-                             style={{
-                               textAlign:"center",
-                               paddingTop:"4px",
-                               color: 'gray'
-                             }}
-                           > {row.value} </div>
-                         )
-                       }
-                       else{
-                         return (
-                           <div
-                             style={{
-                               textAlign:"center",
-                               paddingTop:"4px",
-                             }}
-                           > {row.value} </div>
-                         )
-                       }
+                       return (
+                         <div
+                           style={{
+                             textAlign:"center",
+                             paddingTop:"4px",
+                           }}
+                         > {row.value} </div>
+                       )
                      }
                    },
                    {
@@ -449,88 +877,31 @@ class MysiteProductDetailPage extends React.Component {
                      resizable: false,
                      accessor: "name",
                      Cell: ( row ) => {
-                       if (row.original.statu == 1){ // updatd
-                         return (
-                           <div
-                             style={{
-                               textAlign:"center",
-                               paddingTop:"4px",
-                               color:'green'
-                             }}
-                           > {row.value} </div>
-                         )
-                       }
-                       else if(row.original.statu == 2){ // New
-                         return (
-                           <div
-                             style={{
-                               textAlign:"center",
-                               paddingTop:"4px",
-                               color:'blue'
-                             }}
-                           > {row.value} </div>
-                         )
-                       }
-                       else if(row.original.statu == 3){ // Deleted
-                         return (
-                           <div
-                             style={{
-                               textAlign:"center",
-                               paddingTop:"4px",
-                               color: 'gray'
-                             }}
-                           > {row.value} </div>
-                         )
-                       }
-                       else{
-                         return (
-                           <div
-                             style={{
-                               textAlign:"center",
-                               paddingTop:"4px",
-                             }}
-                           > {row.value} </div>
-                         )
-                       }
+                       return (
+                         <div
+                           style={{
+                             textAlign:"center",
+                             paddingTop:"4px",
+                           }}
+                         > {row.value} </div>
+                       )
                      }
                    },
                    {
+
                      Header: "성공 / 실패",
                      resizable: false,
-                     accessor: "name",
+                     accessor: "is_fail",
                      width: 100,
                      Cell: ( row ) => {
-                       if (row.original.statu == 1){ // updatd
+                       if (row.value == true) {
                          return (
                            <div
                              style={{
                                textAlign:"center",
                                paddingTop:"4px",
-                               color:'green'
                              }}
-                           > O </div>
-                         )
-                       }
-                       else if(row.original.statu == 2){ // New
-                         return (
-                           <div
-                             style={{
-                               textAlign:"center",
-                               paddingTop:"4px",
-                               color:'blue'
-                             }}
-                           > O </div>
-                         )
-                       }
-                       else if(row.original.statu == 3){ // Deleted
-                         return (
-                           <div
-                             style={{
-                               textAlign:"center",
-                               paddingTop:"4px",
-                               color: 'gray'
-                             }}
-                           > O </div>
+                           > X </div>
                          )
                        }
                        else{
