@@ -215,13 +215,12 @@ class MysiteProductDetailPage extends React.Component {
  
 
 
-  getProductList(userId, statu = -1){
+  getProductList(statu = -1){
       //console.log('get product list')
       const obj = this;
       //console.log(userId, obj.props.JobId, statu)
       axios.post(setting_server.DB_SERVER+'/api/db/productlist', {
         req_type: "get_product_list",
-        user_id: userId,
         job_id: obj.props.JobId,
         statu: statu
       })

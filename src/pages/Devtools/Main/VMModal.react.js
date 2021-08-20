@@ -29,7 +29,7 @@ class VMModal extends React.Component {
 
     componentDidMount(){
       if (this.props.show == true){
-        this.getProductList(this.props.userId);
+        this.getProductList();
         this.getJobWorking();
       }
     }
@@ -42,7 +42,7 @@ class VMModal extends React.Component {
     componentWillReceiveProps(nextProps) {
       if (nextProps.show == true){
         console.log('Get List of Products')
-        this.getProductList(this.props.userId);
+        this.getProductList();
         this.getJobWorking();
       }
       //this.loadUserProgram(nextProps);
@@ -54,7 +54,7 @@ class VMModal extends React.Component {
     //  //this.loadUserProgram(nextProps);
     //}
     reload(){
-      this.getProductList(this.props.userId);
+      this.getProductList();
       this.getJobWorking();
     }
     getJobWorking() {
@@ -105,12 +105,11 @@ class VMModal extends React.Component {
     }
 
 
-  getProductList(userId, statu = -1 ){
+  getProductList(statu = -1 ){
       const obj = this;
       //console.log(userId, obj.props.JobId, statu)
       axios.post(setting_server.DB_SERVER+'/api/db/productlist', {
         req_type: "get_product_list",
-        user_id: userId,
         job_id: obj.props.JobId,
         statu: statu
       })
@@ -217,7 +216,7 @@ class VMModal extends React.Component {
                    class="btn btn-outline-dark"
                    type="button"
                    style={{width:'120px'}}
-                   onClick = {(e) => this.getProductList(this.props.userId, -1)}
+                   onClick = {(e) => this.getProductList(-1)}
                  >
                  All
                  </Button>
@@ -225,7 +224,7 @@ class VMModal extends React.Component {
                    class="btn btn-outline-dark"
                    type="button"
                    style={{width:'120px'}}
-                   onClick = {(e) => this.getProductList(this.props.userId, 2)}
+                   onClick = {(e) => this.getProductList(2)}
                  >
                  New
                  </Button>
@@ -233,7 +232,7 @@ class VMModal extends React.Component {
                    class="btn btn-outline-dark"
                    type="button"
                    style={{width:'120px'}}
-                   onClick = {(e) => this.getProductList(this.props.userId, 3)}
+                   onClick = {(e) => this.getProductList(3)}
                  >
                  Deleted
                  </Button>
@@ -241,7 +240,7 @@ class VMModal extends React.Component {
                    class="btn btn-outline-dark"
                    type="button"
                    style={{width:'120px'}}
-                   onClick = {(e) => this.getProductList(this.props.userId, 1)}
+                   onClick = {(e) => this.getProductList(1)}
                  >
                  Updated
                  </Button>
@@ -249,7 +248,7 @@ class VMModal extends React.Component {
                    class="btn btn-outline-dark"
                    type="button"
                    style={{width:'120px'}}
-                   onClick = {(e) => this.getProductList(this.props.userId, 0)}
+                   onClick = {(e) => this.getProductList(0)}
                  >
                  Up-to-date
                  </Button>

@@ -262,6 +262,7 @@ class JobSubTabPage extends React.Component {
             expected_target_num: response['data']['result'][1], 
             progress_target: isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ) ? 0 : (parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 )
           })
+          console.log(isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ))
         } 
       })
       .catch(function (error){

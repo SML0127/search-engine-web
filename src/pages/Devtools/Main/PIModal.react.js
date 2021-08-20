@@ -187,7 +187,7 @@ class PIModal extends React.Component {
 
     componentDidMount(){
       if (this.props.show == true){
-        this.getProductList(this.props.userId);
+        this.getProductList();
       }
     }
     
@@ -198,7 +198,7 @@ class PIModal extends React.Component {
     componentWillReceiveProps(nextProps) {
       if (nextProps.show == true){
         console.log('Get List of Products')
-        this.getProductList(this.props.userId);
+        this.getProductList();
       }
     }
 
@@ -238,7 +238,7 @@ class PIModal extends React.Component {
       })
       .then(function (response) {
          console.log(response)
-         obj.getProductList(obj.props.userId);
+         obj.getProductList();
       })
       .catch(function (error){
         console.log(error);
@@ -255,7 +255,7 @@ class PIModal extends React.Component {
       })
       .then(function (response) {
          console.log(response)
-         obj.getProductList(obj.props.userId);
+         obj.getProductList();
       })
       .catch(function (error){
         console.log(error);
@@ -263,13 +263,12 @@ class PIModal extends React.Component {
    } 
 
 
-  getProductList(userId, statu = -1){
+  getProductList(statu = -1){
       //console.log('get product list')
       const obj = this;
       //console.log(userId, obj.props.JobId, statu)
       axios.post(setting_server.DB_SERVER+'/api/db/productlist', {
         req_type: "get_product_list",
-        user_id: userId,
         job_id: obj.props.JobId,
         statu: statu
       })
@@ -594,7 +593,7 @@ class PIModal extends React.Component {
                    class="btn btn-outline-dark"
                    type="button"
                    style={{width:'120px'}}
-                   onClick = {(e) => this.getProductList(this.props.userId, -1)}
+                   onClick = {(e) => this.getProductList(-1)}
                  >
                  All
                  </Button>
@@ -602,7 +601,7 @@ class PIModal extends React.Component {
                    class="btn btn-outline-dark"
                    type="button"
                    style={{width:'120px'}}
-                   onClick = {(e) => this.getProductList(this.props.userId, 2)}
+                   onClick = {(e) => this.getProductList(2)}
                  >
                  New
                  </Button>
@@ -610,7 +609,7 @@ class PIModal extends React.Component {
                    class="btn btn-outline-dark"
                    type="button"
                    style={{width:'120px'}}
-                   onClick = {(e) => this.getProductList(this.props.userId, 3)}
+                   onClick = {(e) => this.getProductList(3)}
                  >
                  Deleted
                  </Button>
@@ -618,7 +617,7 @@ class PIModal extends React.Component {
                    class="btn btn-outline-dark"
                    type="button"
                    style={{width:'120px'}}
-                   onClick = {(e) => this.getProductList(this.props.userId, 1)}
+                   onClick = {(e) => this.getProductList(1)}
                  >
                  Updated
                  </Button>
@@ -626,7 +625,7 @@ class PIModal extends React.Component {
                    class="btn btn-outline-dark"
                    type="button"
                    style={{width:'120px'}}
-                   onClick = {(e) => this.getProductList(this.props.userId, 0)}
+                   onClick = {(e) => this.getProductList(0)}
                  >
                  Up-to-date
                  </Button>
