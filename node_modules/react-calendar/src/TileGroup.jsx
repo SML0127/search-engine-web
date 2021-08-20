@@ -55,6 +55,7 @@ TileGroup.propTypes = {
   activeStartDate: PropTypes.instanceOf(Date),
   count: PropTypes.number,
   dateTransform: PropTypes.func.isRequired,
+  dateType: PropTypes.string,
   offset: PropTypes.number,
   step: PropTypes.number,
   tile: PropTypes.func.isRequired,

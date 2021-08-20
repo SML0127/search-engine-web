@@ -240,7 +240,8 @@ class MysiteProductDetailPage extends React.Component {
               const mpid = row[0]
               const node_id = row[1]
               const name = row[3]
-              return {num: index+1, mpid: mpid, node_id: node_id, name:name, is_fail: true};
+              const statu = -1
+              return {num: index+1, mpid: mpid, node_id: node_id, name:name, is_fail: true, statu: statu};
             }
             else{
               const id = row[0] == 'None'? '':row[0];
@@ -468,6 +469,64 @@ class MysiteProductDetailPage extends React.Component {
                            }}
                          > {row.value} </div>
                        )
+                     }
+                   },
+                   {
+                     Header: "상태",
+                     resizable: false,
+                     accessor: "statu",
+                     width: 100,
+                     Cell: ( row ) => {
+                       if (row.value == 0) {
+                         return (
+                           <div
+                             style={{
+                               textAlign:"center",
+                               paddingTop:"4px",
+                             }}
+                           > Up-to-date </div>
+                         )
+                       }
+                       else if (row.value == 1) {
+                         return (
+                           <div
+                             style={{
+                               textAlign:"center",
+                               paddingTop:"4px",
+                             }}
+                           > Updated </div>
+                         )
+                       }
+                       else if (row.value == 2) {
+                         return (
+                           <div
+                             style={{
+                               textAlign:"center",
+                               paddingTop:"4px",
+                             }}
+                           > New </div>
+                         )
+                       }
+                       else if (row.value == 3) {
+                         return (
+                           <div
+                             style={{
+                               textAlign:"center",
+                               paddingTop:"4px",
+                             }}
+                           > Deleted </div>
+                         )
+                       }
+                       else{
+                         return (
+                           <div
+                             style={{
+                               textAlign:"center",
+                               paddingTop:"4px",
+                             }}
+                           > - </div>
+                         )
+                       }
                      }
                    },
                    {
@@ -885,6 +944,64 @@ class MysiteProductDetailPage extends React.Component {
                            }}
                          > {row.value} </div>
                        )
+                     }
+                   },
+                   {
+                     Header: "상태",
+                     resizable: false,
+                     accessor: "statu",
+                     width: 100,
+                     Cell: ( row ) => {
+                       if (row.value == 0) {
+                         return (
+                           <div
+                             style={{
+                               textAlign:"center",
+                               paddingTop:"4px",
+                             }}
+                           > Up-to-date </div>
+                         )
+                       }
+                       else if (row.value == 1) {
+                         return (
+                           <div
+                             style={{
+                               textAlign:"center",
+                               paddingTop:"4px",
+                             }}
+                           > Updated </div>
+                         )
+                       }
+                       else if (row.value == 2) {
+                         return (
+                           <div
+                             style={{
+                               textAlign:"center",
+                               paddingTop:"4px",
+                             }}
+                           > New </div>
+                         )
+                       }
+                       else if (row.value == 3) {
+                         return (
+                           <div
+                             style={{
+                               textAlign:"center",
+                               paddingTop:"4px",
+                             }}
+                           > Deleted </div>
+                         )
+                       }
+                       else{
+                         return (
+                           <div
+                             style={{
+                               textAlign:"center",
+                               paddingTop:"4px",
+                             }}
+                           > - </div>
+                         )
+                       }
                      }
                    },
                    {

@@ -9,7 +9,7 @@ var webpack = require('webpack'),
 
 // load the secrets
 var alias = {
-  'react-dom': '@hot-loader/react-dom',
+  'react-dom': 'react-dom',
 };
 
 var secretsPath = path.join(__dirname, 'secrets.' + env.NODE_ENV + '.js');
