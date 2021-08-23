@@ -45,7 +45,6 @@ class JobSubTabPage extends React.Component {
       this.state = this.initState()
       this.get_latest_progress()
       this.get_latest_progress_mysite()
-      this.get_latest_progress_targetsite()
       this.getProductName();
       this.getSummary()
       this.refreshList();
@@ -248,27 +247,7 @@ class JobSubTabPage extends React.Component {
 
 
 
-    get_latest_progress_targetsite(){
-      const obj = this;
-      axios.post(setting_server.DB_SERVER+'/api/db/targetsite', {
-        req_type: "get_latest_progress",
-        job_id: obj.props.JobId,
-      })
-      .then(function (response) {
-        if (response['data']['success'] == true) {
-          console.log(response)
-          obj.setState({
-            current_target_num: response['data']['result'][0],
-            expected_target_num: response['data']['result'][1], 
-            progress_target: isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ) ? 0 : (parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 )
-          })
-          console.log(isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ))
-        } 
-      })
-      .catch(function (error){
-        console.log(error);
-      });
-    }
+    
  
 
 
@@ -1160,22 +1139,6 @@ class JobSubTabPage extends React.Component {
         const TabTarget = () => {
           return (
                 <div>
-                  <label style={{width:'100%', fontWeight:'Bold', fontSize:'20px', textAlign:'center'}}>
-                    진행 상황 ({this.state.current_target_num} / {this.state.expected_target_num})
-                   <img
-                      src={refreshIcon}
-                      width="20"
-                      height="20"
-                      onClick={() =>
-                        this.get_latest_progress_targetsite()
-                      }
-                      style = {{cursor:'pointer', marginBottom:'0.2%', marginLeft:'0.2%'}}
-                    />
-                  </label>
-                  <ProgressBar animated style={{width:'98%', height:'30px', marginLeft:"1%"}} now={this.state.progress_target} label={`${this.state.progress_detail}%`} />
-
-                  <div class='row' style ={{marginTop:'1.5%', width:'100%'}}/>
-
                   <TargetsiteProductDetailPage
                      JobId = {this.props.JobId}
                   />

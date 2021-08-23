@@ -17,6 +17,7 @@ import {
 import Tooltip from 'react-bootstrap/Tooltip'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Image from 'react-bootstrap/Image'
+import ProgressBar from 'react-bootstrap/ProgressBar'
 import setting_server from '../setting_server';
 import { Tabs } from 'react-simple-tabs-component'
 import refreshIcon from './refresh.png';
@@ -37,11 +38,9 @@ class TargetsiteProductDetailPage extends React.Component {
     updateTargetsite(event) {
       console.log(event.target.value)
       this.setState({targetsite: event.target.value});
+      this.get_latest_progress_targetsite(event.target.value)
       this.getProductList(event.target.value)
-      
     }
-
-
 
 
     componentDidMount(){
@@ -56,9 +55,34 @@ class TargetsiteProductDetailPage extends React.Component {
         selectedProductIndex1: null,
         err_msg: '',
         targetsite: '',
+        current_target_num: 0,
+        expected_target_num:0,
+        progress_target: 0
       }
     }
- 
+
+    get_latest_progress_targetsite(targetsite){
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/targetsite', {
+        req_type: "get_latest_progress",
+        job_id: obj.props.JobId,
+        targetsite: targetsite,
+      })
+      .then(function (response) {
+        if (response['data']['success'] == true) {
+          console.log(response)
+          obj.setState({
+            current_target_num: response['data']['result'][0],
+            expected_target_num: response['data']['result'][1], 
+            progress_target: isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ) ? 0 : parseInt(parseFloat(response['data']['result'][0]) / parseFloat(response['data']['result'][1]) * 100 )
+          })
+          console.log(isNaN(parseFloat(response['data']['result'][0]) / parseFloat(response['data']['result'][1]) * 100 ))
+        } 
+      })
+      .catch(function (error){
+        console.log(error);
+      });
+    }
 
     refreshTsiteList() {
       const obj = this;
@@ -105,6 +129,10 @@ class TargetsiteProductDetailPage extends React.Component {
       //obj.createNotification('History');
     }
 
+    refreshTab(){
+      this.get_latest_progress_targetsite(this.state.targetsite)
+      this.getProductList(this.state.targetsite)
+    }
 
   getProductList(targetsite){
       //console.log('get product list')
@@ -126,14 +154,6 @@ class TargetsiteProductDetailPage extends React.Component {
           
           productLists = productLists.map(function(row, index){
             // mpid, name, url, price, shipping_price, brand, weight, shipping_weight, shipping_price1, source_site_product_id, status, image_url, currency, stock, num_options, num_images
-            if (row[2] == -1 || row[2] == '-1'){
-              const mpid = row[0]
-              const node_id = row[1]
-              const name = row[3]
-              const statu = -1
-              return {num: index+1, mpid: mpid, node_id: node_id, name:name, is_fail: true, statu: statu};
-            }
-            else{
               const id = row[0] == 'None'? '':row[0];
               const name = row[1] == 'None'? '':row[1];
               const pid = row[0] == 'None'? '':row[0]
@@ -150,8 +170,8 @@ class TargetsiteProductDetailPage extends React.Component {
               const image_url = row[11] == 'None'? '':row[11];
               const currency = row[12] == 'None'? '':row[12];
               const stock = row[13] == 'None'? '':row[13];
-              return {num: index+1, id:id, name:name, pid:pid, mpid:mpid, purl:purl, price:price, shpiping_price:shpiping_price, brand:brand, weight:weight, shipping_weight:shipping_weight, shipping_price1: shipping_price1, source_site_product_id: source_site_product_id, statu:statu, image_url:image_url, currency:currency, stock:stock, min_margin: 0, margin_rate: 0, min_price: 0, shipping_cost: 0, is_fail: false};
-            }
+              const product_status = row[16] == 'None'? '':row[16];
+              return {num: index+1, id:id, name:name, pid:pid, mpid:mpid, purl:purl, price:price, shpiping_price:shpiping_price, brand:brand, weight:weight, shipping_weight:shipping_weight, shipping_price1: shipping_price1, source_site_product_id: source_site_product_id, statu:statu, image_url:image_url, currency:currency, stock:stock, min_margin: 0, margin_rate: 0, min_price: 0, shipping_cost: 0, is_fail: false, product_status: product_status};
           });
           //console.log(productLists)
           obj.setState({productLists: productLists});
@@ -174,9 +194,12 @@ class TargetsiteProductDetailPage extends React.Component {
         if(err_msg != ''){
           return (
             <div>
+              <label style={{width:'8%', fontWeight:'Bold', fontSize:'25px', marginLeft:'2%', height:'50px', marginTop:'6px'}}>
+                타겟사이트 :
+              </label>
               <select
                 class="form-control"
-                style={{width:"98%", height:'50px', marginLeft:'1%'}}
+                style={{width:"89%", height:'50px', marginReft:'1%', float:'right'}}
                 value={this.state.targetsite}
                 onChange={this.updateTargetsite}
                 ref={ref => this.targetsite = ref}
@@ -184,8 +207,25 @@ class TargetsiteProductDetailPage extends React.Component {
                 <option value="" disabled selected>Select Targetsite</option>
                 {this.state.targetsites}
               </select>
-              <div class='row' style ={{marginTop:'1.5%', width:'100%'}}>
-              </div>
+
+              <div class='row' style ={{marginTop:'1.5%', width:'100%'}}/>
+
+              <label style={{width:'100%', fontWeight:'Bold', fontSize:'20px', textAlign:'center'}}>
+                진행 상황 ({this.state.current_target_num} / {this.state.expected_target_num})
+               <img
+                  src={refreshIcon}
+                  width="20"
+                  height="20"
+                  onClick={() =>
+                    this.refreshTab()
+                  }
+                  style = {{cursor:'pointer', marginBottom:'0.2%', marginLeft:'0.2%'}}
+                />
+              </label>
+              <ProgressBar animated style={{width:'98%', height:'30px', marginLeft:"1%"}} now={this.state.progress_target} label={`${this.state.progress_target}%`} />
+
+              <div class='row' style ={{marginTop:'1.5%', width:'100%'}}/>
+
               <ReactTable
                  data = {this.state.productLists}
                  getTdProps={(state, rowInfo, column, instance) => {
@@ -375,10 +415,20 @@ class TargetsiteProductDetailPage extends React.Component {
                    {
                      Header: "성공 / 실패",
                      resizable: false,
-                     accessor: "is_fail",
+                     accessor: "product_status",
                      width: 100,
                      Cell: ( row ) => {
                        if (row.value == true) {
+                         return (
+                           <div
+                             style={{
+                               textAlign:"center",
+                               paddingTop:"4px",
+                             }}
+                           > O </div>
+                         )
+                       }
+                       else if (row.value == false){
                          return (
                            <div
                              style={{
@@ -395,7 +445,7 @@ class TargetsiteProductDetailPage extends React.Component {
                                textAlign:"center",
                                paddingTop:"4px",
                              }}
-                           > O </div>
+                           > 업로드 전 </div>
                          )
                        }
                      }
@@ -632,9 +682,12 @@ class TargetsiteProductDetailPage extends React.Component {
         else{
           return (
              <div>
+              <label style={{width:'8%', fontWeight:'Bold', fontSize:'25px', marginLeft:'2%', height:'50px', marginTop:'6px'}}>
+                타겟사이트 :
+              </label>
                <select
                  class="form-control"
-                 style={{width:"98%", height:'50px', marginLeft:'1%'}}
+                 style={{width:"89%", height:'50px', marginReft:'1%', float:'right'}}
                  value={this.state.targetsite}
                  onChange={this.updateTargetsite}
                  ref={ref => this.targetsite = ref}
@@ -642,8 +695,25 @@ class TargetsiteProductDetailPage extends React.Component {
                  <option value="" disabled selected>Select Targetsite</option>
                  {this.state.targetsites}
                </select>
-               <div class='row' style ={{marginTop:'1.5%', width:'100%'}}>
-               </div>
+               <div class='row' style ={{marginTop:'1.5%', width:'100%'}}/>
+
+               <label style={{width:'100%', fontWeight:'Bold', fontSize:'20px', textAlign:'center'}}>
+                 진행 상황 ({this.state.current_target_num} / {this.state.expected_target_num})
+                <img
+                   src={refreshIcon}
+                   width="20"
+                   height="20"
+                   onClick={() =>
+                    this.refreshTab()
+                   }
+                   style = {{cursor:'pointer', marginBottom:'0.2%', marginLeft:'0.2%'}}
+                 />
+               </label>
+               <ProgressBar animated style={{width:'98%', height:'30px', marginLeft:"1%"}} now={this.state.progress_target} label={`${this.state.progress_target}%`} />
+
+               <div class='row' style ={{marginTop:'1.5%', width:'100%'}}/>
+
+
                <ReactTable
                  data = {this.state.productLists}
                  getTdProps={(state, rowInfo, column, instance) => {
@@ -833,10 +903,20 @@ class TargetsiteProductDetailPage extends React.Component {
                    {
                      Header: "성공 / 실패",
                      resizable: false,
-                     accessor: "is_fail",
+                     accessor: "product_status",
                      width: 100,
                      Cell: ( row ) => {
                        if (row.value == true) {
+                         return (
+                           <div
+                             style={{
+                               textAlign:"center",
+                               paddingTop:"4px",
+                             }}
+                           > O </div>
+                         )
+                       }
+                       else if (row.value == false){
                          return (
                            <div
                              style={{
@@ -853,7 +933,7 @@ class TargetsiteProductDetailPage extends React.Component {
                                textAlign:"center",
                                paddingTop:"4px",
                              }}
-                           > O </div>
+                           > 업로드 전 </div>
                          )
                        }
                      }
