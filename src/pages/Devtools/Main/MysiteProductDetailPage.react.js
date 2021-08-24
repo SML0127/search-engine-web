@@ -20,12 +20,14 @@ import Image from 'react-bootstrap/Image'
 import setting_server from '../setting_server';
 import { Tabs } from 'react-simple-tabs-component'
 import refreshIcon from './refresh.png';
+import ProgressBar from 'react-bootstrap/ProgressBar'
 
 class MysiteProductDetailPage extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = this.initState()
+        this.refreshTab = this.refreshTab.bind(this)
     }
 
     onTodoChange(key,value){
@@ -38,17 +40,46 @@ class MysiteProductDetailPage extends React.Component {
 
     componentDidMount(){
       this.state = this.initState()
+      if (this.state.show != true){
+        this.getSmhid()
+        this.getProductList()
+        this.refreshMsiteList();
+        this.get_latest_progress_mysite()
+        this.state.show = true
+      }
+    }
+   
+    refreshTab(){
       this.getSmhid()
       this.getProductList()
       this.refreshMsiteList();
-      //if(this.props.isError == false){
-      //   this.getProductList()
-      //}
-      //else if(this.props.isError == true){
-      //   this.getProductList()
-      //}
+      this.get_latest_progress_mysite()
     }
-    
+
+
+    get_latest_progress_mysite(){
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/mysite', {
+        req_type: "get_latest_progress",
+        job_id: obj.props.JobId,
+      })
+      .then(function (response) {
+        if (response['data']['success'] == true) {
+          console.log(response)
+          obj.setState({
+            current_my_num: response['data']['result'][0],
+            expected_my_num: response['data']['result'][1], 
+            progress_my: isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ) ? 0 : (parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 )
+          })
+        } 
+      })
+      .catch(function (error){
+        console.log(error);
+      });
+    }
+ 
+
+
     initState() {
       return {
         selectedProductIndex: null,
@@ -66,7 +97,7 @@ class MysiteProductDetailPage extends React.Component {
       })
       .then(function (response) {
         if (response['data']['success'] == true) {
-          console.log(response)
+          //console.log(response)
           let productOptions = response['data']['result'];
           let productOptionsCombination = {}
           let option_stock = 999
@@ -91,7 +122,7 @@ class MysiteProductDetailPage extends React.Component {
           });
 
  
-          console.log(productOptionValues) 
+          //console.log(productOptionValues) 
           obj.setState({productOptionValues: productOptionValues});
 
           //let productOptionValues = productOptions
@@ -119,16 +150,16 @@ class MysiteProductDetailPage extends React.Component {
         sm_history_id: obj.state.smhid,
         mpid: obj.state.selectedProductMpid
       })
-      .then(function (resultData) {
-        if(resultData['data']['success'] == true) {
-          let res = resultData['data']['result'];
-          console.log(res)
+      .then(function (response) {
+        if(response['data']['success'] == true) {
+          let res = response['data']['result'];
+          //console.log(res)
           obj.setState({
             err_msg: res[2],
           });
 
         } else {
-          //console.log(resultData);
+          //console.log(response);
         }
       })
       .catch(function (error) {
@@ -143,9 +174,9 @@ class MysiteProductDetailPage extends React.Component {
         req_type: "get_smhid",
         job_id: obj.props.JobId
       })
-      .then(function (resultData) {
-        if(resultData['data']['success'] == true) {
-          let res = resultData['data']['result'];
+      .then(function (response) {
+        if(response['data']['success'] == true) {
+          let res = response['data']['result'];
           obj.setState({
             smhid: res
           });
@@ -166,10 +197,10 @@ class MysiteProductDetailPage extends React.Component {
         req_type: "get_history",
         job_id: obj.props.JobId
       })
-      .then(function (resultData) {
-        console.log(resultData)
-        if(resultData['data']['success'] == true) {
-          let history = resultData['data']['result'];
+      .then(function (response) {
+        //console.log(response)
+        if(response['data']['success'] == true) {
+          let history = response['data']['result'];
           // id, execution_id, TO_CHAR(start_time, 'YYYY-MM-DD HH24:MI:SS'), TO_CHAR(end_time, 'YYYY-MM-DD HH24:MI:SS')
           obj.setState({
               mysite_items: history
@@ -193,7 +224,7 @@ class MysiteProductDetailPage extends React.Component {
         mpid: obj.state.selectedProductMpid
       })
       .then(function (response) {
-        console.log(response)
+        //console.log(response)
         if (response['data']['success'] == true) {
           let productDescriptions = response['data']['result'];
           productDescriptions = productDescriptions.map(function(row, index){
@@ -225,7 +256,7 @@ class MysiteProductDetailPage extends React.Component {
         statu: statu
       })
       .then(function (response) {
-        console.log(response)
+        //console.log(response)
         if( Object.keys(response['data']['result']).length  == 0){
            obj.setState({productLists: [], productOptionValues: [], productDescriptions: []});
            return;
@@ -283,6 +314,21 @@ class MysiteProductDetailPage extends React.Component {
         if(err_msg != ''){
           return (
             <div>
+               <label style={{width:'100%', fontWeight:'Bold', fontSize:'20px', textAlign:'center'}}>
+                 진행 상황 ({this.state.current_my_num} / {this.state.expected_my_num})
+                <img
+                   src={refreshIcon}
+                   width="20"
+                   height="20"
+                   onClick={() =>
+                     this.refreshTab()
+                   }
+                   style = {{cursor:'pointer', marginBottom:'0.2%', marginLeft:'0.2%'}}
+                 />
+               </label>
+               <ProgressBar animated style={{width:'98%', height:'30px', marginLeft:"1%"}} now={this.state.progress_my} label={`${this.state.progress_detail}%`} />
+
+               <div class='row' style ={{marginTop:'1.5%', width:'100%'}}/>
                <ReactTable
                  data = {this.state.productLists}
                  getTdProps={(state, rowInfo, column, instance) => {
@@ -758,6 +804,22 @@ class MysiteProductDetailPage extends React.Component {
         else{
           return (
              <div>
+               <label style={{width:'100%', fontWeight:'Bold', fontSize:'20px', textAlign:'center'}}>
+                 진행 상황 ({this.state.current_my_num} / {this.state.expected_my_num})
+                <img
+                   src={refreshIcon}
+                   width="20"
+                   height="20"
+                   onClick={() =>
+                     this.refreshTab()
+                   }
+                   style = {{cursor:'pointer', marginBottom:'0.2%', marginLeft:'0.2%'}}
+                 />
+               </label>
+               <ProgressBar animated style={{width:'98%', height:'30px', marginLeft:"1%"}} now={this.state.progress_my} label={`${this.state.progress_detail}%`} />
+
+               <div class='row' style ={{marginTop:'1.5%', width:'100%'}}/>
+
                <ReactTable
                  data = {this.state.productLists}
                  getTdProps={(state, rowInfo, column, instance) => {

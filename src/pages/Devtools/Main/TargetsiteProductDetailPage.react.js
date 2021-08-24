@@ -45,8 +45,11 @@ class TargetsiteProductDetailPage extends React.Component {
 
     componentDidMount(){
       this.state = this.initState()
-      this.refreshTsiteList()
-      this.getUploadedTargetsites()
+      if (this.state.show != true){
+        this.refreshTsiteList()
+        this.getUploadedTargetsites()
+        this.state.show = true
+      }
     }
     
     initState() {
@@ -70,13 +73,13 @@ class TargetsiteProductDetailPage extends React.Component {
       })
       .then(function (response) {
         if (response['data']['success'] == true) {
-          console.log(response)
+          //console.log(response)
           obj.setState({
             current_target_num: response['data']['result'][0],
             expected_target_num: response['data']['result'][1], 
             progress_target: isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ) ? 0 : parseInt(parseFloat(response['data']['result'][0]) / parseFloat(response['data']['result'][1]) * 100 )
           })
-          console.log(isNaN(parseFloat(response['data']['result'][0]) / parseFloat(response['data']['result'][1]) * 100 ))
+          //console.log(isNaN(parseFloat(response['data']['result'][0]) / parseFloat(response['data']['result'][1]) * 100 ))
         } 
       })
       .catch(function (error){
@@ -90,10 +93,10 @@ class TargetsiteProductDetailPage extends React.Component {
         req_type: "get_history",
         job_id: obj.props.JobId
       })
-      .then(function (resultData) {
-        console.log(resultData)
-        if(resultData['data']['success'] == true) {
-          let history = resultData['data']['result'];
+      .then(function (response) {
+        //console.log(response)
+        if(response['data']['success'] == true) {
+          let history = response['data']['result'];
           obj.setState({
               targetsite_items: history
           });
@@ -112,10 +115,10 @@ class TargetsiteProductDetailPage extends React.Component {
         req_type: "get_uploaded_targetsites",
         job_id: obj.props.JobId
       })
-      .then(function (resultData) {
-        console.log(resultData)
-        if(resultData['data']['success'] == true) {
-          let targetsites = resultData['data']['result']
+      .then(function (response) {
+        //console.log(response)
+        if(response['data']['success'] == true) {
+          let targetsites = response['data']['result']
               .map((code) => <option value={code}>{code}</option>);
           obj.setState({
             targetsites: targetsites,
@@ -126,7 +129,6 @@ class TargetsiteProductDetailPage extends React.Component {
       .catch(function (error) {
           console.log(error);
       });
-      //obj.createNotification('History');
     }
 
     refreshTab(){
@@ -135,16 +137,14 @@ class TargetsiteProductDetailPage extends React.Component {
     }
 
   getProductList(targetsite){
-      //console.log('get product list')
       const obj = this;
-      //console.log(userId, obj.props.JobId, statu)
       axios.post(setting_server.DB_SERVER+'/api/db/targetsite', {
         req_type: "get_product_list",
         job_id: obj.props.JobId,
         targetsite: targetsite
       })
       .then(function (response) {
-        console.log(response)
+        //console.log(response)
         if( Object.keys(response['data']['result']).length  == 0){
            obj.setState({productLists: [], productOptionValues: [], productDescriptions: []});
            return;
@@ -153,25 +153,13 @@ class TargetsiteProductDetailPage extends React.Component {
           let productLists = response['data']['result'];
           
           productLists = productLists.map(function(row, index){
-            // mpid, name, url, price, shipping_price, brand, weight, shipping_weight, shipping_price1, source_site_product_id, status, image_url, currency, stock, num_options, num_images
               const id = row[0] == 'None'? '':row[0];
               const name = row[1] == 'None'? '':row[1];
               const pid = row[0] == 'None'? '':row[0]
               const mpid = pid
-              const purl = row[2] == 'None'? '':row[2];
-              const price = row[3] == 'None'? '':row[3];
-              const shpiping_price = row[4] == 'None'? '':row[4];
-              const brand = row[5] == 'None'? '':row[5];
-              const weight = row[6] == 'None'? '':row[6];
-              const shipping_weight = row[7] == 'None'? '':row[7];
-              const shipping_price1 = row[8] == 'None'? '':row[8];
-              const source_site_product_id = row[9] == 'None'? '':row[9];
-              const statu = row[10] == 'None'? '':row[10];
-              const image_url = row[11] == 'None'? '':row[11];
-              const currency = row[12] == 'None'? '':row[12];
-              const stock = row[13] == 'None'? '':row[13];
-              const product_status = row[16] == 'None'? '':row[16];
-              return {num: index+1, id:id, name:name, pid:pid, mpid:mpid, purl:purl, price:price, shpiping_price:shpiping_price, brand:brand, weight:weight, shipping_weight:shipping_weight, shipping_price1: shipping_price1, source_site_product_id: source_site_product_id, statu:statu, image_url:image_url, currency:currency, stock:stock, min_margin: 0, margin_rate: 0, min_price: 0, shipping_cost: 0, is_fail: false, product_status: product_status};
+              const upload_success = row[16] == 'None'? '':row[16];
+              const product_status = row[17] == 'None'? '':row[17];
+              return {num: index+1, id:id, name:name, pid:pid, mpid:mpid, upload_success: upload_success, product_status: product_status};
           });
           //console.log(productLists)
           obj.setState({productLists: productLists});
@@ -184,6 +172,31 @@ class TargetsiteProductDetailPage extends React.Component {
         console.log(error);
       });
     }
+
+    getErrMsg() {
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/targetsite', {
+        req_type: "get_err_msg_mpid",
+        targetsite: obj.state.targetsite,
+        mpid: obj.state.selectedProductMpid
+      })
+      .then(function (response) {
+        if(response['data']['success'] == true) {
+          let res = response['data']['result'];
+          //console.log(res)
+          obj.setState({
+            err_msg: res[2],
+          });
+
+        } else {
+          //console.log(response);
+        }
+      })
+      .catch(function (error) {
+          console.log(error);
+      });
+    }
+
 
 
 
@@ -230,79 +243,80 @@ class TargetsiteProductDetailPage extends React.Component {
                  data = {this.state.productLists}
                  getTdProps={(state, rowInfo, column, instance) => {
                    if(rowInfo){
-                     if(this.state.selectedProductIndex !== null){ // When you click a row not at first.
-                       return {
-                         onClick: (e) => {
-                           this.setState({
-                             selectedProductIndex: rowInfo.index,
-                             selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
-                             selectedProductName: rowInfo.original['name'] != null ? rowInfo.original['name'] : '',
-                             selectedProductUrl: rowInfo.original['purl'] != null ? rowInfo.original['purl'] : '',
-                             selectedProductPid: rowInfo.original['pid'] != null ? rowInfo.original['pid'] : '',
-                             selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
-                             selectedProductBrand: rowInfo.original['brand'] != null ? rowInfo.original['brand'] : '',
-                             selectedProductPrice: rowInfo.original['price'] != null ? rowInfo.original['price'] : '',
-                             selectedProductCurrency: rowInfo.original['currency'] != null ? rowInfo.original['currency'] : '',
-                             selectedProductStock: rowInfo.original['stock'] != null ? rowInfo.original['stock'] : '',
-                             selectedProductShippingPrice: rowInfo.original['shipping_price'] != null ? rowInfo.original['shipping_price'] : '',
-                             selectedProductWeight: rowInfo.original['weight'] != null ? rowInfo.original['weight'] : '',
-                             selectedProductShippingWeight: rowInfo.original['shipping_weight'] != null ? rowInfo.original['shipping_weight'] : '',
-                             selectedProductShippingPrice1: rowInfo.original['shipping_price1'] != null ? rowInfo.original['shipping_price1'] : '',
-                             selectedProductSpid: rowInfo.original['source_site_product_id'] != null ? rowInfo.original['source_site_product_id'] : '',
-                             selectedProductImage: rowInfo.original['image_url'] != null ? rowInfo.original['image_url'] : '',
-                             selectedProductStatu: rowInfo.original['statu'] != null ? rowInfo.original['status'] : '',
-                             selectedMinMargin: rowInfo.original['min_margin'] != null ? rowInfo.original['min_margin'] : '',
-                             selectedMarginRate: rowInfo.original['margin_rate'] != null ? rowInfo.original['margin_rate'] : '',
-                             selectedMinPrice: rowInfo.original['min_price'] != null ? rowInfo.original['min_price'] : '',
-                             selectedShippingCost: rowInfo.original['shipping_cost'] != null ? rowInfo.original['shipping_cost'] : ''
-                           },() => {console.log(this.state.selectedProductId);});
-                         },
-                         style: {
-                           background: rowInfo.index === this.state.selectedProductIndex ? '#00ACFF' : null
+                     if(this.state.selectedProductIndex !== null){ 
+                       if(rowInfo.index == this.state.selectedProductIndex){
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
+                               err_msg: ''
+                             });
+                           },
+                           style: {
+                             background: '#00ACFF'
+                           }
+                         }
+                       }
+                       else if(rowInfo.original['upload_success'] == false){
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : ''
+                             }, () => {console.log('upload_success true'); this.getErrMsg();});
+                           },
+                           style: {
+                             background: '#FF919C'
+                           }
+                         }
+                       }
+                       else{
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
+                               err_msg: ''
+                             });
+                           }
                          }
                        }
                      }
-                     else { // When you click a row at first.
-                       return {
-                         onClick: (e) => {
-                           this.setState({
-                             selectedProductIndex: rowInfo.index,
-                             selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
-                             selectedProductName: rowInfo.original['name'] != null ? rowInfo.original['name'] : '',
-                             selectedProductUrl: rowInfo.original['purl'] != null ? rowInfo.original['purl'] : '',
-                             selectedProductPid: rowInfo.original['pid'] != null ? rowInfo.original['pid'] : '',
-                             selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
-                             selectedProductBrand: rowInfo.original['brand'] != null ? rowInfo.original['brand'] : '',
-                             selectedProductPrice: rowInfo.original['price'] != null ? rowInfo.original['price'] : '',
-                             selectedProductShippingPrice: rowInfo.original['shipping_price'] != null ? rowInfo.original['shipping_price'] : '',
-                             selectedProductWeight: rowInfo.original['weight'] != null ? rowInfo.original['weight'] : '',
-                             selectedProductShippingWeight: rowInfo.original['shipping_weight'] != null ? rowInfo.original['shipping_weight'] : '',
-                             selectedProductShippingPrice1: rowInfo.original['shipping_price1'] != null ? rowInfo.original['shipping_price1'] : '',
-                             selectedProductSpid: rowInfo.original['source_site_product_id'] != null ? rowInfo.original['source_site_product_id'] : '',
-                             selectedProductCurrency: rowInfo.original['currency'] != null ? rowInfo.original['currency'] : '',
-                             selectedProductStock: rowInfo.original['stock'] != null ? rowInfo.original['stock'] : '',
-                             selectedProductImage: rowInfo.original['image_url'] != null ? rowInfo.original['image_url'] : '',
-                             selectedProductStatu: rowInfo.original['statu'] != null ? rowInfo.original['status'] : '',
-                             selectedMinMargin: rowInfo.original['min_margin'] != null ? rowInfo.original['min_margin'] : '',
-                             selectedMarginRate: rowInfo.original['margin_rate'] != null ? rowInfo.original['margin_rate'] : '',
-                             selectedMinPrice: rowInfo.original['min_price'] != null ? rowInfo.original['min_price'] : '',
-                             selectedShippingCost: rowInfo.original['shipping_cost'] != null ? rowInfo.original['shipping_cost'] : ''
-                           }, () => {console.log('update!');});
+                     else{ 
+                       if(rowInfo.original['upload_success'] == false){
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : ''
+                             }, () => {console.log('upload_success true'); this.getErrMsg();});
+                           },
+                           style: {
+                             background: '#FF919C'
+                           }
+                         }
+                       }
+                       else{
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
+                               err_msg: ''
+                             });
+                           }
                          }
                        }
                      }
                    }
                    else{
-                     if(this.state.selectedProductIndex !== null){ // When you click a row not at first.
-                       return {
-                       }
-                     }
-                     else { // When you click a row at first.
-                       return {
-                       }
-                     }
-
-
+                     return {}
                    }
                  }}
                  columns={[
@@ -357,7 +371,7 @@ class TargetsiteProductDetailPage extends React.Component {
                    {
                      Header: "상태",
                      resizable: false,
-                     accessor: "statu",
+                     accessor: "product_status",
                      width: 100,
                      Cell: ( row ) => {
                        if (row.value == 0) {
@@ -415,7 +429,7 @@ class TargetsiteProductDetailPage extends React.Component {
                    {
                      Header: "성공 / 실패",
                      resizable: false,
-                     accessor: "product_status",
+                     accessor: "upload_success",
                      width: 100,
                      Cell: ( row ) => {
                        if (row.value == true) {
@@ -718,79 +732,80 @@ class TargetsiteProductDetailPage extends React.Component {
                  data = {this.state.productLists}
                  getTdProps={(state, rowInfo, column, instance) => {
                    if(rowInfo){
-                     if(this.state.selectedProductIndex !== null){ // When you click a row not at first.
-                       return {
-                         onClick: (e) => {
-                           this.setState({
-                             selectedProductIndex: rowInfo.index,
-                             selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
-                             selectedProductName: rowInfo.original['name'] != null ? rowInfo.original['name'] : '',
-                             selectedProductUrl: rowInfo.original['purl'] != null ? rowInfo.original['purl'] : '',
-                             selectedProductPid: rowInfo.original['pid'] != null ? rowInfo.original['pid'] : '',
-                             selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
-                             selectedProductBrand: rowInfo.original['brand'] != null ? rowInfo.original['brand'] : '',
-                             selectedProductPrice: rowInfo.original['price'] != null ? rowInfo.original['price'] : '',
-                             selectedProductCurrency: rowInfo.original['currency'] != null ? rowInfo.original['currency'] : '',
-                             selectedProductStock: rowInfo.original['stock'] != null ? rowInfo.original['stock'] : '',
-                             selectedProductShippingPrice: rowInfo.original['shipping_price'] != null ? rowInfo.original['shipping_price'] : '',
-                             selectedProductWeight: rowInfo.original['weight'] != null ? rowInfo.original['weight'] : '',
-                             selectedProductShippingWeight: rowInfo.original['shipping_weight'] != null ? rowInfo.original['shipping_weight'] : '',
-                             selectedProductShippingPrice1: rowInfo.original['shipping_price1'] != null ? rowInfo.original['shipping_price1'] : '',
-                             selectedProductSpid: rowInfo.original['source_site_product_id'] != null ? rowInfo.original['source_site_product_id'] : '',
-                             selectedProductImage: rowInfo.original['image_url'] != null ? rowInfo.original['image_url'] : '',
-                             selectedProductStatu: rowInfo.original['statu'] != null ? rowInfo.original['status'] : '',
-                             selectedMinMargin: rowInfo.original['min_margin'] != null ? rowInfo.original['min_margin'] : '',
-                             selectedMarginRate: rowInfo.original['margin_rate'] != null ? rowInfo.original['margin_rate'] : '',
-                             selectedMinPrice: rowInfo.original['min_price'] != null ? rowInfo.original['min_price'] : '',
-                             selectedShippingCost: rowInfo.original['shipping_cost'] != null ? rowInfo.original['shipping_cost'] : ''
-                           },() => {console.log(this.state.selectedProductId); });
-                         },
-                         style: {
-                           background: rowInfo.index === this.state.selectedProductIndex ? '#00ACFF' : null
+                     if(this.state.selectedProductIndex !== null){ 
+                       if(rowInfo.index == this.state.selectedProductIndex){
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
+                               err_msg: ''
+                             });
+                           },
+                           style: {
+                             background: '#00ACFF'
+                           }
+                         }
+                       }
+                       else if(rowInfo.original['upload_success'] == false){
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : ''
+                             }, () => {console.log('upload_success true'); this.getErrMsg();});
+                           },
+                           style: {
+                             background: '#FF919C'
+                           }
+                         }
+                       }
+                       else{
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
+                               err_msg: ''
+                             });
+                           }
                          }
                        }
                      }
-                     else { // When you click a row at first.
-                       return {
-                         onClick: (e) => {
-                           this.setState({
-                             selectedProductIndex: rowInfo.index,
-                             selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
-                             selectedProductName: rowInfo.original['name'] != null ? rowInfo.original['name'] : '',
-                             selectedProductUrl: rowInfo.original['purl'] != null ? rowInfo.original['purl'] : '',
-                             selectedProductPid: rowInfo.original['pid'] != null ? rowInfo.original['pid'] : '',
-                             selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
-                             selectedProductBrand: rowInfo.original['brand'] != null ? rowInfo.original['brand'] : '',
-                             selectedProductPrice: rowInfo.original['price'] != null ? rowInfo.original['price'] : '',
-                             selectedProductShippingPrice: rowInfo.original['shipping_price'] != null ? rowInfo.original['shipping_price'] : '',
-                             selectedProductWeight: rowInfo.original['weight'] != null ? rowInfo.original['weight'] : '',
-                             selectedProductShippingWeight: rowInfo.original['shipping_weight'] != null ? rowInfo.original['shipping_weight'] : '',
-                             selectedProductShippingPrice1: rowInfo.original['shipping_price1'] != null ? rowInfo.original['shipping_price1'] : '',
-                             selectedProductSpid: rowInfo.original['source_site_product_id'] != null ? rowInfo.original['source_site_product_id'] : '',
-                             selectedProductCurrency: rowInfo.original['currency'] != null ? rowInfo.original['currency'] : '',
-                             selectedProductStock: rowInfo.original['stock'] != null ? rowInfo.original['stock'] : '',
-                             selectedProductImage: rowInfo.original['image_url'] != null ? rowInfo.original['image_url'] : '',
-                             selectedProductStatu: rowInfo.original['statu'] != null ? rowInfo.original['status'] : '',
-                             selectedMinMargin: rowInfo.original['min_margin'] != null ? rowInfo.original['min_margin'] : '',
-                             selectedMarginRate: rowInfo.original['margin_rate'] != null ? rowInfo.original['margin_rate'] : '',
-                             selectedMinPrice: rowInfo.original['min_price'] != null ? rowInfo.original['min_price'] : '',
-                             selectedShippingCost: rowInfo.original['shipping_cost'] != null ? rowInfo.original['shipping_cost'] : ''
-                           }, () => {console.log('update!');});
+                     else{ 
+                       if(rowInfo.original['upload_success'] == false){
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : ''
+                             }, () => {console.log('upload_success true'); this.getErrMsg();});
+                           },
+                           style: {
+                             background: '#FF919C'
+                           }
+                         }
+                       }
+                       else{
+                         return {
+                           onClick: (e) => {
+                             this.setState({
+                               selectedProductIndex: rowInfo.index,
+                               selectedProductId: rowInfo.original['id'] != null ? rowInfo.original['id'] : '' ,
+                               selectedProductMpid: rowInfo.original['mpid'] != null ? rowInfo.original['mpid'] : '',
+                               err_msg: ''
+                             });
+                           }
                          }
                        }
                      }
                    }
                    else{
-                     if(this.state.selectedProductIndex !== null){ // When you click a row not at first.
-                       return {
-                       }
-                     }
-                     else { // When you click a row at first.
-                       return {
-                       }
-                     }
-
-
+                     return {}
                    }
                  }}
                  columns={[
@@ -845,7 +860,7 @@ class TargetsiteProductDetailPage extends React.Component {
                    {
                      Header: "상태",
                      resizable: false,
-                     accessor: "statu",
+                     accessor: "product_status",
                      width: 100,
                      Cell: ( row ) => {
                        if (row.value == 0) {
@@ -903,7 +918,7 @@ class TargetsiteProductDetailPage extends React.Component {
                    {
                      Header: "성공 / 실패",
                      resizable: false,
-                     accessor: "product_status",
+                     accessor: "upload_success",
                      width: 100,
                      Cell: ( row ) => {
                        if (row.value == true) {

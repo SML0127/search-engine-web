@@ -35,6 +35,9 @@ class CrawledProductDetailPage extends React.Component {
     
     componentDidMount(){
       this.state = this.initState()
+      console.log('111111111111111111111111111111')
+      console.log(this.state)
+      console.log(this.props)
       if(this.props.isError == false){
          this.getProductDetail(this.props.selectedNodeId)
       }
@@ -170,13 +173,7 @@ class CrawledProductDetailPage extends React.Component {
             <div>
               <div class='row' style ={{marginTop:'1.5%', width:'100%'}}>
               </div>
-              <Form.Textarea
-                  row={100}
-                  spellCheck="false" 
-                  style={{width:'100%', height:'500px', minHeight:'500px', maxHeight:'500px', textAlign:'left', whiteSpace: 'pre-line'}}
-                  value={err_msg}
-                  wrap="off"
-              />
+
             </div>
           );
         }

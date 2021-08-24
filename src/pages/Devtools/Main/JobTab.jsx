@@ -308,11 +308,11 @@ class JobTab extends React.Component {
                    upid: upid,
                    upid_title: upid_title,
                    upid_template: upid_template,
-                   nodes: user_program['object_tree']
+                   nodes: user_program['object_tree'],
+                   showSubTab: true
                  })
                  //setTimeout(() =>{ console.log("after"), obj.handleClick()} , 10000)
                  //document.getElementById("otips").click();
-
                }
             }
         })
@@ -1097,8 +1097,8 @@ class JobTab extends React.Component {
                       }
                     >
                     Load
-		                </Button>
-		              </div>
+		            </Button>
+		          </div>
 
                   <div class = 'row' style = {{width:'100%', height:'5px'}}>
                   </div>
@@ -1222,6 +1222,7 @@ class JobTab extends React.Component {
 
                   <JobSubTabPage
                     JobId = {this.props.jobId}
+                    showSubTab = {this.state.showSubTab}
                   />
 
 
