@@ -74,6 +74,11 @@ class CrawledDetailPage extends React.Component {
       this.get_latest_progress()
     }
 
+    refreshDetail(){
+      this.getProductName();
+      this.get_latest_progress()
+    }
+  
     initState() {
       return {
         productLists: [],
@@ -121,7 +126,7 @@ class CrawledDetailPage extends React.Component {
             showCDPage: true,
             current_detail_num: response['data']['result'][0],
             expected_detail_num: response['data']['result'][1], 
-            progress_detail: isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ) ? 0 : (parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 )
+            progress_detail: isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ) ? 0 : (parseFloat(response['data']['result'][0]) / parseFloat(response['data']['result'][1]) * 100 ).toFixed(2)
           })
         } 
       })
@@ -129,50 +134,6 @@ class CrawledDetailPage extends React.Component {
         console.log(error);
       });
     }
- 
-
-
-
-
-    getSummary(){
-       const obj = this;
-       axios.post(setting_server.DB_SERVER+'/api/db/productlist', {
-         req_type: "get_crawled_summary",
-         job_id: obj.props.JobId,
-       })
-       .then(function (response) {
-         if( Object.keys(response['data']['result']).length  == 0){
-            obj.setState({summaryLists: []});
-            return;
-         }
-         if (response['data']['success'] == true) {
-           let summaryLists = response['data']['result'];
-           summaryLists = summaryLists.map(function(row, index){
-             //t3.value::text, t1.id, t2.status
-             const status_web = (parseInt(row[0]) == -997? "X" : "O");
-             var statu = 'O'
-             if (parseInt(row[0]) == 0){
-               statu = '진행중'
-             }
-             else if (parseInt(row[0]) == -998 || status_web == 'X'){
-               statu = 'X'
-             }
-             
-             const status_data = statu 
-             const url = row[1].slice(1,-1)
-             const node_id = row[2]
-             return {num: index+1, url:url, status_web:status_web, status_data: status_data, node_id: node_id};
-           });
-           obj.setState({summaryLists: summaryLists});
-         } else {
-           console.log(response)
-           console.log('Failed to get pl');
-         }
-       })
-       .catch(function (error){
-         console.log(error);
-       });
-     }
 
     getProductName(){
        const obj = this;
@@ -181,27 +142,60 @@ class CrawledDetailPage extends React.Component {
          job_id: obj.props.JobId,
        })
        .then(function (response) {
-         console.log('--------------------------')
-         console.log(response)
          if (response['data']['success'] == true) {
            let productLists = response['data']['result'];
            productLists = productLists.map(function(row, index){
              // -999 invalid, -998 btn or check xpath, -997 web, -1 extract
-             const status_web = (parseInt(row[0]) == -997? "X" : "O");
-             const status_check_xpath = (parseInt(row[0]) == -998? "X" : "O");
-             var statu = 'O'
-             if (parseInt(row[0]) == 0){
-               statu = '진행중'
+             let status_web_tmp 
+             let status_invalid_tmp
+             let status_check_xpath_tmp 
+             let status_data_tmp
+             if(parseInt(row[0]) == -997){ // web error
+               status_web_tmp = 'X' 
+               status_invalid_tmp = 'X'
+               status_check_xpath_tmp ='X'
+               status_data_tmp = 'X'
              }
-             else if (parseInt(row[0]) == -1 || status_web == 'X' || status_check_xpath == 'X'){
-               statu = 'X'
+             else if(parseInt(row[0]) == -999){ // invalid 
+               status_web_tmp = 'O' 
+               status_invalid_tmp = 'X'
+               status_check_xpath_tmp ='X'
+               status_data_tmp = 'X'
+             }
+             else if(parseInt(row[0]) == -998){ // check xpath error
+               status_web_tmp = 'O' 
+               status_invalid_tmp = 'O'
+               status_check_xpath_tmp ='X'
+               status_data_tmp = 'X'
+             }
+             else if(parseInt(row[0]) == -1){ // crawling error
+               status_web_tmp = 'O' 
+               status_invalid_tmp = 'O'
+               status_check_xpath_tmp ='O'
+               status_data_tmp = 'X'
+             }
+             else if(parseInt(row[0]) == 0){ // crawling error
+               status_web_tmp = '진행중' 
+               status_invalid_tmp = '진행중'
+               status_check_xpath_tmp ='진행중'
+               status_data_tmp = '진행중'
+             }
+             else{
+               status_web_tmp = 'O' 
+               status_invalid_tmp = 'O'
+               status_check_xpath_tmp ='O'
+               status_data_tmp = 'O'
              }
              
-             const status_data = statu 
+             const status_web = status_web_tmp 
+             const status_invalid = status_invalid_tmp
+             const status_check_xpath = status_check_xpath_tmp
+             const status_data = status_data_tmp
+
              const name = row[1].slice(1,-1)
              const node_id = row[2]
              const mpid = row[3]
-             return {num: index+1, name:name, status_web:status_web,status_check_xpath: status_check_xpath,  status_data: status_data, node_id: node_id, mpid: mpid};
+             return {num: index+1, name:name, status_web:status_web,status_check_xpath: status_check_xpath,  status_data: status_data, node_id: node_id, mpid: mpid, status_invalid: status_invalid};
            });
            obj.setState({productLists: productLists});
            console.log(productLists)
@@ -335,7 +329,7 @@ class CrawledDetailPage extends React.Component {
                   width="20"
                   height="20"
                   onClick={() =>
-                    this.get_latest_progress()
+                    this.refreshDetail()
                   }
                   style = {{cursor:'pointer', marginBottom:'0.2%', marginLeft:'0.2%'}}
                 />
@@ -363,7 +357,7 @@ class CrawledDetailPage extends React.Component {
                           }
                         }
                       }
-                      else if(rowInfo.original['status_web'] == 'X' || rowInfo.original['status_data'] == 'X' || rowInfo.original['status_check_xpath'] == 'X'){
+                      else if(rowInfo.original['status_web'] == 'X' || rowInfo.original['status_data'] == 'X' || rowInfo.original['status_check_xpath'] == 'X' || rowInfo.original['status_invalid'] == 'X'){
                         return {
                           onClick: (e) => {
                             this.setState({
@@ -390,7 +384,7 @@ class CrawledDetailPage extends React.Component {
                       }
                     }
                     else { // When you click a row at first.
-                      if(rowInfo.original['statu_web'] == 'X' || rowInfo.original['status_data'] == 'X' || rowInfo.original['status_check_xpath'] == 'X'){
+                      if(rowInfo.original['statu_web'] == 'X' || rowInfo.original['status_data'] == 'X' || rowInfo.original['status_check_xpath'] == 'X' || rowInfo.original['status_invalid'] == 'X'){
                         return {
                           onClick: (e) => {
                             this.setState({
@@ -481,6 +475,22 @@ class CrawledDetailPage extends React.Component {
                     resizable: false,
                     accessor: 'status_web',
                     width:100,
+                    Cell: ( row ) => {
+                      return (
+                        <div
+                          style={{
+                            textAlign:"center",
+                            paddingTop:"4px",
+                          }}
+                        > {row.value} </div>
+                      )
+                    }
+                  },
+                  {
+                    Header: "Invalid 페이지 검사",
+                    resizable: false,
+                    accessor: 'status_invalid',
+                    width:130,
                     Cell: ( row ) => {
                       return (
                         <div
@@ -731,7 +741,7 @@ class CrawledDetailPage extends React.Component {
                   width="20"
                   height="20"
                   onClick={() =>
-                    this.get_latest_progress()
+                    this.refreshDetail()
                   }
                   style = {{cursor:'pointer', marginBottom:'0.2%', marginLeft:'0.2%'}}
                 />
@@ -759,7 +769,7 @@ class CrawledDetailPage extends React.Component {
                           }
                         }
                       }
-                      else if(rowInfo.original['status_web'] == 'X' || rowInfo.original['status_data'] == 'X' || rowInfo.original['status_check_xpath'] == 'X'){
+                      else if(rowInfo.original['status_web'] == 'X' || rowInfo.original['status_data'] == 'X' || rowInfo.original['status_check_xpath'] == 'X' || rowInfo.original['status_invalid'] == 'X'){
                         return {
                           onClick: (e) => {
                             this.setState({
@@ -786,7 +796,7 @@ class CrawledDetailPage extends React.Component {
                       }
                     }
                     else { // When you click a row at first.
-                      if(rowInfo.original['statu_web'] == 'X' || rowInfo.original['status_data'] == 'X' || rowInfo.original['status_check_xpath'] == 'X'){
+                      if(rowInfo.original['statu_web'] == 'X' || rowInfo.original['status_data'] == 'X' || rowInfo.original['status_check_xpath'] == 'X' || rowInfo.original['status_invalid'] == 'X'){
                         return {
                           onClick: (e) => {
                             this.setState({
@@ -877,6 +887,22 @@ class CrawledDetailPage extends React.Component {
                     resizable: false,
                     accessor: 'status_web',
                     width:100,
+                    Cell: ( row ) => {
+                      return (
+                        <div
+                          style={{
+                            textAlign:"center",
+                            paddingTop:"4px",
+                          }}
+                        > {row.value} </div>
+                      )
+                    }
+                  },
+                  {
+                    Header: "Invalid 페이지 검사",
+                    resizable: false,
+                    accessor: 'status_invalid',
+                    width:130,
                     Cell: ( row ) => {
                       return (
                         <div

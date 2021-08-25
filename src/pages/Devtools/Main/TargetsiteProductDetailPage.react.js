@@ -77,7 +77,7 @@ class TargetsiteProductDetailPage extends React.Component {
           obj.setState({
             current_target_num: response['data']['result'][0],
             expected_target_num: response['data']['result'][1], 
-            progress_target: isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ) ? 0 : parseInt(parseFloat(response['data']['result'][0]) / parseFloat(response['data']['result'][1]) * 100 )
+            progress_target: isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ) ? 0 : parseInt(parseFloat(response['data']['result'][0]) / parseFloat(response['data']['result'][1]) * 100 ).toFixed(2)
           })
           //console.log(isNaN(parseFloat(response['data']['result'][0]) / parseFloat(response['data']['result'][1]) * 100 ))
         } 

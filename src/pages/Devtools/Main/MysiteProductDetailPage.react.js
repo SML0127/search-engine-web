@@ -69,7 +69,7 @@ class MysiteProductDetailPage extends React.Component {
           obj.setState({
             current_my_num: response['data']['result'][0],
             expected_my_num: response['data']['result'][1], 
-            progress_my: isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ) ? 0 : (parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 )
+            progress_my: isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ) ? 0 : (parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ).toFixed(2)
           })
         } 
       })
