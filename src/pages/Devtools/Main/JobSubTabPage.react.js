@@ -103,7 +103,7 @@ class JobSubTabPage extends React.Component {
             Component: TabMy
           },
           {
-            label: 'Target site upload / updatet 수행', 
+            label: 'Target site upload / update 수행', 
             Component: TabTarget
           }
         ]

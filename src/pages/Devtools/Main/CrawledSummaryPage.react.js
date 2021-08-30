@@ -20,6 +20,7 @@ import Image from 'react-bootstrap/Image'
 import setting_server from '../setting_server';
 import { Tabs } from 'react-simple-tabs-component'
 import refreshIcon from './refresh.png';
+import ProgressBar from 'react-bootstrap/ProgressBar'
 
 class CrawledSummaryPage extends React.Component {
 
@@ -35,6 +36,7 @@ class CrawledSummaryPage extends React.Component {
     }
     
     componentDidMount(){
+      this.get_latest_progress_summary()
       this.getSummary()
       this.refreshList()
       
@@ -45,8 +47,41 @@ class CrawledSummaryPage extends React.Component {
         selectedProductIndex: null,
         selectedProductIndex1: null,
         err_msg: '',
+        expected_summary_num: 0,
+        current_summary_num: 0,
+        progress_summary: 0
       }
     }
+
+
+    get_latest_progress_summary(){
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/executions', {
+        req_type: "get_latest_progress_summary",
+        job_id: obj.props.JobId,
+      })
+      .then(function (response) {
+        if (response['data']['success'] == true) {
+          console.log(response)
+          obj.setState({
+            showCDPage: true,
+            current_summary_num: response['data']['result'][0],
+            expected_summary_num: response['data']['result'][1], 
+            progress_summary: isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ) ? 0 : (parseFloat(response['data']['result'][0]) / parseFloat(response['data']['result'][1]) * 100 ).toFixed(2)
+          })
+        } 
+      })
+      .catch(function (error){
+        console.log(error);
+      });
+    }
+
+
+    refreshSummary(){
+      this.getSummary();
+      this.get_latest_progress_summary()
+    }
+  
 
     getSummary(){
        const obj = this;
@@ -142,6 +177,21 @@ class CrawledSummaryPage extends React.Component {
         if(err_msg != ''){
           return (
             <div>
+              <label style={{width:'100%', fontWeight:'Bold', fontSize:'20px', textAlign:'center'}}>
+                진행 상황 ({this.state.current_summary_num} / {this.state.expected_summary_num})
+               <img
+                  src={refreshIcon}
+                  width="20"
+                  height="20"
+                  onClick={() =>
+                    this.refreshSummary()
+                  }
+                  style = {{cursor:'pointer', marginBottom:'0.2%', marginLeft:'0.2%'}}
+                />
+              </label>
+              <ProgressBar animated style={{width:'98%', height:'30px', marginLeft:"1%"}} now={this.state.progress_summary} label={`${this.state.progress_summary}%`} />
+                  
+              <div class='row' style ={{marginTop:'1.5%', width:'100%'}}/>
               <ReactTable
                 data = {this.state.summaryLists}
                 getTdProps={(state, rowInfo, column, instance) => {
@@ -479,6 +529,21 @@ class CrawledSummaryPage extends React.Component {
         else{
           return (
              <div>
+              <label style={{width:'100%', fontWeight:'Bold', fontSize:'20px', textAlign:'center'}}>
+                진행 상황 ({this.state.current_summary_num} / {this.state.expected_summary_num})
+               <img
+                  src={refreshIcon}
+                  width="20"
+                  height="20"
+                  onClick={() =>
+                    this.refreshSummary()
+                  }
+                  style = {{cursor:'pointer', marginBottom:'0.2%', marginLeft:'0.2%'}}
+                />
+              </label>
+              <ProgressBar animated style={{width:'98%', height:'30px', marginLeft:"1%"}} now={this.state.progress_summary} label={`${this.state.progress_summary}%`} />
+                  
+              <div class='row' style ={{marginTop:'1.5%', width:'100%'}}/>
               <ReactTable
                 data = {this.state.summaryLists}
                 getTdProps={(state, rowInfo, column, instance) => {

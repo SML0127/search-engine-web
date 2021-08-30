@@ -69,7 +69,7 @@ class MysiteProductDetailPage extends React.Component {
           obj.setState({
             current_my_num: response['data']['result'][0],
             expected_my_num: response['data']['result'][1], 
-            progress_my: isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ) ? 0 : (parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ).toFixed(2)
+            progress_my: isNaN(parseFloat(response['data']['result'][0]) / parseFloat(response['data']['result'][1]) * 100 ) ? 0 : (parseFloat(response['data']['result'][0]) / parseFloat(response['data']['result'][1]) * 100 ).toFixed(2)
           })
         } 
       })
@@ -326,7 +326,7 @@ class MysiteProductDetailPage extends React.Component {
                    style = {{cursor:'pointer', marginBottom:'0.2%', marginLeft:'0.2%'}}
                  />
                </label>
-               <ProgressBar animated style={{width:'98%', height:'30px', marginLeft:"1%"}} now={this.state.progress_my} label={`${this.state.progress_detail}%`} />
+               <ProgressBar animated style={{width:'98%', height:'30px', marginLeft:"1%"}} now={this.state.progress_my} label={`${this.state.progress_my}%`} />
 
                <div class='row' style ={{marginTop:'1.5%', width:'100%'}}/>
                <ReactTable
@@ -816,7 +816,7 @@ class MysiteProductDetailPage extends React.Component {
                    style = {{cursor:'pointer', marginBottom:'0.2%', marginLeft:'0.2%'}}
                  />
                </label>
-               <ProgressBar animated style={{width:'98%', height:'30px', marginLeft:"1%"}} now={this.state.progress_my} label={`${this.state.progress_detail}%`} />
+               <ProgressBar animated style={{width:'98%', height:'30px', marginLeft:"1%"}} now={this.state.progress_my} label={`${this.state.progress_my}%`} />
 
                <div class='row' style ={{marginTop:'1.5%', width:'100%'}}/>
 

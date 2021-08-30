@@ -223,6 +223,36 @@ class JobTab extends React.Component {
     }
 
 
+    rerunDriver(){
+      const obj = this;
+      if (obj.state.upid_template <= 0){
+        NotificationManager.error('Save as before crawling','', 10000);
+        return
+      }
+      console.log(obj.state.upid)
+      console.log(obj.state.upid_title)
+    
+      axios.post(setting_server.DRIVER_UTIL_SERVER+'/api/driver/', {
+        req_type: "rerun_driver",
+        wf: obj.state.upid,
+        job_id: obj.props.jobId,
+      })
+      .then(function (response) {
+        console.log(response['data'])
+        if (response['data']['success'] == true) {
+         
+        } else {
+          console.log('Failed to update run driver');
+        }
+      })
+      .catch(function (error){
+        console.log('Failed to update run driver');
+        console.log(error);
+      });
+    }
+
+
+
 
 
     updateMysite(){
@@ -1112,6 +1142,16 @@ class JobTab extends React.Component {
                     }
                   >
                   Crawling
+                  </Button>
+                  <Button 
+                    color="secondary"
+                    style = {{float:'right',marginRight:"5%", textTransform: 'capitalize'}}
+                    onClick={() => {
+                          this.rerunDriver()
+                        }
+                    }
+                  >
+                  Re-Crawling
                   </Button>
                   <Button 
                     color="secondary"
