@@ -72,13 +72,21 @@ class CrawledDetailPage extends React.Component {
       this.getProductName();
       this.refreshList();
       this.get_latest_progress()
+      this.get_latest_progress_recrawling()
     }
 
     refreshDetail(){
       this.getProductName();
       this.get_latest_progress()
     }
-  
+ 
+    refreshDetailRecrawling(){
+      this.getProductName();
+      this.get_latest_progress_recrawling()
+    }
+ 
+
+
     initState() {
       return {
         productLists: [],
@@ -88,7 +96,10 @@ class CrawledDetailPage extends React.Component {
         show: false,
         expected_detail_num: 0,
         current_detail_num: 0,
-        progress_detail: 0
+        progress_detail: 0,
+        expected_detail_recrawling_num: 0,
+        current_detail_recrawling_num: 0,
+        progress_detail_recrawling: 0
       }
     }
 
@@ -134,6 +145,29 @@ class CrawledDetailPage extends React.Component {
         console.log(error);
       });
     }
+
+    get_latest_progress_recrawling(){
+      const obj = this;
+      axios.post(setting_server.DB_SERVER+'/api/db/executions', {
+        req_type: "get_latest_progress_recrawling",
+        job_id: obj.props.JobId,
+      })
+      .then(function (response) {
+        if (response['data']['success'] == true) {
+          console.log(response)
+          obj.setState({
+            showCDPage: true,
+            current_detail_recrawling_num: response['data']['result'][0],
+            expected_detail_recrawling_num: response['data']['result'][1], 
+            progress_detail_recrawling: isNaN(parseFloat(response['data']['result'][1]) / parseFloat(response['data']['result'][0]) * 100 ) ? 0 : (parseFloat(response['data']['result'][0]) / parseFloat(response['data']['result'][1]) * 100 ).toFixed(2)
+          })
+        } 
+      })
+      .catch(function (error){
+        console.log(error);
+      });
+    }
+
 
     getProductName(){
        const obj = this;
@@ -191,14 +225,19 @@ class CrawledDetailPage extends React.Component {
              const status_invalid = status_invalid_tmp
              const status_check_xpath = status_check_xpath_tmp
              const status_data = status_data_tmp
-
-             const name = row[1].slice(1,-1)
+             
+             let recrawling = ''
+             if (row[4] == 'recrawling'){
+               recrawling = '(재크롤링) '
+             }
+             const name = recrawling + row[1].slice(1,-1)
              const node_id = row[2]
              const mpid = row[3]
+
+             
              return {num: index+1, name:name, status_web:status_web,status_check_xpath: status_check_xpath,  status_data: status_data, node_id: node_id, mpid: mpid, status_invalid: status_invalid};
            });
            obj.setState({productLists: productLists});
-           console.log(productLists)
          } else {
            console.log(response)
            console.log('Failed to get pl');
@@ -337,7 +376,21 @@ class CrawledDetailPage extends React.Component {
               <ProgressBar animated style={{width:'98%', height:'30px', marginLeft:"1%"}} now={this.state.progress_detail} label={`${this.state.progress_detail}%`} />
                   
               <div class='row' style ={{marginTop:'1.5%', width:'100%'}}/>
+              <label style={{width:'100%', fontWeight:'Bold', fontSize:'20px', textAlign:'center'}}>
+                재크롤링 진행 상황 ({this.state.current_detail_recrawling_num} / {this.state.expected_detail_num})
+               <img
+                  src={refreshIcon}
+                  width="20"
+                  height="20"
+                  onClick={() =>
+                    this.refreshDetailRecrawling()
+                  }
+                  style = {{cursor:'pointer', marginBottom:'0.2%', marginLeft:'0.2%'}}
+                />
+              </label>
+              <ProgressBar animated style={{width:'98%', height:'30px', marginLeft:"1%"}} now={this.state.progress_detail_recrawling} label={`${this.state.progress_detail_recrawling}%`} />
 
+              <div class='row' style ={{marginTop:'1.5%', width:'100%'}}/>
               <ReactTable
                 data = {this.state.productLists}
                 getTdProps={(state, rowInfo, column, instance) => {
@@ -735,7 +788,7 @@ class CrawledDetailPage extends React.Component {
           return (
             <div>
               <label style={{width:'100%', fontWeight:'Bold', fontSize:'20px', textAlign:'center'}}>
-                진행 상황 ({this.state.current_detail_num} / {this.state.expected_detail_num})
+                크롤링 진행 상황 ({this.state.current_detail_num} / {this.state.expected_detail_num})
                <img
                   src={refreshIcon}
                   width="20"
@@ -747,9 +800,22 @@ class CrawledDetailPage extends React.Component {
                 />
               </label>
               <ProgressBar animated style={{width:'98%', height:'30px', marginLeft:"1%"}} now={this.state.progress_detail} label={`${this.state.progress_detail}%`} />
-                  
               <div class='row' style ={{marginTop:'1.5%', width:'100%'}}/>
 
+              <label style={{width:'100%', fontWeight:'Bold', fontSize:'20px', textAlign:'center'}}>
+                재크롤링 진행 상황 ({this.state.current_detail_recrawling_num} / {this.state.expected_detail_recrawling_num})
+               <img
+                  src={refreshIcon}
+                  width="20"
+                  height="20"
+                  onClick={() =>
+                    this.refreshDetailRecrawling()
+                  }
+                  style = {{cursor:'pointer', marginBottom:'0.2%', marginLeft:'0.2%'}}
+                />
+              </label>
+              <ProgressBar animated style={{width:'98%', height:'30px', marginLeft:"1%"}} now={this.state.progress_detail_recrawling} label={`${this.state.progress_detail_recrawling}%`} />
+              <div class='row' style ={{marginTop:'1.5%', width:'100%'}}/>
               <ReactTable
                 data = {this.state.productLists}
                 getTdProps={(state, rowInfo, column, instance) => {
