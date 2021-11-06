@@ -35,10 +35,11 @@
 ------------
 ## Screenshots of GUI
 - Create a workflow for crawling.
-<img width="1635" height="485" alt="overall_architecture" src="https://user-images.githubusercontent.com/13589283/140605540-3baa7bf6-3da2-4c8b-b31c-1fafdfb308b7.jpg">
+<img width="1635" height="400" alt="overall_architecture" src="https://user-images.githubusercontent.com/13589283/140605666-554aa847-a258-4a81-bf9d-31994bb48a26.png">
 
 - Save and load workflos.
-<img width="1635" height="500" alt="overall_architecture" src="https://user-images.githubusercontent.com/13589283/140605541-2684e744-3a54-4e13-98d2-d4637124dc5d.jpg">
+<img width="1635" height="400" alt="overall_architecture" src="https://user-images.githubusercontent.com/13589283/140605668-54f0635d-8618-40a3-90be-72db7bd4c79d.png">
+
 
 ------------
 ## Demo videos
