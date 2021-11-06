@@ -29,12 +29,12 @@
 ------------
 ## What languages, libraries, and tools were used?
 - Mainly based on Python for Master / Worker.
-- React & JSX for GUI.
+- [React](https://reactjs.org/) & JSX for GUI.
 - Python Flask for Web Application Server and DB Server
 - PostgreSQL for Database
 - [Apachi Airflow](https://airflow.apache.org/) for Scheduling
 - [Redis](https://redis.io/) & [RQ](https://python-rq.org/) for Message Broker in distributed environment
-- [Selenium](https://www.selenium.dev/) & [Chromedriver](https://chromedriver.chromium.org/downloads) for Crawling
+- [Selenium](https://www.selenium.dev/) & [Chromedriver](https://chromedriver.chromium.org/downloads) & XPath for Crawling
 
 <br>
 
@@ -44,7 +44,7 @@
 <img width="1635" height="400" src="https://user-images.githubusercontent.com/13589283/140605666-554aa847-a258-4a81-bf9d-31994bb48a26.png">
 
 
-- Get XPath for parameter for operator in workfrow.
+- Get XPath for parameter of operators in workfrow.
 <img width="1635" height="400" src="https://user-images.githubusercontent.com/13589283/140606117-22d6f28b-574a-4452-b643-23776494d951.png">
 
 
