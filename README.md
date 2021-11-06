@@ -1,4 +1,4 @@
-# Worker of Distributed Web Crawler and Data Management System for Web Data 
+# GUI of Distributed Web Crawler and Data Management System for Web Data 
 
 
 ## What we provide
