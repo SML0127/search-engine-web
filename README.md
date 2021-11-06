@@ -13,6 +13,7 @@
 - Register schedule for crawling and view maintenance.
 
 <br>
+
 ------------
 ## How to support
 - Provide all services through GUI.
@@ -24,6 +25,7 @@
    - git repository link for Worker: https://github.com/SML0127/pse-worker-Dockerfile
 
 <br>
+
 ------------
 ## What languages, libraries, and tools were used?
 - Mainly based on Python for Master / Worker.
@@ -35,6 +37,7 @@
 - [Selenium](https://www.selenium.dev/) & [Chromedriver](https://chromedriver.chromium.org/downloads) for Crawling
 
 <br>
+
 ------------
 ## Screenshots of GUI
 - Create a workflow for crawling.
@@ -44,6 +47,7 @@
 <img width="1635" height="400" alt="overall_architecture" src="https://user-images.githubusercontent.com/13589283/140605668-54f0635d-8618-40a3-90be-72db7bd4c79d.png">
 
 <br>
+
 ------------
 ## Demo videos
 - Crawling
