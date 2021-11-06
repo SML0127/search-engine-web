@@ -44,12 +44,13 @@
 <img width="1635" height="400" src="https://user-images.githubusercontent.com/13589283/140605666-554aa847-a258-4a81-bf9d-31994bb48a26.png">
 
 - Get XPath for parameter for operator in workfrow.
-<img width="1635" height="400" src="https://user-images.githubusercontent.com/13589283/140606032-9421a6b7-4620-4a74-a98f-19220551819b">
+<img width="1635" height="400" src="https://user-images.githubusercontent.com/13589283/140606077-fd952a28-0a1e-40aa-a41f-70847651fb8e.png">
 
 - Save and load workflos.
 <img width="1635" height="400" src="https://user-images.githubusercontent.com/13589283/140605668-54f0635d-8618-40a3-90be-72db7bd4c79d.png">
 
 - Crawled data.
+<img width="1635" height="400" src="https://user-images.githubusercontent.com/13589283/140605668-54f0635d-8618-40a3-90be-72db7bd4c79d.png">
 
 <br>
 
