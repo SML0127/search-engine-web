@@ -27,7 +27,8 @@
 <br>
 
 ------------
-## What languages, libraries, and tools were used?
+## What environment, languages, libraries, and tools were used?
+- Master / Worker are run at Ubuntu 20.04.
 - Mainly based on Python for Master / Worker.
 - [React](https://reactjs.org/) & JSX for GUI.
 - Python Flask for Web Application Server and DB Server
