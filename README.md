@@ -27,7 +27,7 @@
 - Master / Worker are run at Ubuntu 20.04.
 - Mainly based on Python for Master / Worker.
 - [React](https://reactjs.org/) & JSX for GUI.
-- Python Flask for Web Application Server and DB Server
+- Python Flask for Web Application Server & DB Server
 - PostgreSQL for Database
 - [Apachi Airflow](https://airflow.apache.org/) for Scheduling
 - [Redis](https://redis.io/) & [RQ](https://python-rq.org/) for Message Broker in distributed environment
