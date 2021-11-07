@@ -51,7 +51,7 @@
 <img width="1635" height="350" src="https://user-images.githubusercontent.com/13589283/140605666-554aa847-a258-4a81-bf9d-31994bb48a26.png">
 
 
-- Get XPath for parameter of operators in workfrow.
+- Get XPath for parameters of operators in the workflow.
 <img width="1635" height="350" src="https://user-images.githubusercontent.com/13589283/140606117-22d6f28b-574a-4452-b643-23776494d951.png">
 
 
