@@ -6,6 +6,7 @@ pipeline {
             steps {
                 sh '''
                 echo "Start Build"
+                npm run build
                 '''
             }
         }
