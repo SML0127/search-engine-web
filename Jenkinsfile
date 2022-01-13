@@ -1,14 +1,12 @@
 pipeline {
     agent any
+    tools {nodejs "pse-node-js"}
     stages {
         stage('Build') {
-            nodejs(nodeJSInstallationNAme: 'pse-node-js'){
-                sh 'npm install && npm run build'
-            }
             steps {
                 sh '''
                 echo "Start Build"
-                echo "npm run build"
+                npm run build
                 '''
             }
         }
