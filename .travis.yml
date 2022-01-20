@@ -15,4 +15,4 @@ before_install:
 install:
 
 script:
-  – nohup run build
+  – npm run build
