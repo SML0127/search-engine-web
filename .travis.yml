@@ -1,0 +1,15 @@
+# .travis.yml 
+
+language: node_js
+node_js:
+  - 14.17.5
+
+branches:
+  only:
+    - master
+
+install:
+  – npm install
+
+script:
+  – nohup run build
