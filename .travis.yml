@@ -1,17 +1,17 @@
 # .travis.yml 
 language: node_js
-
 os: osx
-
 node_js:
-  - 14.17.5
+  - 14
 
 branches:
   only:
     - master
 
+before_install:
+  - npm install 
+
 install:
-  – npm install
 
 script:
   – nohup run build
