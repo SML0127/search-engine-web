@@ -33,7 +33,6 @@
 - Easyly create workflow for crawling (no code, script).
 - For crawling in distributed environment, we chose Breadth-First-Search Crawling Model and Redis & RQ as a Message Broker.
 - For Breadth-First-Search Crawling Model, we created several operators for crawling.
-- 
 - [Docker](https://www.docker.com/) image for our ubuntu environment
    - git repository link for Master: https://github.com/SML0127/pse-master-Dockerfile
    - git repository link for Worker: https://github.com/SML0127/pse-worker-Dockerfile
