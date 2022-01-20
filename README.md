@@ -1,4 +1,5 @@
 # GUI of Distributed Web Crawler and Data Management System for Web Data 
+[![Build Status](https://app.travis-ci.com/SML0127/pse-extension.svg?branch=master)](https://app.travis-ci.com/SML0127/pse-extension)
 
 ## Tech Stack
 ![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)
