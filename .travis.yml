@@ -2,13 +2,14 @@
 language: node_js
 os: osx
 node_js:
-  - 14
+  - 14.17
 
 branches:
   only:
     - master
 
 before_install:
+  - npm update
   - npm install 
 
 install:
